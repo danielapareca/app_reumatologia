@@ -2,7 +2,9 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import AppShell from '@/components/AppShell';
 import PatientSearch from '@/components/PatientSearch';
+import Icon from '@/components/Icon';
 import { DISCLAIMER_LONGO } from '@/lib/disclaimer';
+import { diasDesde, haQuantoTempo, iniciais, DIAS_RETORNO_ATRASADO } from '@/lib/util';
 import type { Patient } from '@/lib/types';
 import type { PatientSummary } from '@/components/PatientSearch';
 
@@ -14,6 +16,18 @@ interface ConsultaRow {
   doenca_nome: string | null;
   etapa: string | null;
   consulta_tipo: string | null;
+}
+
+function Tile({ label, value, icon, tone }: { label: string; value: string | number; icon: string; tone?: 'alert' }) {
+  return (
+    <div className="card md-tile" style={{ marginBottom: 0 }}>
+      <div className="md-tile-top">
+        <Icon name={icon} size={15} />
+        <span>{label}</span>
+      </div>
+      <div className="md-tile-val" style={tone === 'alert' ? { color: 'var(--red)' } : undefined}>{value}</div>
+    </div>
+  );
 }
 
 export default async function Dashboard() {
@@ -57,24 +71,67 @@ export default async function Dashboard() {
     }
   }
 
+  // ---- métricas da "visão do médico" ----
+  const hojeISO = new Date().toISOString().slice(0, 10);
+  const pacientes = (patients as Patient[]) || [];
+  const totalPac = pacientes.length;
+
+  // Consultas nos últimos 30 dias.
+  const consultas30 = ((consultas as ConsultaRow[]) || []).filter((c) => {
+    const d = diasDesde(c.data, hojeISO);
+    return d !== null && d >= 0 && d <= 30;
+  }).length;
+
+  // Pacientes com retorno atrasado (última consulta há mais que o limite).
+  const atrasados = pacientes
+    .map((p) => ({ p, resumo: ultimaPorPaciente[p.id], dias: ultimaPorPaciente[p.id] ? diasDesde(ultimaPorPaciente[p.id].data, hojeISO) : null }))
+    .filter((x) => x.dias !== null && x.dias > DIAS_RETORNO_ATRASADO)
+    .sort((a, b) => (b.dias || 0) - (a.dias || 0));
+
   return (
     <AppShell>
       <div className="page">
-        <p className="eyebrow">Pacientes</p>
-        <h2>Meus pacientes</h2>
-        <p className="psub">
-          {nome ? `Bem-vindo, ${nome}. ` : ''}
-          Busque um paciente ou cadastre um novo para iniciar o atendimento.
-        </p>
+        <p className="eyebrow"><Icon name="stethoscope" size={15} /> Painel do médico</p>
+        <h2>{nome ? `Olá, ${nome.split(' ')[0]}` : 'Visão do médico'}</h2>
+        <p className="psub">Sua visão de hoje: pacientes, retornos e pendências. Comece um atendimento pela busca abaixo.</p>
 
-        <div className="toolbar">
-          <Link className="inline-btn" href="/paciente/novo">+ Novo paciente</Link>
+        <div className="md-tiles">
+          <Tile label="Pacientes" value={totalPac} icon="users" />
+          <Tile label="Retornos atrasados" value={atrasados.length} icon="clock" tone={atrasados.length ? 'alert' : undefined} />
+          <Tile label="Consultas (30 dias)" value={consultas30} icon="clipboard" />
+          <Link href="/paciente/novo" className="card md-tile md-tile-cta" style={{ marginBottom: 0 }}>
+            <div className="md-tile-top"><Icon name="plus" size={15} /><span>Novo paciente</span></div>
+            <div className="md-tile-val" style={{ fontSize: 15, color: 'var(--gold-600)' }}>Cadastrar →</div>
+          </Link>
+        </div>
+
+        {atrasados.length > 0 && (
+          <div className="card" style={{ marginBottom: 20 }}>
+            <h3 style={{ marginBottom: 2 }}>Precisam de atenção</h3>
+            <p className="sub" style={{ marginBottom: 12 }}>Retorno possivelmente atrasado — sem consulta há mais de {DIAS_RETORNO_ATRASADO} dias.</p>
+            <div className="md-att">
+              {atrasados.slice(0, 6).map(({ p, resumo, dias }) => (
+                <Link key={p.id} href={`/paciente/${p.id}`} className="md-att-item">
+                  <span className="pt-avatar">{iniciais(p.nome)}</span>
+                  <span className="md-att-body">
+                    <span className="nm">{p.nome}</span>
+                    <span className="mt">{resumo?.doencaNome || 'Sem doença registrada'}{resumo?.etapa ? ' · ' + resumo.etapa : ''} · última {haQuantoTempo(dias)}</span>
+                  </span>
+                  <span className="pt-badge atrasado">atrasado</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="toolbar" style={{ marginTop: 4 }}>
+          <Link className="inline-btn" href="/paciente/novo"><Icon name="plus" size={16} /> Novo paciente</Link>
         </div>
 
         <PatientSearch
-          patients={(patients as Patient[]) || []}
+          patients={pacientes}
           resumos={ultimaPorPaciente}
-          hojeISO={new Date().toISOString().slice(0, 10)}
+          hojeISO={hojeISO}
         />
       </div>
       <footer className="app-footer" style={{ marginLeft: 24 }}>{DISCLAIMER_LONGO}</footer>

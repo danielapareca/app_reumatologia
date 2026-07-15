@@ -4,7 +4,7 @@ import Link from 'next/link';
 export default function TopBar({ title }: { title: string }) {
   return (
     <div className="topbar no-print">
-      <span className="tag">Reumatologia</span>
+      <span className="tag">Condutas</span>
       <h1>{title}</h1>
       <span className="spacer" />
       <Link className="navlink" href="/">Pacientes</Link>

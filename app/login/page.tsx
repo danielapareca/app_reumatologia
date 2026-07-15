@@ -24,11 +24,11 @@ export default function LoginPage() {
   return (
     <div className="auth-wrap">
       <div className="auth-card">
-        <span className="tag">Reumatologia</span>
-        <h1>{mode === 'login' ? 'Entrar' : 'Criar conta de médico'}</h1>
+        <span className="tag">Condutas</span>
+        <h1 style={{ marginTop: 4 }}>{mode === 'login' ? 'Entrar' : 'Criar conta de médico'}</h1>
         <p className="sub">
           {mode === 'login'
-            ? 'Acesse o gerador de pedidos, receitas e LME.'
+            ? 'Apoio ao reumatologista — anamnese, escores, insight, receita, exames e LME.'
             : 'Cadastre-se para começar a atender.'}
         </p>
 

@@ -541,7 +541,7 @@ export default function Atendimento({
   return (
     <>
       <div className="topbar no-print">
-        <span className="tag">Reumatologia</span>
+        <span className="tag">Condutas</span>
         <h1>Atendimento</h1>
         <span className="spacer" />
         <Link className="navlink" href="/">Pacientes</Link>
@@ -549,8 +549,8 @@ export default function Atendimento({
       </div>
 
       {!profile?.cnes && (
-        <div className="no-print" style={{ background: 'var(--amber-bg)', borderBottom: '1px solid #e6d3a8', padding: '8px 22px', fontSize: 12.5, color: '#5b451e' }}>
-          Complete o <Link href="/perfil" style={{ color: 'var(--gold)', fontWeight: 600 }}>cabeçalho do médico</Link> (CNES, CNS) para a LME sair completa.
+        <div className="no-print" style={{ background: 'var(--amber-bg)', borderBottom: '1px solid #ECD9AE', padding: '9px 24px', fontSize: 12.5, color: 'var(--amber)', fontWeight: 600 }}>
+          Complete o <Link href="/perfil" style={{ color: 'var(--gold-600)', fontWeight: 700 }}>cabeçalho do médico</Link> (CNES, CNS) para a LME sair completa.
         </div>
       )}
 
@@ -850,7 +850,7 @@ export default function Atendimento({
           <div className="tabpanel" style={{ display: tab === 'anamnese' ? 'block' : 'none' }}>
             <div className="panel-inner">
               {consultaList.length > 0 && (
-                <div className="card" style={{ borderColor: '#e0cfa0', background: 'var(--amber-bg)' }}>
+                <div className="card" style={{ borderColor: '#ECD9AE', background: 'var(--amber-bg)' }}>
                   <h3 style={{ marginBottom: 4 }}>Paciente já acompanhado</h3>
                   <p className="sub" style={{ margin: 0 }}>
                     <b>{consultaList.length}</b> consulta(s). Última{' '}
@@ -936,7 +936,7 @@ export default function Atendimento({
 
                     {anamInsight && (
                       <>
-                        <div className="insight">
+                        <div className="scorebox">
                           <div className="it">Insight — ACR/EULAR 2010</div>
                           <div className="score">{anamInsight.score} <small>/ 10 pontos{anamInsight.done ? '' : ' (parcial)'}</small></div>
                           <div className={'verdict ' + (anamInsight.yes ? 'yes' : 'no')}>{anamInsight.verdict}</div>
@@ -1120,30 +1120,47 @@ function IAInsights({
   aiModel: string;
 }) {
   return (
-    <div className="card">
-      <h3>Insights com IA</h3>
-      <p className="sub">
-        A IA analisa a anamnese, a evolução, os exames e a medicação e devolve resumo, alertas, comparação com o protocolo, dose e próximos passos — <b>fundamentada nos PCDTs/diretrizes</b> da base e <b>citando a fonte</b>. <b>Apoio, não decisão.</b>
-      </p>
-      <button className="btn-primary" onClick={onGerar} disabled={loading} style={{ maxWidth: 240 }}>
-        {loading ? 'Gerando com IA…' : 'Gerar insights com IA'}
-      </button>
-      {error && <div className="auth-err" style={{ marginTop: 12 }}>{error}</div>}
-      {insight && (
-        <>
-          <div className="insight" style={{ marginTop: 14 }}>
-            <div className="it">Insight gerado por IA</div>
-            <InsightRender text={insight} />
+    <div className="insight">
+      <div className="insight-head">
+        <div className="insight-mark">✦</div>
+        <div className="insight-title">
+          <div className="ih-t">Insight — apoio à conduta</div>
+          <div className="ih-s">Gerado a partir de PCDTs e diretrizes vigentes, citando a fonte</div>
+        </div>
+        <button className="btn-ghost" onClick={onGerar} disabled={loading} style={{ height: 38, padding: '0 14px', fontSize: 12.5 }}>
+          {loading ? 'Gerando…' : (insight ? 'Regenerar' : 'Gerar insight')}
+        </button>
+        <span className="insight-seal">Apoio · não substitui o médico</span>
+      </div>
+      <div className="insight-body">
+        {error && <div className="auth-err">{error}</div>}
+        {loading && (
+          <div>
+            <div className="skel-shimmer" style={{ height: 13, width: '70%', marginBottom: 10 }} />
+            <div className="skel-shimmer" style={{ height: 13, width: '100%', marginBottom: 8 }} />
+            <div className="skel-shimmer" style={{ height: 13, width: '92%', marginBottom: 8 }} />
+            <div className="skel-shimmer" style={{ height: 13, width: '80%' }} />
+            <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 12 }}>Consultando diretrizes e gerando o insight…</div>
           </div>
-          <AiFeedback
-            key={insight.slice(0, 40)}
-            patientId={patientId}
-            doencaId={doencaId}
-            aiModel={aiModel}
-            aiResponse={insight}
-          />
-        </>
-      )}
+        )}
+        {!insight && !loading && !error && (
+          <p className="sub" style={{ margin: 0 }}>
+            A IA analisa a anamnese, a evolução, os exames e a medicação e devolve resumo, alertas, comparação com o protocolo, dose e próximos passos — <b>fundamentada nos PCDTs/diretrizes</b> e <b>citando a fonte</b>. Clique em <b>Gerar insight</b>.
+          </p>
+        )}
+        {insight && !loading && (
+          <>
+            <InsightRender text={insight} />
+            <AiFeedback
+              key={insight.slice(0, 40)}
+              patientId={patientId}
+              doencaId={doencaId}
+              aiModel={aiModel}
+              aiResponse={insight}
+            />
+          </>
+        )}
+      </div>
     </div>
   );
 }
@@ -1157,13 +1174,13 @@ function InsightRender({ text }: { text: string }) {
         const line = raw.trimEnd();
         if (!line.trim()) return <div key={i} style={{ height: 6 }} />;
         if (line.startsWith('## ')) {
-          return <div key={i} style={{ fontSize: 12, letterSpacing: 0.5, textTransform: 'uppercase', color: 'var(--gold)', fontWeight: 700, margin: '12px 0 4px' }}>{line.slice(3)}</div>;
+          return <div key={i} style={{ fontSize: 12, letterSpacing: 0.5, textTransform: 'uppercase', color: 'var(--gold-600)', fontWeight: 800, margin: '12px 0 4px' }}>{line.slice(3)}</div>;
         }
         if (line.startsWith('# ')) {
           return <div key={i} style={{ fontSize: 14, fontWeight: 700, margin: '10px 0 4px' }}>{line.slice(2)}</div>;
         }
         if (/^[-*]\s+/.test(line)) {
-          return <div key={i} style={{ paddingLeft: 16, position: 'relative', margin: '2px 0' }}><span style={{ position: 'absolute', left: 2, color: 'var(--gold)' }}>•</span>{line.replace(/^[-*]\s+/, '')}</div>;
+          return <div key={i} style={{ paddingLeft: 16, position: 'relative', margin: '2px 0' }}><span style={{ position: 'absolute', left: 2, color: 'var(--gold-600)' }}>•</span>{line.replace(/^[-*]\s+/, '')}</div>;
         }
         if (/^\*.+\*$/.test(line)) {
           return <div key={i} style={{ fontStyle: 'italic', color: 'var(--muted)', marginTop: 8, fontSize: 12 }}>{line.replace(/^\*|\*$/g, '')}</div>;

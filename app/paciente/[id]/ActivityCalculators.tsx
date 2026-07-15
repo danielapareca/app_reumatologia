@@ -110,11 +110,11 @@ export default function ActivityCalculators({
         </div>
       )}
 
-      <div className="insight" style={{ marginTop: 14 }}>
+      <div className="scorebox" style={{ marginTop: 14 }}>
         <div className="it">Resultado — {marcador}</div>
         <div className="score">{resultado} <small>— {categoria}</small></div>
         <button className="btn-primary" onClick={salvar} style={{ marginTop: 10, maxWidth: 220 }}>Salvar na evolução</button>
-        {msg && <div style={{ fontSize: 12, color: '#2f7d32', marginTop: 8 }}>{msg}</div>}
+        {msg && <div style={{ fontSize: 12, color: 'var(--green)', marginTop: 8 }}>{msg}</div>}
       </div>
     </div>
   );

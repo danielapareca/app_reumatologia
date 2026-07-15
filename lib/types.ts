@@ -26,8 +26,13 @@ export interface Patient {
   cidade: string | null;
   estado: string | null;
   cep: string | null;
+  screening: ScreeningState | null;
   created_at?: string;
 }
+
+// Rastreio pré-biológico: status por item ('pendente' | 'ok' | 'na').
+export type ScreeningStatus = 'pendente' | 'ok' | 'na';
+export type ScreeningState = Record<string, { status: ScreeningStatus; data?: string }>;
 
 export interface Consulta {
   id: string;

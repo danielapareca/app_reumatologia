@@ -82,6 +82,9 @@ create policy "ai_feedback proprio" on ai_feedback for all
 alter table patients add column if not exists consent_marketing boolean default false;
 alter table patients add column if not exists consent_marketing_at timestamptz;
 
+-- Rastreio pré-biológico (TB, HBV, HCV, HIV, vacinas) por paciente.
+alter table patients add column if not exists screening jsonb;
+
 -- Row Level Security: cada médico só enxerga os próprios dados.
 alter table profiles enable row level security;
 alter table patients enable row level security;

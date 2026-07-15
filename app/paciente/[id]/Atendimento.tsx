@@ -14,6 +14,7 @@ import VoiceMic from '@/components/VoiceMic';
 import LmePreview, { type LmeFields, type LmeMed } from './LmePreview';
 import ExamValuesPanel from './ExamValuesPanel';
 import ActivityCalculators from './ActivityCalculators';
+import ScreeningChecklist from './ScreeningChecklist';
 import AiFeedback from './AiFeedback';
 import { saveConsulta, updatePatient } from './actions';
 
@@ -816,6 +817,8 @@ export default function Atendimento({
               </div>
 
               <ActivityCalculators patientId={patient.id} today={todayISO} onSaved={(v) => setExamList((l) => [...l, v])} />
+
+              <ScreeningChecklist patientId={patient.id} initial={patient.screening} precisaRastreio={stageHasCeaf} />
 
               <IAInsights
                 onGerar={gerarInsights}

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
-import type { LmeJson } from '@/lib/types';
+import type { LmeJson, ScreeningState } from '@/lib/types';
 
 export interface SaveConsultaInput {
   patientId: string;
@@ -90,6 +90,17 @@ export async function saveConsulta(input: SaveConsultaInput): Promise<SaveConsul
 
   if (error) return { error: error.message };
   revalidatePath(`/paciente/${input.patientId}`);
+  return { ok: true };
+}
+
+// Salva o rastreio pré-biológico do paciente.
+export async function saveScreening(patientId: string, screening: ScreeningState): Promise<SaveConsultaResult> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: 'Sessão expirada.' };
+  const { error } = await supabase.from('patients').update({ screening }).eq('id', patientId);
+  if (error) return { error: error.message };
+  revalidatePath(`/paciente/${patientId}`);
   return { ok: true };
 }
 

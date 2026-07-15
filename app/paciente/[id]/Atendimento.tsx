@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState, useCallback } from 'react';
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { D, ORDER } from '@/lib/clinical/diseases';
 import { computeFlags } from '@/lib/clinical/flags';
@@ -80,7 +80,7 @@ export default function Atendimento({
   const [antecedentes, setAntecedentes] = useState('');
 
   // ---- ui ----
-  const [tab, setTab] = useState<Tab>('docs');
+  const [tab, setTab] = useState<Tab>('anamnese');
   const [flash, setFlash] = useState('');
   const [saving, setSaving] = useState(false);
   const [downloading, setDownloading] = useState(false);
@@ -91,6 +91,10 @@ export default function Atendimento({
   const [iaModel, setIaModel] = useState('');
   const [iaLoading, setIaLoading] = useState(false);
   const [iaError, setIaError] = useState('');
+
+  // Aviso de consulta não salva.
+  const [dirty, setDirty] = useState(false);
+  const skipDirty = useRef(true);
 
   // Exames numéricos / escores (Fase 3).
   const [examList, setExamList] = useState<ExamValue[]>(examValues);
@@ -128,6 +132,20 @@ export default function Atendimento({
   }, [curId, curStage]);
 
   useEffect(() => { resetDocsFromProtocol(); }, [resetDocsFromProtocol]);
+
+  // Marca "alterações não salvas" a partir do trabalho clínico do médico.
+  useEffect(() => {
+    if (skipDirty.current) { skipDirty.current = false; return; }
+    setDirty(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hda, antecedentes, anam, curId, curStage, pacNome, pacIdade]);
+
+  // Avisa antes de fechar/recarregar com consulta não salva.
+  useEffect(() => {
+    const h = (e: BeforeUnloadEvent) => { if (dirty) { e.preventDefault(); e.returnValue = ''; } };
+    window.addEventListener('beforeunload', h);
+    return () => window.removeEventListener('beforeunload', h);
+  }, [dirty]);
 
   const ceafMeds = useMemo(() => receitaItens.filter((i) => i.m.trim() && i.ceaf), [receitaItens]);
   const stageHasCeaf = ceafMeds.length > 0;
@@ -458,6 +476,7 @@ export default function Atendimento({
         insight: insightText || null, exames_texto: null, receita_texto: null, lme_json: lmeJson,
         ia_insight: iaInsight || null,
       }, ...list]);
+      setDirty(false);
       showFlash('Consulta salva');
     } finally {
       setSaving(false);
@@ -609,7 +628,12 @@ export default function Atendimento({
             </div>
             <button className={'btn-primary' + (curId ? '' : ' disabled')} onClick={copiarTudo}>Copiar tudo (exames + receita)</button>
             <button className={'btn-ghost' + (curId ? '' : ' disabled')} onClick={resetDocsFromProtocol}>Restaurar modelo do protocolo</button>
-            <button className="btn-primary" onClick={onSalvar} disabled={saving}>{saving ? 'Salvando…' : 'Salvar consulta'}</button>
+            <button className="btn-primary" onClick={onSalvar} disabled={saving}>{saving ? 'Salvando…' : (dirty ? 'Salvar consulta •' : 'Salvar consulta')}</button>
+            {dirty && (
+              <div style={{ fontSize: 11.5, color: 'var(--red)', fontWeight: 600, textAlign: 'center', marginTop: -4 }}>
+                ● Alterações não salvas
+              </div>
+            )}
           </div>
 
           <div className="safety">
@@ -620,13 +644,26 @@ export default function Atendimento({
         {/* ------- PALCO ------- */}
         <main className="stage">
           <div className="maintabs no-print">
-            <button className={'maintab' + (tab === 'docs' ? ' on' : '')} onClick={() => setTab('docs')}>Documentos</button>
-            <button className={'maintab' + (tab === 'anamnese' ? ' on' : '')} onClick={() => setTab('anamnese')}>Anamnese</button>
-            <button className={'maintab' + (tab === 'evolucao' ? ' on' : '')} onClick={() => setTab('evolucao')}>Evolução</button>
+            <button className={'maintab' + (tab === 'anamnese' ? ' on' : '')} onClick={() => setTab('anamnese')}>1 · Anamnese</button>
+            <button className={'maintab' + (tab === 'docs' ? ' on' : '')} onClick={() => setTab('docs')}>2 · Conduta</button>
+            <button className={'maintab' + (tab === 'evolucao' ? ' on' : '')} onClick={() => setTab('evolucao')}>3 · Evolução</button>
           </div>
 
-          {/* DOCUMENTOS */}
+          {/* DOCUMENTOS / CONDUTA */}
           <div className={'tabpanel docs-panel' + (tab === 'docs' ? ' on' : '')} style={{ display: tab === 'docs' ? 'flex' : 'none', flexDirection: 'column', gap: 24, alignItems: 'center' }}>
+            {/* Insight da IA (único, junto da conduta) */}
+            <div className="no-print" style={{ width: '100%', maxWidth: 720 }}>
+              <IAInsights
+                onGerar={gerarInsights}
+                loading={iaLoading}
+                error={iaError}
+                insight={iaInsight}
+                patientId={patient.id}
+                doencaId={curId}
+                aiModel={iaModel}
+              />
+            </div>
+
             {/* Exames */}
             <div className="doc-wrap" id="wrapExames">
               <div className="doc-tools no-print">
@@ -740,11 +777,34 @@ export default function Atendimento({
                 gerandoAnamnese={gerandoAnamnese}
               />
             )}
+
+            {/* Documentos com IA (laudo/atestado/relatório/resumo) */}
+            <div className="no-print" style={{ width: '100%', maxWidth: 720 }}>
+              <AiDocs buildContext={buildAiContext} onFlash={showFlash} />
+            </div>
           </div>
 
           {/* ANAMNESE */}
           <div className="tabpanel" style={{ display: tab === 'anamnese' ? 'block' : 'none' }}>
             <div className="panel-inner">
+              {consultaList.length > 0 && (
+                <div className="card" style={{ borderColor: '#e0cfa0', background: 'var(--amber-bg)' }}>
+                  <h3 style={{ marginBottom: 4 }}>Paciente já acompanhado</h3>
+                  <p className="sub" style={{ margin: 0 }}>
+                    <b>{consultaList.length}</b> consulta(s) registrada(s). Última em{' '}
+                    <b>{new Date(consultaList[0].data).toLocaleDateString('pt-BR')}</b>
+                    {consultaList[0].doenca_nome ? <> — {consultaList[0].doenca_nome}</> : null}
+                    {consultaList[0].etapa ? <> · {consultaList[0].etapa}</> : null}.
+                  </p>
+                  {consultaList[0].exam_results && (
+                    <p className="sub" style={{ margin: '4px 0 0' }}><span className="k">Últimos exames:</span> {consultaList[0].exam_results}</p>
+                  )}
+                  <p className="sub" style={{ margin: '6px 0 0' }}>
+                    Veja a história completa e os gráficos em{' '}
+                    <button className="btn-ghost" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => setTab('evolucao')}>3 · Evolução</button>.
+                  </p>
+                </div>
+              )}
               <div className="card">
                 <h3>Anamnese guiada</h3>
                 <p className="sub">
@@ -865,17 +925,9 @@ export default function Atendimento({
 
               <ScreeningChecklist patientId={patient.id} initial={patient.screening} precisaRastreio={stageHasCeaf} />
 
-              <AiDocs buildContext={buildAiContext} onFlash={showFlash} />
-
-              <IAInsights
-                onGerar={gerarInsights}
-                loading={iaLoading}
-                error={iaError}
-                insight={iaInsight}
-                patientId={patient.id}
-                doencaId={curId}
-                aiModel={iaModel}
-              />
+              <p className="sub" style={{ textAlign: 'center', marginTop: 4 }}>
+                Preencheu a anamnese? Vá para <button className="btn-ghost" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => setTab('docs')}>2 · Conduta</button> para ver os insights da IA, exames e receita.
+              </p>
             </div>
           </div>
 
@@ -925,16 +977,6 @@ export default function Atendimento({
               <MedicationTimeline patientId={patient.id} events={medList} onChanged={setMedList} today={todayISO} />
 
               <ExamValuesPanel patientId={patient.id} values={examList} onChanged={setExamList} today={todayISO} />
-
-              <IAInsights
-                onGerar={gerarInsights}
-                loading={iaLoading}
-                error={iaError}
-                insight={iaInsight}
-                patientId={patient.id}
-                doencaId={curId}
-                aiModel={iaModel}
-              />
             </div>
           </div>
         </main>

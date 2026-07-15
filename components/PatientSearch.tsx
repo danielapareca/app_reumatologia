@@ -2,8 +2,9 @@
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
+import Icon from '@/components/Icon';
 import type { Patient } from '@/lib/types';
-import { diasDesde, haQuantoTempo, DIAS_RETORNO_ATRASADO } from '@/lib/util';
+import { diasDesde, haQuantoTempo, DIAS_RETORNO_ATRASADO, iniciais } from '@/lib/util';
 
 export interface PatientSummary {
   data: string;
@@ -58,6 +59,7 @@ export default function PatientSearch({
   return (
     <div>
       <div className="pt-search">
+        <Icon name="search" size={18} style={{ color: 'var(--faint)' }} />
         <input
           placeholder="Buscar por nome, CPF, WhatsApp ou doença…"
           value={q}
@@ -86,19 +88,23 @@ export default function PatientSearch({
             const atras = atrasado(p.id);
             return (
               <Link key={p.id} className="pt-item" href={`/paciente/${p.id}`}>
-                <div className="pt-item-top">
-                  <div className="nm">{p.nome}</div>
-                  {r?.doencaNome && (
-                    <span className="pt-badge">
-                      {r.doencaNome}{r.etapa ? ' · ' + r.etapa : ''}
-                    </span>
-                  )}
-                  {atras && <span className="pt-badge atrasado">retorno atrasado</span>}
-                </div>
-                <div className="mt">
-                  {[p.idade, p.cpf ? `CPF ${p.cpf}` : null, p.whats].filter(Boolean).join(' · ') || 'sem dados adicionais'}
-                  {r && <> · última consulta {haQuantoTempo(dias)}</>}
-                </div>
+                <span className="pt-avatar">{iniciais(p.nome)}</span>
+                <span className="pt-item-body">
+                  <span className="pt-item-top">
+                    <span className="nm">{p.nome}</span>
+                    {r?.doencaNome && (
+                      <span className="pt-badge">
+                        {r.doencaNome}{r.etapa ? ' · ' + r.etapa : ''}
+                      </span>
+                    )}
+                    {atras && <span className="pt-badge atrasado">retorno atrasado</span>}
+                  </span>
+                  <span className="mt">
+                    {[p.idade, p.cpf ? `CPF ${p.cpf}` : null, p.whats].filter(Boolean).join(' · ') || 'sem dados adicionais'}
+                    {r && <> · última consulta {haQuantoTempo(dias)}</>}
+                  </span>
+                </span>
+                <Icon name="chevron" size={18} className="pt-chevron" />
               </Link>
             );
           })}

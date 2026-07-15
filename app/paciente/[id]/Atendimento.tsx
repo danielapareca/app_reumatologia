@@ -619,7 +619,7 @@ export default function Atendimento({
           </div>
 
           <div className="block">
-            <p className="eyebrow">Paciente</p>
+            <p className="eyebrow"><Icon name="user" size={14} /> Paciente</p>
             <div className="field"><label>Nome do paciente</label><input value={pacNome} onChange={(e) => setPacNome(e.target.value)} /></div>
             <div className="row2">
               <div className="field"><label>Data de nascimento</label><input type="date" value={pacNascimento} onChange={(e) => onNascimento(e.target.value)} /></div>
@@ -642,7 +642,7 @@ export default function Atendimento({
           </div>
 
           <div className="block picker">
-            <p className="eyebrow">Condição</p>
+            <p className="eyebrow"><Icon name="stethoscope" size={14} /> Condição</p>
             <label>Selecione a doença</label>
             <select className="doenca" value={curId} onChange={(e) => onDiseaseChange(e.target.value)}>
               <option value="">— escolha a doença —</option>
@@ -711,7 +711,7 @@ export default function Atendimento({
           </details>
 
           <div className="block">
-            <p className="eyebrow">Etapa do tratamento</p>
+            <p className="eyebrow"><Icon name="pill" size={14} /> Etapa do tratamento</p>
             <div className="stages">
               {!curId ? (
                 <p className="empty-note" style={{ fontSize: 12 }}>Escolha a doença para ver as etapas.</p>

@@ -2,6 +2,7 @@
 
 import { useFormState, useFormStatus } from 'react-dom';
 import { useState } from 'react';
+import Icon from '@/components/Icon';
 import { login, signup, type AuthResult } from './actions';
 import { DISCLAIMER_LONGO } from '@/lib/disclaimer';
 
@@ -22,9 +23,18 @@ export default function LoginPage() {
   const [state, formAction] = useFormState(action, initial);
 
   return (
-    <div className="auth-wrap">
+    <div className="auth-split">
+      <div className="auth-left">
+        <div className="auth-brand"><span className="auth-logo"><Icon name="activity" size={22} /></span> Condutas</div>
+        <div className="auth-left-mid">
+          <h2 className="auth-headline">O raciocínio clínico em reumatologia, do exame à conduta.</h2>
+          <p className="auth-tagline">Anamnese guiada, escores e calculadoras, insight fundamentado em diretrizes e documentos oficiais — em um só atendimento.</p>
+        </div>
+        <div className="auth-safety"><Icon name="shield" size={16} /> Apoio ao médico — não substitui o médico.</div>
+      </div>
+      <div className="auth-right">
       <div className="auth-card">
-        <span className="tag">Condutas</span>
+        <span className="tag auth-card-brand">Condutas</span>
         <h1 style={{ marginTop: 4 }}>{mode === 'login' ? 'Entrar' : 'Criar conta de médico'}</h1>
         <p className="sub">
           {mode === 'login'
@@ -73,6 +83,7 @@ export default function LoginPage() {
         <p style={{ fontSize: 10.5, color: 'var(--muted)', lineHeight: 1.5, marginTop: 16, textAlign: 'center' }}>
           {DISCLAIMER_LONGO}
         </p>
+      </div>
       </div>
     </div>
   );

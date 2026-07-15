@@ -22,6 +22,14 @@ export function haQuantoTempo(dias: number | null): string {
   return `há ${anos} ${anos === 1 ? 'ano' : 'anos'}`;
 }
 
+// Iniciais (1–2 letras) a partir do nome, para avatares.
+export function iniciais(nome: string): string {
+  const parts = (nome || '').trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '—';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
 // Calcula a idade em anos a partir da data de nascimento (YYYY-MM-DD).
 export function idadeFromNascimento(nascimento: string): string {
   if (!nascimento) return '';

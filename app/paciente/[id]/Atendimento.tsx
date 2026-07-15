@@ -20,6 +20,8 @@ import MedicationTimeline from './MedicationTimeline';
 import AiFeedback from './AiFeedback';
 import AiDocs from './AiDocs';
 import { saveConsulta, updatePatient } from './actions';
+import { addMedEvent } from './medActions';
+import { derivarEventosReceita } from '@/lib/clinical/medsync';
 
 type Tab = 'docs' | 'anamnese' | 'evolucao';
 
@@ -507,7 +509,22 @@ export default function Atendimento({
         ia_insight: iaInsight || null,
       }, ...list]);
       setDirty(false);
-      showFlash('Consulta salva');
+
+      // Atualiza a linha do tempo de medicação a partir da receita (início/troca automáticos).
+      let addedCount = 0;
+      const novos = derivarEventosReceita(receitaItens, medList);
+      if (novos.length && todayISO) {
+        const criados: MedicationEvent[] = [];
+        for (const n of novos) {
+          const r = await addMedEvent({
+            patientId: patient.id, medicamento: n.medicamento, evento: n.evento,
+            dose: n.dose, motivo: 'Conforme receita desta consulta', data: todayISO,
+          });
+          if (r.value) criados.push(r.value);
+        }
+        if (criados.length) { setMedList((l) => [...l, ...criados]); addedCount = criados.length; }
+      }
+      showFlash(addedCount ? `Consulta salva · ${addedCount} med. na linha do tempo` : 'Consulta salva');
     } finally {
       setSaving(false);
     }

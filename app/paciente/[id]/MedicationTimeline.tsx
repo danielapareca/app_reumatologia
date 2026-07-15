@@ -51,7 +51,9 @@ export default function MedicationTimeline({
   return (
     <div className="card">
       <h3>Linha do tempo de medicação</h3>
-      <p className="sub">Registre início, troca, aumento, redução e suspensão de cada droga, com o motivo.</p>
+      <p className="sub">
+        Atualiza sozinha quando você salva a consulta: cada medicamento da receita vira <b>Início</b> (novo) ou <b>Troca</b> (mudou a dose). Se o paciente <b>já tomava</b> algo antes, cadastre manualmente aqui — depois as próximas receitas continuam a linha automaticamente. Suspensão é sempre manual.
+      </p>
 
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'flex-end' }}>
         <div className="field" style={{ margin: 0, flex: '1 1 160px' }}><label>Medicamento</label><input value={medicamento} onChange={(e) => setMedicamento(e.target.value)} placeholder="ex.: Metotrexato 2,5 mg" /></div>

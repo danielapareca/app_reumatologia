@@ -42,6 +42,7 @@ export interface Consulta {
   exames_texto: string | null;
   receita_texto: string | null;
   lme_json: LmeJson | null;
+  ia_insight: string | null;
   created_at?: string;
 }
 

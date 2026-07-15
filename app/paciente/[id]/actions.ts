@@ -17,6 +17,7 @@ export interface SaveConsultaInput {
   examesTexto: string;
   receitaTexto: string;
   lmeJson: LmeJson | null;
+  iaInsight: string;
 }
 
 export interface SaveConsultaResult {
@@ -76,6 +77,7 @@ export async function saveConsulta(input: SaveConsultaInput): Promise<SaveConsul
     exames_texto: input.examesTexto || null,
     receita_texto: input.receitaTexto || null,
     lme_json: input.lmeJson,
+    ia_insight: input.iaInsight || null,
   });
 
   if (error) return { error: error.message };

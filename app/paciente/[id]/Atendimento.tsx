@@ -59,6 +59,11 @@ export default function Atendimento({
   const [downloading, setDownloading] = useState(false);
   const [consultaList, setConsultaList] = useState<Consulta[]>(consultas);
 
+  // Insights com IA (Fase 2).
+  const [iaInsight, setIaInsight] = useState('');
+  const [iaLoading, setIaLoading] = useState(false);
+  const [iaError, setIaError] = useState('');
+
   const docExamesRef = useRef<HTMLDivElement>(null);
   const docReceitaRef = useRef<HTMLDivElement>(null);
 
@@ -225,6 +230,50 @@ export default function Atendimento({
     }
   }
 
+  // ---- insights com IA ----
+  async function gerarInsights() {
+    setIaLoading(true);
+    setIaError('');
+    try {
+      const historico = consultaList.map((c) => ({
+        data: new Date(c.data).toLocaleDateString('pt-BR'),
+        doenca: c.doenca_nome || '',
+        etapa: c.etapa || '',
+        tipo: c.consulta_tipo === 'primeira' ? 'Primeira consulta' : (c.consulta_tipo === 'retorno' ? 'Retorno com exames' : (c.consulta_tipo || '')),
+        hda: c.hda || '',
+        antecedentes: c.antecedentes || '',
+        exames: c.exam_results || '',
+        receita: c.receita_texto || '',
+      }));
+      const payload = {
+        paciente: pacNome,
+        idade: pacIdade,
+        doenca: disease?.n || '',
+        cid: disease?.cid || '',
+        anamneseAtual: {
+          hda,
+          antecedentes,
+          exames: examResults,
+          escore: anamInsight ? `${anamInsight.score}/10 (ACR/EULAR 2010)` : '',
+        },
+        historico,
+      };
+      const res = await fetch('/api/insights', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(j.error || 'Falha ao gerar insights');
+      setIaInsight(j.insight || '');
+      showFlash('Insights gerados');
+    } catch (e) {
+      setIaError(e instanceof Error ? e.message : 'Falha ao gerar insights');
+    } finally {
+      setIaLoading(false);
+    }
+  }
+
   // ---- salvar ----
   async function onSalvar() {
     if (!pacNome.trim()) { showFlash('Preencha o nome do paciente'); return; }
@@ -261,6 +310,7 @@ export default function Atendimento({
         examesTexto: docExamesRef.current?.innerText.trim() || '',
         receitaTexto: docReceitaRef.current?.innerText.trim() || '',
         lmeJson,
+        iaInsight,
       });
       if (r.error) { showFlash(r.error); setSaving(false); return; }
 
@@ -272,6 +322,7 @@ export default function Atendimento({
         etapa: currentStage?.label || null, consulta_tipo: Q.consulta,
         hda: hda || null, antecedentes: antecedentes || null, exam_results: examResults || null,
         insight: insightText || null, exames_texto: null, receita_texto: null, lme_json: lmeJson,
+        ia_insight: iaInsight || null,
       }, ...list]);
       showFlash('Consulta salva');
     } finally {
@@ -650,6 +701,13 @@ export default function Atendimento({
                   </ul>
                 )}
               </div>
+
+              <IAInsights
+                onGerar={gerarInsights}
+                loading={iaLoading}
+                error={iaError}
+                insight={iaInsight}
+              />
             </div>
           </div>
 
@@ -676,10 +734,23 @@ export default function Atendimento({
                       {c.insight && <div className="evo-line"><span className="k">Escore:</span> {c.insight}</div>}
                       {c.exam_results && <div className="evo-line"><span className="k">Exames:</span> {c.exam_results}</div>}
                       {c.hda && <div className="evo-line"><span className="k">HDA:</span> {c.hda}</div>}
+                      {c.ia_insight && (
+                        <details style={{ marginTop: 8 }}>
+                          <summary style={{ cursor: 'pointer', fontSize: 12, fontWeight: 600, color: 'var(--gold)' }}>Insight da IA desta consulta</summary>
+                          <div style={{ marginTop: 6 }}><InsightRender text={c.ia_insight} /></div>
+                        </details>
+                      )}
                     </div>
                   ))
                 )}
               </div>
+
+              <IAInsights
+                onGerar={gerarInsights}
+                loading={iaLoading}
+                error={iaError}
+                insight={iaInsight}
+              />
             </div>
           </div>
         </main>
@@ -687,6 +758,64 @@ export default function Atendimento({
 
       {flash && <div className="flashmsg">{flash}</div>}
     </>
+  );
+}
+
+// ---- insights com IA ----
+function IAInsights({
+  onGerar,
+  loading,
+  error,
+  insight,
+}: {
+  onGerar: () => void;
+  loading: boolean;
+  error: string;
+  insight: string;
+}) {
+  return (
+    <div className="card">
+      <h3>Insights com IA</h3>
+      <p className="sub">
+        A IA analisa a anamnese, a evolução das consultas, os exames e o histórico de medicação e devolve resumo, alertas de interação, comparação com o protocolo, aviso de dose fora do padrão e sugestão de próximos exames. <b>Apoio, não decisão.</b>
+      </p>
+      <button className="btn-primary" onClick={onGerar} disabled={loading} style={{ maxWidth: 240 }}>
+        {loading ? 'Gerando com IA…' : 'Gerar insights com IA'}
+      </button>
+      {error && <div className="auth-err" style={{ marginTop: 12 }}>{error}</div>}
+      {insight && (
+        <div className="insight" style={{ marginTop: 14 }}>
+          <div className="it">Insight gerado por IA</div>
+          <InsightRender text={insight} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Renderiza o texto de insight (com títulos "## " e listas "- ") de forma legível.
+function InsightRender({ text }: { text: string }) {
+  const lines = text.split('\n');
+  return (
+    <div style={{ fontSize: 13, lineHeight: 1.5, color: 'var(--ink)' }}>
+      {lines.map((raw, i) => {
+        const line = raw.trimEnd();
+        if (!line.trim()) return <div key={i} style={{ height: 6 }} />;
+        if (line.startsWith('## ')) {
+          return <div key={i} style={{ fontSize: 12, letterSpacing: 0.5, textTransform: 'uppercase', color: 'var(--gold)', fontWeight: 700, margin: '12px 0 4px' }}>{line.slice(3)}</div>;
+        }
+        if (line.startsWith('# ')) {
+          return <div key={i} style={{ fontSize: 14, fontWeight: 700, margin: '10px 0 4px' }}>{line.slice(2)}</div>;
+        }
+        if (/^[-*]\s+/.test(line)) {
+          return <div key={i} style={{ paddingLeft: 16, position: 'relative', margin: '2px 0' }}><span style={{ position: 'absolute', left: 2, color: 'var(--gold)' }}>•</span>{line.replace(/^[-*]\s+/, '')}</div>;
+        }
+        if (/^\*.+\*$/.test(line)) {
+          return <div key={i} style={{ fontStyle: 'italic', color: 'var(--muted)', marginTop: 8, fontSize: 12 }}>{line.replace(/^\*|\*$/g, '')}</div>;
+        }
+        return <div key={i} style={{ margin: '2px 0' }}>{line}</div>;
+      })}
+    </div>
   );
 }
 

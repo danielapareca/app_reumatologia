@@ -26,8 +26,12 @@ create table if not exists consultas (
   doenca_id text, doenca_nome text, etapa text, consulta_tipo text,
   hda text, antecedentes text, exam_results text, insight text,
   exames_texto text, receita_texto text, lme_json jsonb,
+  ia_insight text,
   created_at timestamptz default now()
 );
+
+-- Fase 2: coluna do insight gerado pela IA (idempotente, para bancos já criados).
+alter table consultas add column if not exists ia_insight text;
 
 -- Row Level Security: cada médico só enxerga os próprios dados.
 alter table profiles enable row level security;

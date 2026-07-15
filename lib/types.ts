@@ -54,6 +54,20 @@ export interface Consulta {
   created_at?: string;
 }
 
+export type MedEventTipo = 'inicio' | 'troca' | 'aumento' | 'reducao' | 'suspensao';
+
+export interface MedicationEvent {
+  id: string;
+  patient_id: string;
+  doctor_id: string;
+  medicamento: string;
+  evento: MedEventTipo;
+  dose: string | null;
+  motivo: string | null;
+  data: string;
+  created_at?: string;
+}
+
 export interface ExamValue {
   id: string;
   patient_id: string;

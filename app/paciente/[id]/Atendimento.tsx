@@ -7,14 +7,16 @@ import { computeFlags } from '@/lib/clinical/flags';
 import { scanText } from '@/lib/clinical/insights';
 import { ANAM, jointScoreCat, computeAnamInsight, type AnamState } from '@/lib/clinical/anamnese';
 import { defaultQState, type QState, type RxItem } from '@/lib/clinical/types';
-import type { Patient, Profile, Consulta, LmeJson, ExamValue } from '@/lib/types';
+import type { Patient, Profile, Consulta, LmeJson, ExamValue, MedicationEvent } from '@/lib/types';
 import { idadeFromNascimento } from '@/lib/util';
+import { computeMonitorAlerts } from '@/lib/clinical/monitor';
 import { DISCLAIMER_LONGO, DISCLAIMER_DOC } from '@/lib/disclaimer';
 import VoiceMic from '@/components/VoiceMic';
 import LmePreview, { type LmeFields, type LmeMed } from './LmePreview';
 import ExamValuesPanel from './ExamValuesPanel';
 import ActivityCalculators from './ActivityCalculators';
 import ScreeningChecklist from './ScreeningChecklist';
+import MedicationTimeline from './MedicationTimeline';
 import AiFeedback from './AiFeedback';
 import AiDocs from './AiDocs';
 import { saveConsulta, updatePatient } from './actions';
@@ -30,11 +32,13 @@ export default function Atendimento({
   profile,
   consultas,
   examValues,
+  medEvents,
 }: {
   patient: Patient;
   profile: Profile | null;
   consultas: Consulta[];
   examValues: ExamValue[];
+  medEvents: MedicationEvent[];
 }) {
   // ---- dados do paciente (editáveis) ----
   const [pacNome, setPacNome] = useState(patient.nome || '');
@@ -91,6 +95,8 @@ export default function Atendimento({
 
   // Exames numéricos / escores (Fase 3).
   const [examList, setExamList] = useState<ExamValue[]>(examValues);
+  const [medList, setMedList] = useState<MedicationEvent[]>(medEvents);
+  const monitorAlerts = useMemo(() => computeMonitorAlerts(medList, examList, todayISO), [medList, examList, todayISO]);
 
   const disease = curId ? D[curId] : null;
   const stages = disease?.etapas || [];
@@ -153,6 +159,15 @@ export default function Atendimento({
   }
   function copiarTexto(txt: string) {
     navigator.clipboard.writeText(txt.trim()).then(() => showFlash('Copiado'));
+  }
+  // Junta exames + receita (e resumo da LME) num texto só, para colar no sistema da clínica.
+  function copiarTudo() {
+    const partes = ['SOLICITAÇÃO DE EXAMES', examesToText(), '', 'RECEITUÁRIO', receitaToText()];
+    if (stageHasCeaf) {
+      const meds = receitaItens.filter((i) => i.m.trim() && i.ceaf).map((i) => `- ${i.m}${i.q ? ' (' + i.q + ')' : ''}`);
+      partes.push('', 'LME (Componente Especializado):', ...meds);
+    }
+    copiarTexto(partes.join('\n'));
   }
 
   const flags = useMemo(() => computeFlags({ ...Q, alergia: pacAlergia }), [Q, pacAlergia]);
@@ -334,7 +349,10 @@ export default function Atendimento({
         cid: disease?.cid || '',
         anamneseAtual: {
           hda,
-          antecedentes,
+          antecedentes: [antecedentes, medList.length ? 'Histórico de medicação: ' + medList
+            .slice().sort((a, b) => a.data.localeCompare(b.data))
+            .map((m) => `${m.data} ${m.evento} ${m.medicamento}${m.dose ? ' (' + m.dose + ')' : ''}${m.motivo ? ' — ' + m.motivo : ''}`)
+            .join('; ') : ''].filter(Boolean).join('\n'),
           exames: [examResults, numeric].filter(Boolean).join('\n'),
           escore: anamInsight ? `${anamInsight.score}/10 (ACR/EULAR 2010)` : '',
         },
@@ -588,6 +606,7 @@ export default function Atendimento({
               <button className="btn-ghost" onClick={() => copiarTexto(examesToText())}>Copiar exames</button>
               <button className="btn-ghost" onClick={() => copiarTexto(receitaToText())}>Copiar receita</button>
             </div>
+            <button className={'btn-primary' + (curId ? '' : ' disabled')} onClick={copiarTudo}>Copiar tudo (exames + receita)</button>
             <button className={'btn-ghost' + (curId ? '' : ' disabled')} onClick={resetDocsFromProtocol}>Restaurar modelo do protocolo</button>
             <button className="btn-primary" onClick={onSalvar} disabled={saving}>{saving ? 'Salvando…' : 'Salvar consulta'}</button>
           </div>
@@ -901,6 +920,17 @@ export default function Atendimento({
                   ))
                 )}
               </div>
+
+              {monitorAlerts.length > 0 && (
+                <div className="card" style={{ borderColor: '#d9b8b4', background: '#F7E9E7' }}>
+                  <h3 style={{ color: 'var(--red)' }}>Alertas de monitorização</h3>
+                  <ul style={{ margin: 0, paddingLeft: 18 }}>
+                    {monitorAlerts.map((a, i) => <li key={i} style={{ fontSize: 13, color: '#5b451e', marginBottom: 4 }}>{a}</li>)}
+                  </ul>
+                </div>
+              )}
+
+              <MedicationTimeline patientId={patient.id} events={medList} onChanged={setMedList} today={todayISO} />
 
               <ExamValuesPanel patientId={patient.id} values={examList} onChanged={setExamList} today={todayISO} />
 

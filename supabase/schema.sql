@@ -85,6 +85,23 @@ alter table patients add column if not exists consent_marketing_at timestamptz;
 -- Rastreio pré-biológico (TB, HBV, HCV, HIV, vacinas) por paciente.
 alter table patients add column if not exists screening jsonb;
 
+-- Linha do tempo de medicação (início, troca, aumento, redução, suspensão).
+create table if not exists medication_events (
+  id uuid primary key default gen_random_uuid(),
+  patient_id uuid not null references patients(id) on delete cascade,
+  doctor_id uuid not null default auth.uid() references auth.users(id),
+  medicamento text not null,
+  evento text not null,        -- inicio | troca | aumento | reducao | suspensao
+  dose text,
+  motivo text,
+  data date not null,
+  created_at timestamptz default now()
+);
+alter table medication_events enable row level security;
+drop policy if exists "med_events proprios" on medication_events;
+create policy "med_events proprios" on medication_events for all
+  using (doctor_id = auth.uid()) with check (doctor_id = auth.uid());
+
 -- ---- Painel do gestor / QA da IA (apenas admin) ----
 create table if not exists app_admins (user_id uuid primary key references auth.users(id));
 

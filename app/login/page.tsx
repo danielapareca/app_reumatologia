@@ -3,6 +3,7 @@
 import { useFormState, useFormStatus } from 'react-dom';
 import { useState } from 'react';
 import { login, signup, type AuthResult } from './actions';
+import { DISCLAIMER_LONGO } from '@/lib/disclaimer';
 
 function SubmitBtn({ label }: { label: string }) {
   const { pending } = useFormStatus();
@@ -69,6 +70,9 @@ export default function LoginPage() {
             </>
           )}
         </div>
+        <p style={{ fontSize: 10.5, color: 'var(--muted)', lineHeight: 1.5, marginTop: 16, textAlign: 'center' }}>
+          {DISCLAIMER_LONGO}
+        </p>
       </div>
     </div>
   );

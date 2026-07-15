@@ -1,13 +1,15 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { D, ORDER } from '@/lib/clinical/diseases';
 import { computeFlags } from '@/lib/clinical/flags';
 import { scanText } from '@/lib/clinical/insights';
 import { ANAM, jointScoreCat, computeAnamInsight, type AnamState } from '@/lib/clinical/anamnese';
-import { defaultQState, type QState } from '@/lib/clinical/types';
+import { defaultQState, type QState, type RxItem } from '@/lib/clinical/types';
 import type { Patient, Profile, Consulta, LmeJson } from '@/lib/types';
+import { idadeFromNascimento } from '@/lib/util';
+import { DISCLAIMER_LONGO, DISCLAIMER_DOC } from '@/lib/disclaimer';
 import VoiceMic from '@/components/VoiceMic';
 import LmePreview, { type LmeFields, type LmeMed } from './LmePreview';
 import { saveConsulta, updatePatient } from './actions';
@@ -33,11 +35,22 @@ export default function Atendimento({
   const [pacWhats, setPacWhats] = useState(patient.whats || '');
   const [pacCpf, setPacCpf] = useState(patient.cpf || '');
   const [pacEmail, setPacEmail] = useState(patient.email || '');
+  const [pacNascimento, setPacNascimento] = useState(patient.nascimento || '');
   const [pacEndereco, setPacEndereco] = useState(patient.endereco || '');
+  const [pacCidade, setPacCidade] = useState(patient.cidade || '');
+  const [pacEstado, setPacEstado] = useState(patient.estado || '');
+  const [pacCep, setPacCep] = useState(patient.cep || '');
   const [pacData, setPacData] = useState('');
   const [pacAlergia, setPacAlergia] = useState('');
 
   useEffect(() => { setPacData(todayBR()); }, []);
+
+  // Data de nascimento → idade automática.
+  function onNascimento(v: string) {
+    setPacNascimento(v);
+    const calc = idadeFromNascimento(v);
+    if (calc) setPacIdade(calc);
+  }
 
   // ---- clínico ----
   const [curId, setCurId] = useState('');
@@ -64,17 +77,68 @@ export default function Atendimento({
   const [iaLoading, setIaLoading] = useState(false);
   const [iaError, setIaError] = useState('');
 
-  const docExamesRef = useRef<HTMLDivElement>(null);
-  const docReceitaRef = useRef<HTMLDivElement>(null);
-
   const disease = curId ? D[curId] : null;
   const stages = disease?.etapas || [];
   const currentStage = useMemo(
     () => stages.find((e) => e.id === curStage) || stages[0],
     [stages, curStage]
   );
-  const ceafMeds = useMemo(() => currentStage?.itens.filter((i) => i.ceaf) || [], [currentStage]);
+  // ---- exames e receita editáveis (o médico acrescenta/retira/altera) ----
+  const [examesConf, setExamesConf] = useState<string[]>([]);
+  const [examesBasal, setExamesBasal] = useState<string[]>([]);
+  const [receitaItens, setReceitaItens] = useState<RxItem[]>([]);
+
+  // Restaura exames e receita a partir do protocolo (ao trocar doença/etapa).
+  const resetDocsFromProtocol = useCallback(() => {
+    const d = curId ? D[curId] : null;
+    setExamesConf(d ? [...d.conf] : []);
+    setExamesBasal(d && d.basal ? [...d.basal] : []);
+    const st = d ? d.etapas.find((e) => e.id === curStage) || d.etapas[0] : null;
+    setReceitaItens(st ? st.itens.map((it) => ({ ...it })) : []);
+  }, [curId, curStage]);
+
+  useEffect(() => { resetDocsFromProtocol(); }, [resetDocsFromProtocol]);
+
+  const ceafMeds = useMemo(() => receitaItens.filter((i) => i.m.trim() && i.ceaf), [receitaItens]);
   const stageHasCeaf = ceafMeds.length > 0;
+
+  // helpers de edição
+  const updConf = (i: number, v: string) => setExamesConf((a) => a.map((x, idx) => (idx === i ? v : x)));
+  const rmConf = (i: number) => setExamesConf((a) => a.filter((_, idx) => idx !== i));
+  const addConf = () => setExamesConf((a) => [...a, '']);
+  const updBasal = (i: number, v: string) => setExamesBasal((a) => a.map((x, idx) => (idx === i ? v : x)));
+  const rmBasal = (i: number) => setExamesBasal((a) => a.filter((_, idx) => idx !== i));
+  const addBasal = () => setExamesBasal((a) => [...a, '']);
+  const updRx = (i: number, patch: Partial<RxItem>) => setReceitaItens((a) => a.map((x, idx) => (idx === i ? { ...x, ...patch } : x)));
+  const rmRx = (i: number) => setReceitaItens((a) => a.filter((_, idx) => idx !== i));
+  const addRx = () => setReceitaItens((a) => [...a, { m: '', p: '', q: '' }]);
+
+  // texto dos documentos (para salvar e copiar) a partir do estado editável
+  function examesToText(): string {
+    const parts: string[] = [];
+    if (disease) parts.push(`Hipótese diagnóstica: ${disease.n} (CID ${disease.cid})`);
+    parts.push('Solicito os seguintes exames:');
+    examesConf.filter((x) => x.trim()).forEach((e, i) => parts.push(`${i + 1}. ${e}`));
+    const basal = examesBasal.filter((x) => x.trim());
+    if (basal.length) {
+      parts.push('Avaliação pré-tratamento:');
+      basal.forEach((e, i) => parts.push(`${i + 1}. ${e}`));
+    }
+    return parts.join('\n');
+  }
+  function receitaToText(): string {
+    const parts: string[] = [];
+    if (currentStage) parts.push(`Etapa: ${currentStage.label}`);
+    receitaItens.filter((x) => x.m.trim()).forEach((it, i) => {
+      parts.push(`${i + 1}. ${it.m}${it.ceaf ? ' [LME]' : ''}`);
+      if (it.p) parts.push(`   ${it.p}`);
+      if (it.q) parts.push(`   Quantidade: ${it.q}`);
+    });
+    return parts.join('\n');
+  }
+  function copiarTexto(txt: string) {
+    navigator.clipboard.writeText(txt.trim()).then(() => showFlash('Copiado'));
+  }
 
   const flags = useMemo(() => computeFlags({ ...Q, alergia: pacAlergia }), [Q, pacAlergia]);
   const textInsights = useMemo(
@@ -113,11 +177,11 @@ export default function Atendimento({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [curId, curStage, pacNome, pacWhats, pacCpf, pacEmail, pacData, hda, profile]);
 
-  // Medicamentos LME a partir dos itens CEAF da etapa.
+  // Medicamentos LME a partir dos itens marcados como LME na receita editável.
   useEffect(() => {
     setLmeMeds(ceafMeds.map((i) => ({ m: i.m, q: i.q || '' })));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [curId, curStage]);
+  }, [receitaItens]);
 
   const setLmeField = useCallback((k: keyof LmeFields, v: string) => {
     setLme((prev) => ({ ...prev, [k]: v }));
@@ -186,13 +250,6 @@ export default function Atendimento({
     window.addEventListener('afterprint', clear);
     return () => window.removeEventListener('afterprint', clear);
   }, []);
-
-  function copiar(ref: React.RefObject<HTMLDivElement>) {
-    const el = ref.current;
-    if (!el) return;
-    const txt = el.innerText.replace(/\n{3,}/g, '\n\n').trim();
-    navigator.clipboard.writeText(txt).then(() => showFlash('Copiado'));
-  }
 
   // ---- LME PDF ----
   async function baixarLME() {
@@ -281,8 +338,9 @@ export default function Atendimento({
     try {
       // Atualiza dados demográficos do paciente.
       const up = await updatePatient({
-        id: patient.id, nome: pacNome, idade: pacIdade, whats: pacWhats,
-        cpf: pacCpf, email: pacEmail, endereco: pacEndereco,
+        id: patient.id, nome: pacNome, idade: pacIdade, nascimento: pacNascimento,
+        whats: pacWhats, cpf: pacCpf, email: pacEmail,
+        endereco: pacEndereco, cidade: pacCidade, estado: pacEstado, cep: pacCep,
       });
       if (up.error) { showFlash(up.error); setSaving(false); return; }
 
@@ -307,8 +365,8 @@ export default function Atendimento({
         consultaTipo: Q.consulta,
         hda, antecedentes, examResults,
         insight: insightText,
-        examesTexto: docExamesRef.current?.innerText.trim() || '',
-        receitaTexto: docReceitaRef.current?.innerText.trim() || '',
+        examesTexto: examesToText(),
+        receitaTexto: receitaToText(),
         lmeJson,
         iaInsight,
       });
@@ -355,15 +413,23 @@ export default function Atendimento({
             <p className="eyebrow">Paciente</p>
             <div className="field"><label>Nome do paciente</label><input value={pacNome} onChange={(e) => setPacNome(e.target.value)} /></div>
             <div className="row2">
-              <div className="field"><label>Idade</label><input value={pacIdade} onChange={(e) => setPacIdade(e.target.value)} placeholder="ex.: 54 anos" /></div>
-              <div className="field"><label>Data</label><input value={pacData} onChange={(e) => setPacData(e.target.value)} /></div>
+              <div className="field"><label>Data de nascimento</label><input type="date" value={pacNascimento} onChange={(e) => onNascimento(e.target.value)} /></div>
+              <div className="field"><label>Idade (automática)</label><input value={pacIdade} onChange={(e) => setPacIdade(e.target.value)} placeholder="ex.: 54 anos" /></div>
             </div>
             <div className="row2">
+              <div className="field"><label>Data da consulta</label><input value={pacData} onChange={(e) => setPacData(e.target.value)} /></div>
               <div className="field"><label>WhatsApp</label><input value={pacWhats} onChange={(e) => setPacWhats(e.target.value)} /></div>
-              <div className="field"><label>CPF</label><input value={pacCpf} onChange={(e) => setPacCpf(e.target.value)} /></div>
             </div>
-            <div className="field"><label>E-mail</label><input value={pacEmail} onChange={(e) => setPacEmail(e.target.value)} /></div>
-            <div className="field"><label>Endereço</label><input value={pacEndereco} onChange={(e) => setPacEndereco(e.target.value)} /></div>
+            <div className="row2">
+              <div className="field"><label>CPF</label><input value={pacCpf} onChange={(e) => setPacCpf(e.target.value)} /></div>
+              <div className="field"><label>E-mail</label><input value={pacEmail} onChange={(e) => setPacEmail(e.target.value)} /></div>
+            </div>
+            <div className="field"><label>Endereço (rua, nº, bairro)</label><input value={pacEndereco} onChange={(e) => setPacEndereco(e.target.value)} placeholder="Rua Exemplo, 123, Centro" /></div>
+            <div className="row2">
+              <div className="field"><label>Cidade</label><input value={pacCidade} onChange={(e) => setPacCidade(e.target.value)} /></div>
+              <div className="field"><label>Estado (UF)</label><input value={pacEstado} onChange={(e) => setPacEstado(e.target.value)} maxLength={2} placeholder="SP" /></div>
+            </div>
+            <div className="field"><label>CEP</label><input value={pacCep} onChange={(e) => setPacCep(e.target.value)} placeholder="00000-000" /></div>
           </div>
 
           <div className="block picker">
@@ -462,14 +528,15 @@ export default function Atendimento({
               <button className={'btn-ghost' + (stageHasCeaf ? '' : ' disabled')} onClick={() => imprimir('lme')}>LME</button>
             </div>
             <div className="btn-row">
-              <button className="btn-ghost" onClick={() => copiar(docExamesRef)}>Copiar exames</button>
-              <button className="btn-ghost" onClick={() => copiar(docReceitaRef)}>Copiar receita</button>
+              <button className="btn-ghost" onClick={() => copiarTexto(examesToText())}>Copiar exames</button>
+              <button className="btn-ghost" onClick={() => copiarTexto(receitaToText())}>Copiar receita</button>
             </div>
+            <button className={'btn-ghost' + (curId ? '' : ' disabled')} onClick={resetDocsFromProtocol}>Restaurar modelo do protocolo</button>
             <button className="btn-primary" onClick={onSalvar} disabled={saving}>{saving ? 'Salvando…' : 'Salvar consulta'}</button>
           </div>
 
           <div className="safety">
-            <b>Sugestão, não decisão.</b> Os itens vêm pré-preenchidos pelo protocolo; revise, tire ou acrescente e individualize as doses (peso, função renal, interações, gestação) antes de assinar. A tarja <b>LME</b> marca o que exige Laudo do Componente Especializado. Este gerador é apoio ao médico assistente.
+            <b>Apoio ao médico — não substitui o médico.</b> {DISCLAIMER_LONGO} Os itens vêm pré-preenchidos pelo protocolo; revise, acrescente ou retire e individualize as doses (peso, função renal, interações, gestação) antes de assinar. A tarja <b>LME</b> marca o que exige Laudo do Componente Especializado.
           </div>
         </aside>
 
@@ -489,10 +556,10 @@ export default function Atendimento({
                 <span className="dt-name">Solicitação de exames</span>
                 <span className="dt-btns">
                   <button className="btn-ghost" onClick={() => imprimir('ex')}>Imprimir</button>
-                  <button className="btn-ghost" onClick={() => copiar(docExamesRef)}>Copiar</button>
+                  <button className="btn-ghost" onClick={() => copiarTexto(examesToText())}>Copiar</button>
                 </span>
               </div>
-              <article className="doc" id="docExames" ref={docExamesRef}>
+              <article className="doc" id="docExames">
                 <Letterhead profile={profile} />
                 <div className="doc-title">Solicitação de exames</div>
                 <DocMeta nome={pacNome} idade={pacIdade} data={pacData} />
@@ -502,11 +569,25 @@ export default function Atendimento({
                   <div>
                     <div className="hipotese"><span className="k">Hipótese diagnóstica:</span> {disease.n} (CID {disease.cid})</div>
                     <div className="solicito">Solicito os seguintes exames:</div>
-                    <ol className="exlist">{disease.conf.map((e, i) => <li key={i}>{e}</li>)}</ol>
-                    {disease.basal && disease.basal.length > 0 && (
+                    {examesConf.map((e, i) => (
+                      <div className="exrow" key={i}>
+                        <span className="num">{i + 1}.</span>
+                        <input className="docf" value={e} onChange={(ev) => updConf(i, ev.target.value)} placeholder="Exame" />
+                        <button className="rmbtn no-print" onClick={() => rmConf(i)} title="Remover exame">×</button>
+                      </div>
+                    ))}
+                    <button className="addbtn no-print" onClick={addConf}>+ adicionar exame</button>
+                    {examesBasal.length > 0 && (
                       <>
                         <div className="subhead">Avaliação pré-tratamento (antes de imunossupressor)</div>
-                        <ol className="exlist">{disease.basal.map((e, i) => <li key={i}>{e}</li>)}</ol>
+                        {examesBasal.map((e, i) => (
+                          <div className="exrow" key={i}>
+                            <span className="num">{i + 1}.</span>
+                            <input className="docf" value={e} onChange={(ev) => updBasal(i, ev.target.value)} placeholder="Exame" />
+                            <button className="rmbtn no-print" onClick={() => rmBasal(i)} title="Remover exame">×</button>
+                          </div>
+                        ))}
+                        <button className="addbtn no-print" onClick={addBasal}>+ adicionar exame pré-tratamento</button>
                       </>
                     )}
                     {Q.consulta === 'primeira' && (
@@ -515,6 +596,7 @@ export default function Atendimento({
                   </div>
                 )}
                 <Signature profile={profile} nome={pacData} localCidade={profile?.cidade} data={pacData} />
+                <div className="doc-disclaimer">{DISCLAIMER_DOC}</div>
               </article>
             </div>
 
@@ -524,10 +606,10 @@ export default function Atendimento({
                 <span className="dt-name">Receituário</span>
                 <span className="dt-btns">
                   <button className="btn-ghost" onClick={() => imprimir('rc')}>Imprimir</button>
-                  <button className="btn-ghost" onClick={() => copiar(docReceitaRef)}>Copiar</button>
+                  <button className="btn-ghost" onClick={() => copiarTexto(receitaToText())}>Copiar</button>
                 </span>
               </div>
-              <article className="doc" id="docReceita" ref={docReceitaRef}>
+              <article className="doc" id="docReceita">
                 <Letterhead profile={profile} />
                 <div className="doc-title">Receituário</div>
                 <DocMeta nome={pacNome} idade={pacIdade} data={pacData} />
@@ -544,20 +626,27 @@ export default function Atendimento({
                     <div className={'stage-banner' + (currentStage.alerta ? ' alert' : '')}>
                       Etapa: {currentStage.label}{currentStage.sub ? ' — ' + currentStage.sub : ''}
                     </div>
-                    {currentStage.itens.map((it, i) => (
+                    {receitaItens.map((it, i) => (
                       <div className="rx-item" key={i}>
                         <div className="rx-num">{i + 1}.</div>
                         <div className="rx-body">
-                          <div className="rx-med">{it.m}{it.ceaf && <span className="ceaf">LME</span>}</div>
-                          <div className="rx-pos">{it.p}</div>
-                          {it.q && <div className="rx-qtd">Quantidade: {it.q}</div>}
+                          <div className="rx-med" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <input className="docf" style={{ fontWeight: 600 }} value={it.m} onChange={(ev) => updRx(i, { m: ev.target.value })} placeholder="Medicamento e dose" />
+                            <button className={'lme-tag-btn no-print' + (it.ceaf ? ' on' : '')} onClick={() => updRx(i, { ceaf: !it.ceaf })} title="Marcar como item de LME (Componente Especializado)">LME</button>
+                            <button className="rmbtn no-print" onClick={() => rmRx(i)} title="Remover medicamento">×</button>
+                            {it.ceaf && <span className="ceaf print-only">LME</span>}
+                          </div>
+                          <textarea className="docf rx-pos" style={{ minHeight: 34 }} value={it.p} onChange={(ev) => updRx(i, { p: ev.target.value })} placeholder="Posologia / orientação" />
+                          <div className="rx-qtd">Quantidade: <input className="docf" style={{ display: 'inline-block', width: 180 }} value={it.q || ''} onChange={(ev) => updRx(i, { q: ev.target.value })} placeholder="ex.: 24 comprimidos" /></div>
                         </div>
                       </div>
                     ))}
+                    <button className="addbtn no-print" onClick={addRx}>+ adicionar medicamento</button>
                     {currentStage.nota && <div className="rx-nota">{currentStage.nota}</div>}
                   </div>
                 )}
                 <Signature profile={profile} nome={pacData} localCidade={profile?.cidade} data={pacData} />
+                <div className="doc-disclaimer">{DISCLAIMER_DOC}</div>
               </article>
             </div>
 

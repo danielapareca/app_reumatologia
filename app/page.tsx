@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import TopBar from '@/components/TopBar';
 import PatientSearch from '@/components/PatientSearch';
+import { DISCLAIMER_LONGO } from '@/lib/disclaimer';
 import type { Patient } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -45,6 +46,7 @@ export default async function Dashboard() {
 
         <PatientSearch patients={(patients as Patient[]) || []} />
       </div>
+      <footer className="app-footer">{DISCLAIMER_LONGO}</footer>
     </>
   );
 }

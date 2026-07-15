@@ -1,8 +1,10 @@
 'use client';
 
+import { useState } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import Link from 'next/link';
 import { createPatient, type NewPatientResult } from './actions';
+import { idadeFromNascimento } from '@/lib/util';
 
 function SaveBtn() {
   const { pending } = useFormStatus();
@@ -17,6 +19,14 @@ const initial: NewPatientResult = {};
 
 export default function NovoPaciente() {
   const [state, formAction] = useFormState(createPatient, initial);
+  const [nascimento, setNascimento] = useState('');
+  const [idade, setIdade] = useState('');
+
+  function onNascimento(v: string) {
+    setNascimento(v);
+    const calc = idadeFromNascimento(v);
+    if (calc) setIdade(calc);
+  }
 
   return (
     <>
@@ -39,12 +49,12 @@ export default function NovoPaciente() {
           </div>
           <div className="row2">
             <div className="field">
-              <label>Idade</label>
-              <input name="idade" placeholder="ex.: 54 anos" />
+              <label>Data de nascimento</label>
+              <input name="nascimento" type="date" value={nascimento} onChange={(e) => onNascimento(e.target.value)} />
             </div>
             <div className="field">
-              <label>Data de nascimento</label>
-              <input name="nascimento" type="date" />
+              <label>Idade (preenchida pela data)</label>
+              <input name="idade" value={idade} onChange={(e) => setIdade(e.target.value)} placeholder="ex.: 54 anos" />
             </div>
           </div>
           <div className="row2">
@@ -61,9 +71,24 @@ export default function NovoPaciente() {
             <label>E-mail</label>
             <input name="email" type="email" placeholder="email@exemplo.com" />
           </div>
+
           <div className="field">
-            <label>Endereço</label>
-            <input name="endereco" placeholder="Rua, nº, bairro, cidade - UF" />
+            <label>Endereço (rua, número, bairro)</label>
+            <input name="endereco" placeholder="Rua Exemplo, 123, Centro" />
+          </div>
+          <div className="row2">
+            <div className="field">
+              <label>Cidade</label>
+              <input name="cidade" placeholder="Cidade" />
+            </div>
+            <div className="field">
+              <label>Estado (UF)</label>
+              <input name="estado" placeholder="SP" maxLength={2} />
+            </div>
+          </div>
+          <div className="field" style={{ maxWidth: 200 }}>
+            <label>CEP</label>
+            <input name="cep" placeholder="00000-000" />
           </div>
 
           <SaveBtn />

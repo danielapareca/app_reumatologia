@@ -14,9 +14,15 @@ create table if not exists patients (
   id uuid primary key default gen_random_uuid(),
   doctor_id uuid not null default auth.uid() references auth.users(id),
   nome text not null, idade text, nascimento date,
-  whats text, cpf text, email text, endereco text,
+  whats text, cpf text, email text,
+  endereco text, cidade text, estado text, cep text,
   created_at timestamptz default now()
 );
+
+-- Endereço detalhado (idempotente, para bancos já criados).
+alter table patients add column if not exists cidade text;
+alter table patients add column if not exists estado text;
+alter table patients add column if not exists cep text;
 
 create table if not exists consultas (
   id uuid primary key default gen_random_uuid(),

@@ -122,6 +122,24 @@ ol.exlist li{margin-bottom:5px; font-size:13.5px}
 .localdata{text-align:right; font-size:12.5px; color:var(--muted); margin-top:22px}
 .empty-note{color:#b7b0a0; font-size:13px; font-style:italic}
 
+/* campos editáveis dentro dos documentos (exames/receita) */
+.doc input.docf{border:none; border-bottom:1px dotted transparent; font-family:inherit; font-size:inherit; color:inherit; background:none; padding:1px 2px; width:100%}
+.doc input.docf:hover{border-bottom-color:#d8d2c4}
+.doc input.docf:focus{outline:none; background:#fff7df; border-bottom-color:var(--gold)}
+.doc textarea.docf{border:none; font-family:inherit; font-size:13px; color:#333; background:none; padding:1px 2px; width:100%; resize:vertical; line-height:1.4}
+.doc textarea.docf:focus{outline:none; background:#fff7df}
+.exrow{display:flex; align-items:center; gap:6px; margin-bottom:3px}
+.exrow .num{color:var(--gold); font-weight:700; min-width:18px; font-size:13.5px}
+.rmbtn{border:none; background:none; color:var(--red); cursor:pointer; font-size:16px; line-height:1; padding:1px 6px; border-radius:4px; flex-shrink:0}
+.rmbtn:hover{background:#f7e9e7}
+.addbtn{border:1px dashed var(--line); background:#fff; color:var(--gold); font-size:12px; font-weight:600; padding:5px 10px; border-radius:6px; cursor:pointer; margin:6px 0 4px}
+.addbtn:hover{border-color:var(--gold)}
+.lme-tag-btn{font-size:10px; letter-spacing:.5px; text-transform:uppercase; font-weight:700; border-radius:4px; padding:2px 7px; cursor:pointer; border:1px solid var(--gold); color:var(--gold); background:#fff; flex-shrink:0}
+.lme-tag-btn.on{background:var(--gold); color:#fff}
+.print-only{display:none}
+.doc-disclaimer{font-size:9px; color:#9a9a9a; border-top:1px dashed var(--line); margin-top:16px; padding-top:6px; line-height:1.4}
+.app-footer{max-width:820px; margin:24px auto 0; padding:14px 22px; font-size:11px; color:var(--muted); border-top:1px solid var(--line); line-height:1.5}
+
 /* tabs */
 .maintabs{display:flex; gap:4px; margin-bottom:18px; border-bottom:1px solid var(--line)}
 .maintab{padding:9px 16px; font-size:13px; font-weight:600; color:var(--muted); cursor:pointer; border:none; background:none; border-bottom:2px solid transparent; margin-bottom:-1px}
@@ -260,4 +278,7 @@ ol.exlist li{margin-bottom:5px; font-size:13.5px}
   body.only-ex #wrapExames, body.only-rc #wrapReceita, body.only-lme #wrapLME{page-break-after:auto}
   .doc.lme-doc{padding:0}
   .lme2 input.f, .lme2 textarea.f{background:none !important}
+  .rmbtn, .addbtn, .lme-tag-btn, .app-footer{display:none !important}
+  .print-only{display:inline-block !important}
+  .doc input.docf, .doc textarea.docf{background:none !important; border-bottom-color:transparent !important}
 }

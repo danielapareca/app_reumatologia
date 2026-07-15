@@ -23,6 +23,9 @@ export interface Patient {
   cpf: string | null;
   email: string | null;
   endereco: string | null;
+  cidade: string | null;
+  estado: string | null;
+  cep: string | null;
   created_at?: string;
 }
 

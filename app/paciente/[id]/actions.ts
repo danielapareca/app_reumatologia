@@ -30,10 +30,14 @@ export async function updatePatient(input: {
   id: string;
   nome: string;
   idade: string;
+  nascimento: string;
   whats: string;
   cpf: string;
   email: string;
   endereco: string;
+  cidade: string;
+  estado: string;
+  cep: string;
 }): Promise<SaveConsultaResult> {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -45,10 +49,14 @@ export async function updatePatient(input: {
     .update({
       nome: input.nome.trim(),
       idade: input.idade.trim() || null,
+      nascimento: input.nascimento.trim() || null,
       whats: input.whats.trim() || null,
       cpf: input.cpf.trim() || null,
       email: input.email.trim() || null,
       endereco: input.endereco.trim() || null,
+      cidade: input.cidade.trim() || null,
+      estado: input.estado.trim() || null,
+      cep: input.cep.trim() || null,
     })
     .eq('id', input.id);
 

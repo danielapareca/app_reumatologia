@@ -28,6 +28,9 @@ export async function createPatient(_prev: NewPatientResult, formData: FormData)
       cpf: String(formData.get('cpf') || '').trim() || null,
       email: String(formData.get('email') || '').trim() || null,
       endereco: String(formData.get('endereco') || '').trim() || null,
+      cidade: String(formData.get('cidade') || '').trim() || null,
+      estado: String(formData.get('estado') || '').trim() || null,
+      cep: String(formData.get('cep') || '').trim() || null,
     })
     .select('id')
     .single();

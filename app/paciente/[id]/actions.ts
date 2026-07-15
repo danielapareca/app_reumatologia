@@ -92,3 +92,32 @@ export async function saveConsulta(input: SaveConsultaInput): Promise<SaveConsul
   revalidatePath(`/paciente/${input.patientId}`);
   return { ok: true };
 }
+
+// Avaliação obrigatória (1–5) das sugestões da IA; discordância obrigatória se <= 3.
+export async function saveAiFeedback(input: {
+  patientId: string;
+  doencaId: string;
+  aiModel: string;
+  aiResponse: string;
+  rating: number;
+  disagreement: string;
+}): Promise<SaveConsultaResult> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: 'Sessão expirada.' };
+  if (!(input.rating >= 1 && input.rating <= 5)) return { error: 'Dê uma nota de 1 a 5.' };
+  if (input.rating <= 3 && !input.disagreement.trim()) {
+    return { error: 'Para notas 3 ou menos, descreva o que não concordou com a IA.' };
+  }
+  const { error } = await supabase.from('ai_feedback').insert({
+    patient_id: input.patientId,
+    doctor_id: user.id,
+    doenca_id: input.doencaId || null,
+    ai_model: input.aiModel || null,
+    ai_response: input.aiResponse || null,
+    rating: input.rating,
+    disagreement: input.disagreement.trim() || null,
+  });
+  if (error) return { error: error.message };
+  return { ok: true };
+}

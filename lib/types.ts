@@ -49,6 +49,18 @@ export interface Consulta {
   created_at?: string;
 }
 
+export interface ExamValue {
+  id: string;
+  patient_id: string;
+  doctor_id: string;
+  marcador: string;
+  valor: number;
+  unidade: string | null;
+  data: string;
+  tipo: string; // 'lab' | 'escore'
+  created_at?: string;
+}
+
 // Snapshot dos campos da LME salvos junto da consulta.
 export interface LmeJson {
   cnes?: string;

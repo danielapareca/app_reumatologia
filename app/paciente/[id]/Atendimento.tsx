@@ -7,11 +7,14 @@ import { computeFlags } from '@/lib/clinical/flags';
 import { scanText } from '@/lib/clinical/insights';
 import { ANAM, jointScoreCat, computeAnamInsight, type AnamState } from '@/lib/clinical/anamnese';
 import { defaultQState, type QState, type RxItem } from '@/lib/clinical/types';
-import type { Patient, Profile, Consulta, LmeJson } from '@/lib/types';
+import type { Patient, Profile, Consulta, LmeJson, ExamValue } from '@/lib/types';
 import { idadeFromNascimento } from '@/lib/util';
 import { DISCLAIMER_LONGO, DISCLAIMER_DOC } from '@/lib/disclaimer';
 import VoiceMic from '@/components/VoiceMic';
 import LmePreview, { type LmeFields, type LmeMed } from './LmePreview';
+import ExamValuesPanel from './ExamValuesPanel';
+import ActivityCalculators from './ActivityCalculators';
+import AiFeedback from './AiFeedback';
 import { saveConsulta, updatePatient } from './actions';
 
 type Tab = 'docs' | 'anamnese' | 'evolucao';
@@ -24,10 +27,12 @@ export default function Atendimento({
   patient,
   profile,
   consultas,
+  examValues,
 }: {
   patient: Patient;
   profile: Profile | null;
   consultas: Consulta[];
+  examValues: ExamValue[];
 }) {
   // ---- dados do paciente (editáveis) ----
   const [pacNome, setPacNome] = useState(patient.nome || '');
@@ -42,8 +47,12 @@ export default function Atendimento({
   const [pacCep, setPacCep] = useState(patient.cep || '');
   const [pacData, setPacData] = useState('');
   const [pacAlergia, setPacAlergia] = useState('');
+  const [todayISO, setTodayISO] = useState('');
 
-  useEffect(() => { setPacData(todayBR()); }, []);
+  useEffect(() => {
+    setPacData(todayBR());
+    setTodayISO(new Date().toISOString().slice(0, 10));
+  }, []);
 
   // Data de nascimento → idade automática.
   function onNascimento(v: string) {
@@ -74,8 +83,12 @@ export default function Atendimento({
 
   // Insights com IA (Fase 2).
   const [iaInsight, setIaInsight] = useState('');
+  const [iaModel, setIaModel] = useState('');
   const [iaLoading, setIaLoading] = useState(false);
   const [iaError, setIaError] = useState('');
+
+  // Exames numéricos / escores (Fase 3).
+  const [examList, setExamList] = useState<ExamValue[]>(examValues);
 
   const disease = curId ? D[curId] : null;
   const stages = disease?.etapas || [];
@@ -302,6 +315,15 @@ export default function Atendimento({
         exames: c.exam_results || '',
         receita: c.receita_texto || '',
       }));
+      // Resumo das medições numéricas (laboratório + escores) para a IA analisar tendência.
+      const marcadores = Array.from(new Set(examList.map((e) => e.marcador)));
+      const numeric = marcadores.length
+        ? 'Medições numéricas ao longo do tempo — ' + marcadores.map((m) => {
+            const arr = examList.filter((e) => e.marcador === m).sort((a, b) => a.data.localeCompare(b.data));
+            return `${m}: ${arr.map((e) => `${e.data}=${Number(e.valor)}${e.unidade || ''}`).join(', ')}`;
+          }).join(' | ')
+        : '';
+
       const payload = {
         paciente: pacNome,
         idade: pacIdade,
@@ -311,7 +333,7 @@ export default function Atendimento({
         anamneseAtual: {
           hda,
           antecedentes,
-          exames: examResults,
+          exames: [examResults, numeric].filter(Boolean).join('\n'),
           escore: anamInsight ? `${anamInsight.score}/10 (ACR/EULAR 2010)` : '',
         },
         historico,
@@ -324,6 +346,7 @@ export default function Atendimento({
       const j = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(j.error || 'Falha ao gerar insights');
       setIaInsight(j.insight || '');
+      setIaModel(j.model || '');
       showFlash('Insights gerados');
     } catch (e) {
       setIaError(e instanceof Error ? e.message : 'Falha ao gerar insights');
@@ -792,11 +815,16 @@ export default function Atendimento({
                 )}
               </div>
 
+              <ActivityCalculators patientId={patient.id} today={todayISO} onSaved={(v) => setExamList((l) => [...l, v])} />
+
               <IAInsights
                 onGerar={gerarInsights}
                 loading={iaLoading}
                 error={iaError}
                 insight={iaInsight}
+                patientId={patient.id}
+                doencaId={curId}
+                aiModel={iaModel}
               />
             </div>
           </div>
@@ -835,11 +863,16 @@ export default function Atendimento({
                 )}
               </div>
 
+              <ExamValuesPanel patientId={patient.id} values={examList} onChanged={setExamList} today={todayISO} />
+
               <IAInsights
                 onGerar={gerarInsights}
                 loading={iaLoading}
                 error={iaError}
                 insight={iaInsight}
+                patientId={patient.id}
+                doencaId={curId}
+                aiModel={iaModel}
               />
             </div>
           </div>
@@ -857,11 +890,17 @@ function IAInsights({
   loading,
   error,
   insight,
+  patientId,
+  doencaId,
+  aiModel,
 }: {
   onGerar: () => void;
   loading: boolean;
   error: string;
   insight: string;
+  patientId: string;
+  doencaId: string;
+  aiModel: string;
 }) {
   return (
     <div className="card">
@@ -874,10 +913,19 @@ function IAInsights({
       </button>
       {error && <div className="auth-err" style={{ marginTop: 12 }}>{error}</div>}
       {insight && (
-        <div className="insight" style={{ marginTop: 14 }}>
-          <div className="it">Insight gerado por IA</div>
-          <InsightRender text={insight} />
-        </div>
+        <>
+          <div className="insight" style={{ marginTop: 14 }}>
+            <div className="it">Insight gerado por IA</div>
+            <InsightRender text={insight} />
+          </div>
+          <AiFeedback
+            key={insight.slice(0, 40)}
+            patientId={patientId}
+            doencaId={doencaId}
+            aiModel={aiModel}
+            aiResponse={insight}
+          />
+        </>
       )}
     </div>
   );

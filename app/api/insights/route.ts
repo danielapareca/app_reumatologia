@@ -155,7 +155,7 @@ export async function POST(request: Request) {
       .join('\n')
       .trim();
 
-    return NextResponse.json({ insight: texto });
+    return NextResponse.json({ insight: texto, model: MODEL });
   } catch (err) {
     if (err instanceof Anthropic.APIError) {
       const status = err.status === 401 ? 500 : err.status || 500;

@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import Atendimento from './Atendimento';
-import type { Patient, Consulta, Profile } from '@/lib/types';
+import type { Patient, Consulta, Profile, ExamValue } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,11 +29,18 @@ export default async function PacientePage({ params }: { params: { id: string } 
     .eq('patient_id', params.id)
     .order('data', { ascending: false });
 
+  const { data: examValues } = await supabase
+    .from('exam_values')
+    .select('*')
+    .eq('patient_id', params.id)
+    .order('data', { ascending: true });
+
   return (
     <Atendimento
       patient={patient as Patient}
       profile={(profile as Profile) || null}
       consultas={(consultas as Consulta[]) || []}
+      examValues={(examValues as ExamValue[]) || []}
     />
   );
 }

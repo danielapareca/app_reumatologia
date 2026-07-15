@@ -7,10 +7,18 @@ type CookieItem = { name: string; value: string; options?: CookieOptions };
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  // Sem variáveis de ambiente configuradas: não derruba a app (evita 500 no
+  // middleware). Deixa a requisição seguir para uma página exibir o erro.
+  if (!url || !anon) {
+    return supabaseResponse;
+  }
+
+  let user = null;
+  try {
+    const supabase = createServerClient(url, anon, {
       cookies: {
         getAll() {
           return request.cookies.getAll();
@@ -25,11 +33,8 @@ export async function updateSession(request: NextRequest) {
           );
         },
       },
-    }
-  );
+    });
 
-  let user = null;
-  try {
     const { data } = await supabase.auth.getUser();
     user = data.user;
   } catch {

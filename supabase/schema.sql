@@ -39,6 +39,10 @@ create table if not exists consultas (
 -- Fase 2: coluna do insight gerado pela IA (idempotente, para bancos já criados).
 alter table consultas add column if not exists ia_insight text;
 
+-- Observação livre do médico por consulta (idempotente). O app salva mesmo sem esta coluna;
+-- rode este ALTER para as observações ficarem guardadas no histórico.
+alter table consultas add column if not exists observacoes text;
+
 -- ============================================================
 -- Fase 3
 -- ============================================================

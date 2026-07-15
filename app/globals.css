@@ -183,6 +183,25 @@ ol.exlist li{margin-bottom:5px; font-size:13.5px}
 .card .sub{font-size:12px; color:var(--muted); margin:0 0 14px}
 .an-q{margin-bottom:13px}
 .an-q .ql{font-size:12.5px; font-weight:600; margin-bottom:5px}
+.an-q .ql-row{display:flex; align-items:center; justify-content:space-between; gap:8px}
+
+/* modelos de texto do médico */
+.tpl-wrap{position:relative; font-weight:400}
+.tpl-btn{font-size:11px; font-weight:600; color:var(--gold); background:#fff; border:1px solid var(--line); border-radius:20px; padding:3px 10px; cursor:pointer}
+.tpl-btn:hover{border-color:var(--gold)}
+.tpl-panel{position:absolute; right:0; top:26px; z-index:30; width:300px; max-width:80vw; background:#fff; border:1px solid var(--line); border-radius:10px; box-shadow:0 8px 28px rgba(0,0,0,.12); padding:10px}
+.tpl-empty{font-size:11.5px; color:var(--muted); font-style:italic; margin-bottom:8px}
+.tpl-list{display:flex; flex-direction:column; gap:4px; margin-bottom:10px; max-height:180px; overflow:auto}
+.tpl-item{display:flex; align-items:center; gap:6px}
+.tpl-ins{flex:1; text-align:left; font-size:12px; color:var(--ink); background:var(--gold-soft); border:1px solid #e6d9bd; border-radius:6px; padding:6px 9px; cursor:pointer; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.tpl-ins:hover{border-color:var(--gold)}
+.tpl-rm{border:none; background:none; color:var(--red); cursor:pointer; font-size:15px; line-height:1; padding:0 4px}
+.tpl-new{border-top:1px dashed var(--line); padding-top:8px; display:flex; flex-direction:column; gap:6px}
+.tpl-new input, .tpl-new textarea{width:100%; padding:6px 8px; border:1px solid var(--line); border-radius:6px; font-family:inherit; font-size:12.5px}
+.tpl-new textarea{min-height:52px; resize:vertical}
+.tpl-new input:focus, .tpl-new textarea:focus{outline:none; border-color:var(--gold); box-shadow:0 0 0 3px var(--gold-soft)}
+.tpl-actions{display:flex; gap:6px; flex-wrap:wrap}
+.tpl-actions button{font-size:11.5px; padding:6px 10px}
 .fieldrow{display:flex; gap:8px; align-items:flex-start}
 .fieldrow textarea{flex:1; min-height:70px; padding:9px 11px; border:1px solid var(--line); border-radius:8px; font-family:inherit; font-size:13.5px; resize:vertical}
 .fieldrow textarea:focus{outline:none; border-color:var(--gold); box-shadow:0 0 0 3px var(--gold-soft)}

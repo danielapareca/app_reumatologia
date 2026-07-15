@@ -18,6 +18,7 @@ export interface SaveConsultaInput {
   receitaTexto: string;
   lmeJson: LmeJson | null;
   iaInsight: string;
+  observacoes: string;
 }
 
 export interface SaveConsultaResult {
@@ -71,7 +72,7 @@ export async function saveConsulta(input: SaveConsultaInput): Promise<SaveConsul
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: 'Sessão expirada.' };
 
-  const { error } = await supabase.from('consultas').insert({
+  const row: Record<string, unknown> = {
     patient_id: input.patientId,
     doctor_id: user.id,
     doenca_id: input.doencaId || null,
@@ -86,7 +87,15 @@ export async function saveConsulta(input: SaveConsultaInput): Promise<SaveConsul
     receita_texto: input.receitaTexto || null,
     lme_json: input.lmeJson,
     ia_insight: input.iaInsight || null,
-  });
+    observacoes: input.observacoes || null,
+  };
+
+  let { error } = await supabase.from('consultas').insert(row);
+  // Compatível com bancos onde a coluna `observacoes` ainda não foi criada: salva sem ela.
+  if (error && 'observacoes' in row && (error.code === 'PGRST204' || error.code === '42703' || /observ/i.test(error.message))) {
+    delete row.observacoes;
+    ({ error } = await supabase.from('consultas').insert(row));
+  }
 
   if (error) return { error: error.message };
   revalidatePath(`/paciente/${input.patientId}`);

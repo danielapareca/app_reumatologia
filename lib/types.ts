@@ -51,6 +51,7 @@ export interface Consulta {
   receita_texto: string | null;
   lme_json: LmeJson | null;
   ia_insight: string | null;
+  observacoes?: string | null;
   created_at?: string;
 }
 

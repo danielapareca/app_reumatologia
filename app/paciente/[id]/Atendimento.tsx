@@ -12,6 +12,7 @@ import { idadeFromNascimento, diasDesde, haQuantoTempo } from '@/lib/util';
 import { computeMonitorAlerts } from '@/lib/clinical/monitor';
 import { DISCLAIMER_LONGO, DISCLAIMER_DOC } from '@/lib/disclaimer';
 import VoiceMic from '@/components/VoiceMic';
+import TextTemplates from '@/components/TextTemplates';
 import LmePreview, { type LmeFields, type LmeMed } from './LmePreview';
 import ExamValuesPanel from './ExamValuesPanel';
 import ActivityCalculators from './ActivityCalculators';
@@ -88,6 +89,10 @@ export default function Atendimento({
   // ---- texto ----
   const [hda, setHda] = useState('');
   const [antecedentes, setAntecedentes] = useState('');
+  const [observacoes, setObservacoes] = useState('');
+
+  // Chave dos modelos de texto do médico (por médico, no navegador).
+  const tplKey = `modelos_texto_${profile?.id || 'medico'}`;
 
   // ---- ui ----
   const [tab, setTab] = useState<Tab>('anamnese');
@@ -148,7 +153,7 @@ export default function Atendimento({
     if (skipDirty.current) { skipDirty.current = false; return; }
     setDirty(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hda, antecedentes, anam, curId, curStage, pacNome, pacIdade]);
+  }, [hda, antecedentes, observacoes, anam, curId, curStage, pacNome, pacIdade]);
 
   // Avisa antes de fechar/recarregar com consulta não salva.
   useEffect(() => {
@@ -495,6 +500,7 @@ export default function Atendimento({
         receitaTexto: receitaToText(),
         lmeJson,
         iaInsight,
+        observacoes,
       });
       if (r.error) { showFlash(r.error); setSaving(false); return; }
 
@@ -506,7 +512,7 @@ export default function Atendimento({
         etapa: currentStage?.label || null, consulta_tipo: Q.consulta,
         hda: hda || null, antecedentes: antecedentes || null, exam_results: examesResumo() || null,
         insight: insightText || null, exames_texto: null, receita_texto: null, lme_json: lmeJson,
-        ia_insight: iaInsight || null,
+        ia_insight: iaInsight || null, observacoes: observacoes || null,
       }, ...list]);
       setDirty(false);
 
@@ -950,17 +956,30 @@ export default function Atendimento({
               <div className="card">
                 <h3>Queixa e história (ditar por voz)</h3>
                 <div className="an-q">
-                  <div className="ql">História da doença atual</div>
+                  <div className="ql ql-row">História da doença atual
+                    <TextTemplates storageKey={tplKey} atalho={hda} onInsert={(t) => setHda((v) => (v ? v.trim() + ' ' : '') + t)} />
+                  </div>
                   <div className="fieldrow">
                     <textarea value={hda} onChange={(e) => setHda(e.target.value)} placeholder="Dite ou digite a história..." />
                     <VoiceMic onText={(chunk) => setHda((v) => (v ? v.trim() + ' ' : '') + chunk)} />
                   </div>
                 </div>
                 <div className="an-q">
-                  <div className="ql">Antecedentes, medicações em uso, alergias</div>
+                  <div className="ql ql-row">Antecedentes, medicações em uso, alergias
+                    <TextTemplates storageKey={tplKey} atalho={antecedentes} onInsert={(t) => setAntecedentes((v) => (v ? v.trim() + ' ' : '') + t)} />
+                  </div>
                   <div className="fieldrow">
                     <textarea value={antecedentes} onChange={(e) => setAntecedentes(e.target.value)} placeholder="Dite ou digite..." />
                     <VoiceMic onText={(chunk) => setAntecedentes((v) => (v ? v.trim() + ' ' : '') + chunk)} />
+                  </div>
+                </div>
+                <div className="an-q" style={{ marginBottom: 0 }}>
+                  <div className="ql ql-row">Observações da consulta
+                    <TextTemplates storageKey={tplKey} atalho={observacoes} onInsert={(t) => setObservacoes((v) => (v ? v.trim() + ' ' : '') + t)} />
+                  </div>
+                  <div className="fieldrow">
+                    <textarea value={observacoes} onChange={(e) => setObservacoes(e.target.value)} placeholder="Anotações do médico para o histórico (orientações, retorno, conduta livre…)" />
+                    <VoiceMic onText={(chunk) => setObservacoes((v) => (v ? v.trim() + ' ' : '') + chunk)} />
                   </div>
                 </div>
               </div>
@@ -1024,6 +1043,7 @@ export default function Atendimento({
                       {c.insight && <div className="evo-line"><span className="k">Escore:</span> {c.insight}</div>}
                       {c.exam_results && <div className="evo-line"><span className="k">Exames:</span> {c.exam_results}</div>}
                       {c.hda && <div className="evo-line"><span className="k">HDA:</span> {c.hda}</div>}
+                      {c.observacoes && <div className="evo-line"><span className="k">Observações:</span> {c.observacoes}</div>}
                       {c.ia_insight && (
                         <details style={{ marginTop: 8 }}>
                           <summary style={{ cursor: 'pointer', fontSize: 12, fontWeight: 600, color: 'var(--gold)' }}>Insight da IA desta consulta</summary>
@@ -1067,6 +1087,7 @@ export default function Atendimento({
                 {c.exam_results && <div className="hist-c-line"><span className="k">Exames:</span> {c.exam_results}</div>}
                 {c.hda && <div className="hist-c-line"><span className="k">HDA:</span> {c.hda}</div>}
                 {c.antecedentes && <div className="hist-c-line"><span className="k">Antecedentes:</span> {c.antecedentes}</div>}
+                {c.observacoes && <div className="hist-c-line"><span className="k">Observações:</span> {c.observacoes}</div>}
                 {c.receita_texto && <div className="hist-c-line"><span className="k">Conduta:</span> {c.receita_texto}</div>}
               </div>
             ))}

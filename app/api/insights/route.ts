@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@/lib/supabase/server';
+import { chunksParaDoenca, GROUNDING_META } from '@/lib/clinical/grounding';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -22,6 +23,7 @@ interface ConsultaResumo {
 interface InsightsInput {
   paciente: string;
   idade: string;
+  doencaId: string;
   doenca: string;
   cid: string;
   anamneseAtual: {
@@ -35,29 +37,56 @@ interface InsightsInput {
 
 const SYSTEM_PROMPT = `Você é um assistente clínico de apoio a um médico reumatologista no Brasil. Sua função é raciocinar sobre os dados registrados de um paciente e produzir insights úteis para a decisão do médico.
 
-Você NÃO é o médico e NÃO toma decisões. É uma ferramenta de APOIO: o médico assistente revisa, valida e individualiza tudo. Nunca afirme diagnósticos como certeza; use linguagem de hipótese e de sugestão.
+REGRAS OBRIGATÓRIAS (guardrails):
+- Você é APOIO, nunca decisão. Não substitui o julgamento clínico do médico.
+- Use SOMENTE a BASE DE CONHECIMENTO fornecida abaixo (chunks) + os dados do paciente. NÃO invente condutas nem doses — só cite doses que estejam nos chunks.
+- CITE A FONTE em cada afirmação relevante, no formato [id-do-chunk] (ex.: [ar-trat-2]). A referência completa de cada chunk está no campo "Fonte".
+- Se não houver base suficiente nos chunks para algo, diga claramente que não há base suficiente e sugira o exame/avaliação que faltou — NÃO adivinhe.
+- SEGURANÇA PRIMEIRO: se houver sinal de alarme/emergência (ver [fund-02]), destaque no TOPO da resposta. Antes de sugerir imunossupressor/biológico, cheque nos dados do paciente gestação/lactação, função renal (TFG), hepatopatia/transaminases e infecção ativa ou rastreio TB/HBV pendente (ver [fund-03] e [fund-04]); sinalize contraindicações.
+- Sempre recomende confirmar no PCDT/diretriz vigente antes de qualquer conduta.
 
-A partir dos dados fornecidos (anamnese, evolução das consultas, resultados de exames e histórico de medicação e dose), produza uma resposta em português do Brasil, organizada EXATAMENTE nestas seções (use os títulos com "##"):
+Responda em português do Brasil, organizada EXATAMENTE nestas seções (títulos com "##"):
 
 ## Resumo da evolução
 Síntese objetiva de como o paciente evoluiu ao longo das consultas.
 
-## Alertas de interação e segurança
-Interações medicamentosas relevantes, contraindicações e cuidados. Se não houver, diga que não foram identificados alertas evidentes.
+## Pontos de atenção e alertas
+Sinais de alarme (se houver) primeiro; depois interações medicamentosas, contraindicações e cuidados. Se não houver, diga que não foram identificados alertas evidentes.
 
 ## Comparação com o protocolo
-Como a conduta atual se compara com a diretriz/protocolo esperado para a doença e etapa. Aponte concordâncias e possíveis desvios.
+Como a conduta atual se compara com o protocolo/diretriz da base para a doença e etapa. Aponte concordâncias e possíveis desvios, citando os chunks.
 
 ## Dose e posologia
-Avise quando alguma dose parecer fora do esperado (acima/abaixo do usual). Se as doses parecem adequadas, diga isso.
+Avise quando alguma dose parecer fora do esperado em relação à base. Se as doses conferem com a base, diga isso. Nunca cite dose que não esteja nos chunks.
 
-## Próximos exames de monitorização
-Sugestão de exames de acompanhamento pertinentes à doença e ao tratamento.
+## Próximos passos e monitorização
+Sugestão de exames de acompanhamento e reavaliação pertinentes, com base nos chunks.
 
-Seja conciso e direto. Use listas quando ajudar. Baseie-se apenas nos dados fornecidos; se faltar informação para alguma seção, diga o que seria necessário registrar. Termine sempre com uma linha em itálico: *Apoio ao médico assistente — revise e individualize antes de decidir.*`;
+## Fontes citadas
+Liste os ids dos chunks usados e a referência (Fonte) de cada um.
+
+Seja conciso e clínico. Termine sempre com uma linha em itálico: *Apoio ao médico assistente — revise, confirme no PCDT/diretriz vigente e individualize antes de decidir.*`;
 
 function montarPrompt(input: InsightsInput): string {
   const linhas: string[] = [];
+
+  // BASE DE CONHECIMENTO (RAG por metadado: doença + regras + fundamentos).
+  const chunks = chunksParaDoenca(input.doencaId);
+  linhas.push('===== BASE DE CONHECIMENTO (use apenas isto para condutas/doses; cite [id]) =====');
+  linhas.push(`(Base revisão ${GROUNDING_META.revisao}. ${GROUNDING_META.aviso})`);
+  linhas.push('');
+  chunks.forEach((c) => {
+    linhas.push(`[${c.id}] ${c.doenca} — ${c.topico}`);
+    linhas.push(`Fonte: ${c.fonte}`);
+    linhas.push(c.texto);
+    linhas.push('');
+  });
+  if (!input.doencaId) {
+    linhas.push('(Nenhuma doença selecionada: há apenas regras e fundamentos gerais na base. Se faltar base específica, diga isso.)');
+    linhas.push('');
+  }
+
+  linhas.push('===== DADOS DO PACIENTE =====');
   linhas.push(`Paciente: ${input.paciente || '(não informado)'} · Idade: ${input.idade || '(não informada)'}`);
   linhas.push(`Doença de trabalho: ${input.doenca || '(não definida)'}${input.cid ? ' (CID ' + input.cid + ')' : ''}`);
   linhas.push('');
@@ -115,7 +144,7 @@ export async function POST(request: Request) {
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     const message = await client.messages.create({
       model: MODEL,
-      max_tokens: 2048,
+      max_tokens: 2600,
       system: SYSTEM_PROMPT,
       messages: [{ role: 'user', content: montarPrompt(input) }],
     });

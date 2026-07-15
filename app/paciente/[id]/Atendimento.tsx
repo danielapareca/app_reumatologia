@@ -305,6 +305,7 @@ export default function Atendimento({
       const payload = {
         paciente: pacNome,
         idade: pacIdade,
+        doencaId: curId,
         doenca: disease?.n || '',
         cid: disease?.cid || '',
         anamneseAtual: {
@@ -866,7 +867,7 @@ function IAInsights({
     <div className="card">
       <h3>Insights com IA</h3>
       <p className="sub">
-        A IA analisa a anamnese, a evolução das consultas, os exames e o histórico de medicação e devolve resumo, alertas de interação, comparação com o protocolo, aviso de dose fora do padrão e sugestão de próximos exames. <b>Apoio, não decisão.</b>
+        A IA analisa a anamnese, a evolução, os exames e a medicação e devolve resumo, alertas, comparação com o protocolo, dose e próximos passos — <b>fundamentada nos PCDTs/diretrizes</b> da base e <b>citando a fonte</b>. <b>Apoio, não decisão.</b>
       </p>
       <button className="btn-primary" onClick={onGerar} disabled={loading} style={{ maxWidth: 240 }}>
         {loading ? 'Gerando com IA…' : 'Gerar insights com IA'}

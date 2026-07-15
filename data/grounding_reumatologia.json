@@ -1,0 +1,673 @@
+{
+  "meta": {
+    "titulo": "Base de conhecimento — Reumatologia (grounding para IA)",
+    "revisao": "2026-07",
+    "aviso": "Apoio, não decisão. A IA deve citar a fonte e recomendar confirmar no PCDT/diretriz vigente."
+  },
+  "chunks": [
+    {
+      "id": "ia-01",
+      "doenca": "Orientações IA",
+      "cid": "—",
+      "topico": "Papel e limites",
+      "fonte": "Regra do app",
+      "texto": "A IA é APOIO ao médico, nunca decisão. Não substitui o julgamento clínico. Toda sugestão de conduta ou dose deve vir dos chunks recuperados desta base; não inventar. Sempre recomendar confirmar no PCDT/diretriz vigente. Se não houver base suficiente nos chunks, dizer isso claramente e sugerir a avaliação/exame que faltou, em vez de adivinhar."
+    },
+    {
+      "id": "ia-02",
+      "doenca": "Orientações IA",
+      "cid": "—",
+      "topico": "Como responder",
+      "fonte": "Regra do app",
+      "texto": "Usar somente os chunks recuperados para a doença/tópico em questão + os dados do paciente. Citar a fonte (id do chunk e a referência) em cada afirmação relevante. Nunca citar dose que não esteja nos chunks. Linguagem objetiva e clínica."
+    },
+    {
+      "id": "ia-03",
+      "doenca": "Orientações IA",
+      "cid": "—",
+      "topico": "Formato do insight",
+      "fonte": "Regra do app",
+      "texto": "Estruturar a resposta em: (1) resumo da evolução do paciente; (2) pontos de atenção/alertas em destaque; (3) comparação da conduta com o protocolo; (4) sugestão de próximos passos (exames de monitorização, reavaliação); (5) fontes citadas. Marcar claramente que é apoio, não decisão."
+    },
+    {
+      "id": "ia-04",
+      "doenca": "Orientações IA",
+      "cid": "—",
+      "topico": "Segurança primeiro",
+      "fonte": "Regra do app",
+      "texto": "Se identificar sinal de alarme ou emergência (ver chunk fund-02), destacar no topo da resposta. Antes de sugerir imunossupressor/biológico, checar nos dados do paciente: gestação/lactação, função renal (TFG), hepatopatia/transaminases e infecção ativa ou rastreio TB/HBV pendente (ver chunks fund-03 e fund-04). Sinalizar contraindicações."
+    },
+    {
+      "id": "ia-05",
+      "doenca": "Orientações IA",
+      "cid": "—",
+      "topico": "Privacidade",
+      "fonte": "Regra do app · LGPD",
+      "texto": "A IA é chamada pelo servidor (a chave de API nunca fica no navegador). Não expor dados sensíveis do paciente além do necessário para o insight. O uso pressupõe consentimento do paciente e responsabilidade do médico pelos dados (LGPD)."
+    },
+    {
+      "id": "fund-01",
+      "doenca": "Fundamentos",
+      "cid": "—",
+      "topico": "Dor inflamatória vs mecânica",
+      "fonte": "Protocolo de encaminhamento MS/TelessaúdeRS",
+      "texto": "Padrão INFLAMATÓRIO: rigidez matinal > 30-60 min, melhora com o movimento, piora com o repouso, dor noturna, edema articular (sinovite). Padrão MECÂNICO/degenerativo: rigidez breve (< 30 min), piora com o uso e ao longo do dia, melhora com repouso, sem sinais inflamatórios sistêmicos. A distinção orienta se a suspeita é de doença inflamatória (encaminha/investiga autoanticorpos) ou degenerativa."
+    },
+    {
+      "id": "fund-02",
+      "doenca": "Fundamentos",
+      "cid": "—",
+      "topico": "Sinais de alarme (red flags)",
+      "fonte": "Diretrizes de reumatologia (SBR/EULAR)",
+      "texto": "Investigar com urgência: monoartrite aguda febril (excluir artrite séptica com artrocentese); febre + perda de peso + sudorese noturna (doença sistêmica/neoplasia); sintoma visual + cefaleia + claudicação de mandíbula em > 50 anos (arterite de células gigantes — corticoide imediato); hemoptise ou glomerulonefrite rapidamente progressiva (vasculite — emergência); fraqueza muscular proximal progressiva (miopatia — dosar CK)."
+    },
+    {
+      "id": "fund-03",
+      "doenca": "Fundamentos",
+      "cid": "—",
+      "topico": "Antes de imunossupressor/biológico",
+      "fonte": "PCDTs MS · Recomendações de vacinação SBR 2025",
+      "texto": "Rastreio obrigatório antes de iniciar imunossupressor ou biológico: tuberculose (PPD ou IGRA + radiografia de tórax), hepatite B (HBsAg, anti-HBc, anti-HBs), hepatite C (anti-HCV), HIV, e beta-HCG em mulheres em idade fértil. Não iniciar o imunossupressor com infecção ativa ou rastreio pendente. Atualizar vacinação antes (evitar vacinas de vírus vivo durante a imunossupressão)."
+    },
+    {
+      "id": "fund-04",
+      "doenca": "Fundamentos",
+      "cid": "—",
+      "topico": "Segurança na gestação e lactação",
+      "fonte": "Diretrizes SBR/EULAR de gestação em doenças reumáticas",
+      "texto": "Evitar na gestação/lactação: metotrexato, leflunomida, micofenolato e ciclofosfamida (teratogênicos). Opções geralmente compatíveis, conforme o caso: hidroxicloroquina, sulfassalazina, azatioprina, corticoide na menor dose eficaz e certos anti-TNF. Planejar a troca de esquema antes da concepção."
+    },
+    {
+      "id": "fund-05",
+      "doenca": "Fundamentos",
+      "cid": "—",
+      "topico": "Monitorização de metotrexato",
+      "fonte": "PCDT Artrite Reumatoide · SBR",
+      "texto": "Metotrexato: dose semanal (nunca diária), sempre com ácido fólico 48h após. Contraindicado em insuficiência renal (TFG < 30) e hepatopatia. Monitorizar hemograma e transaminases (TGO/TGP) periodicamente. Reforçar contracepção (teratogênico)."
+    },
+    {
+      "id": "ar-exames",
+      "doenca": "Artrite Reumatoide",
+      "cid": "M05/M06",
+      "topico": "Exames a solicitar",
+      "fonte": "PCDT Artrite Reumatoide (Portaria Conjunta SAES/SCTIE nº 33, 19/01/2026) · critérios ACR/EULAR 2010 · SBR",
+      "texto": "Exames para confirmação/avaliação inicial: Hemograma completo; VHS; PCR; Fator reumatoide (FR); Anti-CCP; TGO (AST); TGP (ALT); Creatinina; EAS (urina tipo I); Radiografia de mãos, punhos e pés (AP).\n\nAvaliação pré-tratamento (antes de imunossupressor): PPD ou IGRA; Radiografia de tórax (PA e perfil); HBsAg; Anti-HBc total; Anti-HBs; Anti-HCV; Anti-HIV; Beta-HCG (se potencial gestacional)."
+    },
+    {
+      "id": "ar-trat-1",
+      "doenca": "Artrite Reumatoide",
+      "cid": "M05/M06",
+      "topico": "Tratamento — Consulta inicial",
+      "fonte": "PCDT Artrite Reumatoide (Portaria Conjunta SAES/SCTIE nº 33, 19/01/2026) · critérios ACR/EULAR 2010 · SBR",
+      "texto": "Etapa: Consulta inicial (sintomático + solicitar exames).\n\n- Prednisona 20 mg: Tomar 1 comprimido por via oral 1x/dia pela manhã, em redução gradual, como ponte anti-inflamatória até o retorno.\n- Naproxeno 500 mg: Tomar 1 comprimido por via oral de 12/12h se dor, com protetor gástrico.\n\nObservação: Solicitar exames e reavaliar no retorno para definir o tratamento de base (DMARD)."
+    },
+    {
+      "id": "ar-trat-2",
+      "doenca": "Artrite Reumatoide",
+      "cid": "M05/M06",
+      "topico": "Tratamento — 1ª linha — tratamento de base",
+      "fonte": "PCDT Artrite Reumatoide (Portaria Conjunta SAES/SCTIE nº 33, 19/01/2026) · critérios ACR/EULAR 2010 · SBR",
+      "texto": "Etapa: 1ª linha — tratamento de base (no retorno com exames).\n\n- Metotrexato 2,5 mg: Tomar 6 comprimidos por via oral 1x/semana (15 mg/semana). Ajustar entre 7,5 e 25 mg/semana. Quantidade de referência: 24 comprimidos. [Exige LME — Componente Especializado.]\n- Ácido fólico 5 mg: Tomar 1 comprimido por via oral 1x/semana, 48h após o metotrexato. Quantidade de referência: 4 comprimidos. [Exige LME — Componente Especializado.]\n- Prednisona 10 mg: Em redução, como ponte até o metotrexato agir.\n\nObservação: Alternativas ao MTX: leflunomida 20 mg/dia OU sulfassalazina 2-3 g/dia. Combinar HCQ se necessário."
+    },
+    {
+      "id": "ar-trat-3",
+      "doenca": "Artrite Reumatoide",
+      "cid": "M05/M06",
+      "topico": "Tratamento — 2ª linha",
+      "fonte": "PCDT Artrite Reumatoide (Portaria Conjunta SAES/SCTIE nº 33, 19/01/2026) · critérios ACR/EULAR 2010 · SBR",
+      "texto": "Etapa: 2ª linha (falha do MMCDsc otimizado).\n\n- Combinação de MMCDsc: Metotrexato + Hidroxicloroquina + Sulfassalazina: Otimizar tripla terapia conforme tolerância. [Exige LME — Componente Especializado.]\n- OU biológico anti-TNF (adalimumabe, etanercepte, infliximabe, golimumabe, certolizumabe): Associado ao metotrexato. Exige rastreio infeccioso e LME. [Exige LME — Componente Especializado.]"
+    },
+    {
+      "id": "ar-trat-4",
+      "doenca": "Artrite Reumatoide",
+      "cid": "M05/M06",
+      "topico": "Tratamento — 3ª linha",
+      "fonte": "PCDT Artrite Reumatoide (Portaria Conjunta SAES/SCTIE nº 33, 19/01/2026) · critérios ACR/EULAR 2010 · SBR",
+      "texto": "Etapa: 3ª linha (falha do biológico).\n\n- Trocar biológico (mudar de mecanismo: tocilizumabe, abatacepte, rituximabe): Conforme resposta e perfil. [Exige LME — Componente Especializado.]\n- OU inibidor de JAK (tofacitinibe, baricitinibe, upadacitinibe): Cautela: risco cardiovascular/trombótico. Associar ao MTX quando possível. [Exige LME — Componente Especializado.]"
+    },
+    {
+      "id": "aps-exames",
+      "doenca": "Artrite Psoriásica",
+      "cid": "M07",
+      "topico": "Exames a solicitar",
+      "fonte": "PCDT Artrite Psoriásica (Portaria Conjunta SAES/SCTIE nº 37, 21/01/2026) · critérios CASPAR · SBR",
+      "texto": "Exames para confirmação/avaliação inicial: Hemograma completo; VHS; PCR; Fator reumatoide (FR); Anti-CCP; TGO (AST); TGP (ALT); Creatinina; Radiografia de mãos, pés e bacia.\n\nAvaliação pré-tratamento (antes de imunossupressor): PPD ou IGRA; Radiografia de tórax (PA e perfil); HBsAg; Anti-HBc total; Anti-HBs; Anti-HCV; Anti-HIV; Beta-HCG (se potencial gestacional)."
+    },
+    {
+      "id": "aps-trat-1",
+      "doenca": "Artrite Psoriásica",
+      "cid": "M07",
+      "topico": "Tratamento — Consulta inicial",
+      "fonte": "PCDT Artrite Psoriásica (Portaria Conjunta SAES/SCTIE nº 37, 21/01/2026) · critérios CASPAR · SBR",
+      "texto": "Etapa: Consulta inicial (sintomático + exames).\n\n- Naproxeno 500 mg: Tomar 1 comprimido por via oral de 12/12h, com protetor gástrico (artrite, entesite, dactilite).\n\nObservação: Evitar corticoide sistêmico prolongado (rebote cutâneo). Reavaliar no retorno."
+    },
+    {
+      "id": "aps-trat-2",
+      "doenca": "Artrite Psoriásica",
+      "cid": "M07",
+      "topico": "Tratamento — 1ª linha — tratamento de base",
+      "fonte": "PCDT Artrite Psoriásica (Portaria Conjunta SAES/SCTIE nº 37, 21/01/2026) · critérios CASPAR · SBR",
+      "texto": "Etapa: 1ª linha — tratamento de base (doença periférica).\n\n- Metotrexato 2,5 mg: Tomar 6 comprimidos por via oral 1x/semana (bom para pele e articulação). Quantidade de referência: 24 comprimidos. [Exige LME — Componente Especializado.]\n- Ácido fólico 5 mg: 1 comprimido por via oral 1x/semana, 48h após o metotrexato. Quantidade de referência: 4 comprimidos. [Exige LME — Componente Especializado.]\n\nObservação: Doença axial ou entesítica pura responde mal a MMCDsc: se ativa apesar de AINE, ir a biológico."
+    },
+    {
+      "id": "aps-trat-3",
+      "doenca": "Artrite Psoriásica",
+      "cid": "M07",
+      "topico": "Tratamento — 2ª linha — biológico",
+      "fonte": "PCDT Artrite Psoriásica (Portaria Conjunta SAES/SCTIE nº 37, 21/01/2026) · critérios CASPAR · SBR",
+      "texto": "Etapa: 2ª linha — biológico (falha ou doença axial).\n\n- Anti-TNF (adalimumabe, etanercepte, infliximabe, golimumabe, certolizumabe): Cobre pele, articulação, êntese e eixo axial. LME. [Exige LME — Componente Especializado.]\n- OU anti-IL-17 (secuquinumabe, ixequizumabe): Ótimo para pele e eixo axial. LME. [Exige LME — Componente Especializado.]"
+    },
+    {
+      "id": "aps-trat-4",
+      "doenca": "Artrite Psoriásica",
+      "cid": "M07",
+      "topico": "Tratamento — 3ª linha",
+      "fonte": "PCDT Artrite Psoriásica (Portaria Conjunta SAES/SCTIE nº 37, 21/01/2026) · critérios CASPAR · SBR",
+      "texto": "Etapa: 3ª linha (troca de mecanismo).\n\n- Trocar de classe biológica ou apremilaste (doença leve): Conforme resposta. [Exige LME — Componente Especializado.]\n- OU inibidor de JAK (tofacitinibe, upadacitinibe): Cautela cardiovascular/trombótica. [Exige LME — Componente Especializado.]"
+    },
+    {
+      "id": "ea-exames",
+      "doenca": "Espondiloartrite axial / Espondilite anquilosante",
+      "cid": "M45",
+      "topico": "Exames a solicitar",
+      "fonte": "Critérios ASAS para espondiloartrite axial · SBR · Protocolo de encaminhamento MS/TelessaúdeRS",
+      "texto": "Exames para confirmação/avaliação inicial: VHS; PCR; HLA-B27; Radiografia de bacia (sacroilíacas) e coluna lombar; Ressonância magnética de sacroilíacas (se radiografia normal).\n\nAvaliação pré-tratamento (antes de imunossupressor): PPD ou IGRA; Radiografia de tórax (PA e perfil); HBsAg; Anti-HBc total; Anti-HBs; Anti-HCV; Anti-HIV."
+    },
+    {
+      "id": "ea-trat-1",
+      "doenca": "Espondiloartrite axial / Espondilite anquilosante",
+      "cid": "M45",
+      "topico": "Tratamento — 1ª linha — AINE + fisioterapia",
+      "fonte": "Critérios ASAS para espondiloartrite axial · SBR · Protocolo de encaminhamento MS/TelessaúdeRS",
+      "texto": "Etapa: 1ª linha — AINE + fisioterapia (pilar do tratamento).\n\n- Naproxeno 500 mg: Tomar 1 comprimido por via oral de 12/12h de forma contínua, com protetor gástrico. Reavaliar em 2-4 semanas. Quantidade de referência: 60 comprimidos.\n- Fisioterapia / exercício: Encaminhamento para reabilitação axial (alongamento, McKenzie, hidroterapia).\n\nObservação: Solicitar exames para confirmação. Sulfassalazina só ajuda doença periférica."
+    },
+    {
+      "id": "ea-trat-2",
+      "doenca": "Espondiloartrite axial / Espondilite anquilosante",
+      "cid": "M45",
+      "topico": "Tratamento — Doença periférica",
+      "fonte": "Critérios ASAS para espondiloartrite axial · SBR · Protocolo de encaminhamento MS/TelessaúdeRS",
+      "texto": "Etapa: Doença periférica (se artrite periférica).\n\n- Sulfassalazina 500 mg: Tomar 2 comprimidos por via oral de 12/12h (2 g/dia). Sem efeito axial. Quantidade de referência: 120 comprimidos. [Exige LME — Componente Especializado.]"
+    },
+    {
+      "id": "ea-trat-3",
+      "doenca": "Espondiloartrite axial / Espondilite anquilosante",
+      "cid": "M45",
+      "topico": "Tratamento — 2ª linha — biológico",
+      "fonte": "Critérios ASAS para espondiloartrite axial · SBR · Protocolo de encaminhamento MS/TelessaúdeRS",
+      "texto": "Etapa: 2ª linha — biológico (falha de ≥ 2 AINEs).\n\n- Anti-TNF (adalimumabe, etanercepte, infliximabe, golimumabe, certolizumabe): 1ª opção para doença axial refratária. LME. [Exige LME — Componente Especializado.]\n- OU anti-IL-17 (secuquinumabe): Axial e periférica. LME. [Exige LME — Componente Especializado.]"
+    },
+    {
+      "id": "ea-trat-4",
+      "doenca": "Espondiloartrite axial / Espondilite anquilosante",
+      "cid": "M45",
+      "topico": "Tratamento — 3ª linha",
+      "fonte": "Critérios ASAS para espondiloartrite axial · SBR · Protocolo de encaminhamento MS/TelessaúdeRS",
+      "texto": "Etapa: 3ª linha (troca).\n\n- Trocar para outro anti-TNF, anti-IL-17 ou JAKi (upadacitinibe, tofacitinibe): Conforme resposta; cautela cardiovascular com JAKi. [Exige LME — Componente Especializado.]"
+    },
+    {
+      "id": "reativa-exames",
+      "doenca": "Artrite Reativa",
+      "cid": "M02",
+      "topico": "Exames a solicitar",
+      "fonte": "Protocolo de encaminhamento MS/TelessaúdeRS · SBR",
+      "texto": "Exames para confirmação/avaliação inicial: Hemograma completo; VHS; PCR; Coprocultura; Pesquisa / PCR para Chlamydia trachomatis; HLA-B27; Anti-HIV; HBsAg; Anti-HCV; VDRL."
+    },
+    {
+      "id": "reativa-trat-1",
+      "doenca": "Artrite Reativa",
+      "cid": "M02",
+      "topico": "Tratamento — 1ª linha — sintomático",
+      "fonte": "Protocolo de encaminhamento MS/TelessaúdeRS · SBR",
+      "texto": "Etapa: 1ª linha — sintomático (+ tratar infecção).\n\n- Naproxeno 500 mg: Tomar 1 comprimido por via oral de 12/12h, com protetor gástrico. Quantidade de referência: 30 comprimidos.\n- Azitromicina 500 mg: Tomar 2 comprimidos por via oral em dose única (apenas se Chlamydia confirmada; tratar o parceiro). Quantidade de referência: 2 comprimidos.\n\nObservação: Artrocentese para excluir artrite séptica antes de corticoide. Antibiótico não melhora a artrite pós-entérica."
+    },
+    {
+      "id": "reativa-trat-2",
+      "doenca": "Artrite Reativa",
+      "cid": "M02",
+      "topico": "Tratamento — 2ª linha",
+      "fonte": "Protocolo de encaminhamento MS/TelessaúdeRS · SBR",
+      "texto": "Etapa: 2ª linha (curso arrastado > 3-6 meses).\n\n- Sulfassalazina 500 mg: Tomar 2 comprimidos por via oral de 12/12h (2 g/dia). Quantidade de referência: 120 comprimidos. [Exige LME — Componente Especializado.]"
+    },
+    {
+      "id": "reativa-trat-3",
+      "doenca": "Artrite Reativa",
+      "cid": "M02",
+      "topico": "Tratamento — 3ª linha",
+      "fonte": "Protocolo de encaminhamento MS/TelessaúdeRS · SBR",
+      "texto": "Etapa: 3ª linha (refratária).\n\n- Anti-TNF: Como nas demais espondiloartrites, se doença persistente. LME. [Exige LME — Componente Especializado.]"
+    },
+    {
+      "id": "les-exames",
+      "doenca": "Lúpus Eritematoso Sistêmico",
+      "cid": "M32",
+      "topico": "Exames a solicitar",
+      "fonte": "PCDT Lúpus · critérios ACR/EULAR 2019 · Consenso SBR de nefrite lúpica",
+      "texto": "Exames para confirmação/avaliação inicial: FAN (HEp-2); Anti-DNA nativo (dsDNA); Anti-Sm; Anti-Ro/SSA; Anti-La/SSB; Complemento C3; Complemento C4; Anticardiolipina IgG e IgM; Anti-beta-2-glicoproteína I IgG e IgM; Anticoagulante lúpico; Hemograma completo; Creatinina; EAS (urina tipo I); Relação proteína/creatinina urinária."
+    },
+    {
+      "id": "les-trat-1",
+      "doenca": "Lúpus Eritematoso Sistêmico",
+      "cid": "M32",
+      "topico": "Tratamento — Consulta inicial",
+      "fonte": "PCDT Lúpus · critérios ACR/EULAR 2019 · Consenso SBR de nefrite lúpica",
+      "texto": "Etapa: Consulta inicial (sintomático + base + exames).\n\n- Hidroxicloroquina 400 mg: Tomar 1 comprimido por via oral 1x/dia (≤ 5 mg/kg/dia). Base para todos; iniciar já. Quantidade de referência: 30 comprimidos. [Exige LME — Componente Especializado.]\n- Protetor solar FPS 50+: Aplicar em áreas expostas 2-3x/dia.\n- Prednisona 20 mg: Dose conforme atividade, na menor dose eficaz, se sintomas articulares/serosite.\n\nObservação: Solicitar exames. Avaliação oftalmológica basal (hidroxicloroquina)."
+    },
+    {
+      "id": "les-trat-2",
+      "doenca": "Lúpus Eritematoso Sistêmico",
+      "cid": "M32",
+      "topico": "Tratamento — Poupador de corticoide",
+      "fonte": "PCDT Lúpus · critérios ACR/EULAR 2019 · Consenso SBR de nefrite lúpica",
+      "texto": "Etapa: Poupador de corticoide (doença leve-moderada).\n\n- Hidroxicloroquina 400 mg: Manter 1 comprimido por via oral 1x/dia. Quantidade de referência: 30 comprimidos. [Exige LME — Componente Especializado.]\n- Azatioprina OU Metotrexato: Poupador conforme manifestação (articular/cutânea). [Exige LME — Componente Especializado.]"
+    },
+    {
+      "id": "les-trat-3",
+      "doenca": "Lúpus Eritematoso Sistêmico",
+      "cid": "M32",
+      "topico": "Tratamento — Doença grave / nefrite",
+      "fonte": "PCDT Lúpus · critérios ACR/EULAR 2019 · Consenso SBR de nefrite lúpica",
+      "texto": "Etapa: Doença grave / nefrite (indução — com especialista). [ATENÇÃO: etapa de alerta/emergência ou conduta com especialista.]\n\n- Corticoide (± pulso de metilprednisolona) + Micofenolato OU Ciclofosfamida: Indução de nefrite lúpica (classes III/IV/V). Encaminhamento/co-manejo. [Exige LME — Componente Especializado.]"
+    },
+    {
+      "id": "les-trat-4",
+      "doenca": "Lúpus Eritematoso Sistêmico",
+      "cid": "M32",
+      "topico": "Tratamento — Refratária",
+      "fonte": "PCDT Lúpus · critérios ACR/EULAR 2019 · Consenso SBR de nefrite lúpica",
+      "texto": "Etapa: Refratária.\n\n- Rituximabe: Casos refratários. LME. [Exige LME — Componente Especializado.]"
+    },
+    {
+      "id": "sjogren-exames",
+      "doenca": "Síndrome de Sjögren",
+      "cid": "M35.0",
+      "topico": "Exames a solicitar",
+      "fonte": "Critérios ACR/EULAR 2016 · SBR",
+      "texto": "Exames para confirmação/avaliação inicial: Anti-Ro/SSA; Anti-La/SSB; FAN; Fator reumatoide (FR); Hemograma completo; EAS (urina tipo I); Eletroforese de proteínas; Teste de Schirmer (solicitar à oftalmologia)."
+    },
+    {
+      "id": "sjogren-trat-1",
+      "doenca": "Síndrome de Sjögren",
+      "cid": "M35.0",
+      "topico": "Tratamento — 1ª linha — sintomático",
+      "fonte": "Critérios ACR/EULAR 2016 · SBR",
+      "texto": "Etapa: 1ª linha — sintomático (secura).\n\n- Lágrima artificial (carmelose/hipromelose): Instilar 1 gota em cada olho 4-6x/dia. Quantidade de referência: 1 frasco.\n- Saliva artificial / gel oral: Aplicar conforme necessidade, sobretudo antes das refeições e ao dormir. Quantidade de referência: 1 frasco.\n- Pilocarpina 5 mg: Tomar 1 comprimido por via oral de 6/6h se secura importante e função glandular residual. Cautela em asma, DPOC, glaucoma, cardiopatia. Quantidade de referência: 30 comprimidos."
+    },
+    {
+      "id": "sjogren-trat-2",
+      "doenca": "Síndrome de Sjögren",
+      "cid": "M35.0",
+      "topico": "Tratamento — Manifestação articular",
+      "fonte": "Critérios ACR/EULAR 2016 · SBR",
+      "texto": "Etapa: Manifestação articular (artralgia/artrite).\n\n- Hidroxicloroquina 400 mg: Tomar 1 comprimido por via oral 1x/dia. Quantidade de referência: 30 comprimidos. [Exige LME — Componente Especializado.]"
+    },
+    {
+      "id": "sjogren-trat-3",
+      "doenca": "Síndrome de Sjögren",
+      "cid": "M35.0",
+      "topico": "Tratamento — Doença sistêmica grave",
+      "fonte": "Critérios ACR/EULAR 2016 · SBR",
+      "texto": "Etapa: Doença sistêmica grave (vasculite/neuro/renal). [ATENÇÃO: etapa de alerta/emergência ou conduta com especialista.]\n\n- Corticoide + imunossupressor (azatioprina/micofenolato) ou rituximabe: Casos selecionados, com especialista. [Exige LME — Componente Especializado.]"
+    },
+    {
+      "id": "esclerose-exames",
+      "doenca": "Esclerose Sistêmica (Esclerodermia)",
+      "cid": "M34",
+      "topico": "Exames a solicitar",
+      "fonte": "Critérios ACR/EULAR 2013 · SBR",
+      "texto": "Exames para confirmação/avaliação inicial: FAN; Anticentrômero; Anti-Scl-70 (topoisomerase I); Anti-RNA-polimerase III; Capilaroscopia periungueal; Creatinina; EAS (urina tipo I); Tomografia de tórax de alta resolução; Espirometria com DLCO; Ecocardiograma com Doppler (PSAP)."
+    },
+    {
+      "id": "esclerose-trat-1",
+      "doenca": "Esclerose Sistêmica (Esclerodermia)",
+      "cid": "M34",
+      "topico": "Tratamento — Sintomático por domínio",
+      "fonte": "Critérios ACR/EULAR 2013 · SBR",
+      "texto": "Etapa: Sintomático por domínio (Raynaud + refluxo).\n\n- Nifedipino retard 20 mg: Tomar 1 comprimido por via oral de 12/12h (Raynaud). Titular conforme PA. Quantidade de referência: 60 comprimidos.\n- Omeprazol 40 mg: Tomar 1 comprimido por via oral 1x/dia em jejum (refluxo). Medidas antirrefluxo.\n\nObservação: Rastrear órgão-alvo (pulmão, coração, rim). Evitar corticoide em dose alta (risco de crise renal)."
+    },
+    {
+      "id": "esclerose-trat-2",
+      "doenca": "Esclerose Sistêmica (Esclerodermia)",
+      "cid": "M34",
+      "topico": "Tratamento — Doença de órgão",
+      "fonte": "Critérios ACR/EULAR 2013 · SBR",
+      "texto": "Etapa: Doença de órgão (pele / pulmão).\n\n- Metotrexato 2,5 mg (pele difusa inicial): 6 comprimidos por via oral 1x/semana + ácido fólico. Quantidade de referência: 24 comprimidos. [Exige LME — Componente Especializado.]\n- Micofenolato OU Ciclofosfamida (doença pulmonar intersticial): Conforme gravidade. Considerar nintedanibe (antifibrótico). [Exige LME — Componente Especializado.]"
+    },
+    {
+      "id": "esclerose-trat-3",
+      "doenca": "Esclerose Sistêmica (Esclerodermia)",
+      "cid": "M34",
+      "topico": "Tratamento — Crise renal / HAP",
+      "fonte": "Critérios ACR/EULAR 2013 · SBR",
+      "texto": "Etapa: Crise renal / HAP (emergência / especialista). [ATENÇÃO: etapa de alerta/emergência ou conduta com especialista.]\n\n- Crise renal: Captopril (IECA) imediato: Iniciar precocemente e internar. Reduz mortalidade.\n- HAP: terapia específica (inibidor de PDE-5, antagonista de endotelina, prostanoides): Com especialista. [Exige LME — Componente Especializado.]"
+    },
+    {
+      "id": "miopatias-exames",
+      "doenca": "Miopatias Inflamatórias (dermato/polimiosite)",
+      "cid": "M33",
+      "topico": "Exames a solicitar",
+      "fonte": "Critérios EULAR/ACR de miopatias inflamatórias · SBR",
+      "texto": "Exames para confirmação/avaliação inicial: CK (creatinoquinase); Aldolase; TGO (AST); TGP (ALT); DHL; Eletroneuromiografia; Ressonância magnética de coxas; Anticorpos miosite-específicos (anti-Jo-1 e painel); Tomografia de tórax de alta resolução."
+    },
+    {
+      "id": "miopatias-trat-1",
+      "doenca": "Miopatias Inflamatórias (dermato/polimiosite)",
+      "cid": "M33",
+      "topico": "Tratamento — 1ª linha — corticoide",
+      "fonte": "Critérios EULAR/ACR de miopatias inflamatórias · SBR",
+      "texto": "Etapa: 1ª linha — corticoide (iniciar e investigar).\n\n- Prednisona 20 mg: Tomar 3 comprimidos por via oral 1x/dia pela manhã (0,5-1 mg/kg/dia). Pulso de metilprednisolona se doença grave. Quantidade de referência: 90 comprimidos.\n\nObservação: Solicitar exames e rastrear neoplasia. Força muscular é o melhor guia de resposta."
+    },
+    {
+      "id": "miopatias-trat-2",
+      "doenca": "Miopatias Inflamatórias (dermato/polimiosite)",
+      "cid": "M33",
+      "topico": "Tratamento — + poupador de corticoide",
+      "fonte": "Critérios EULAR/ACR de miopatias inflamatórias · SBR",
+      "texto": "Etapa: + poupador de corticoide.\n\n- Metotrexato 2,5 mg OU Azatioprina: Poupador precoce de corticoide (MTX: 6 comp/semana + ácido fólico). Quantidade de referência: 24 comprimidos. [Exige LME — Componente Especializado.]"
+    },
+    {
+      "id": "miopatias-trat-3",
+      "doenca": "Miopatias Inflamatórias (dermato/polimiosite)",
+      "cid": "M33",
+      "topico": "Tratamento — 2ª linha",
+      "fonte": "Critérios EULAR/ACR de miopatias inflamatórias · SBR",
+      "texto": "Etapa: 2ª linha (refratária / DPI).\n\n- Imunoglobulina intravenosa (IVIG): Boa evidência, sobretudo na dermatomiosite e na disfagia. [Exige LME — Componente Especializado.]\n- OU Micofenolato (doença pulmonar): Conforme acometimento. [Exige LME — Componente Especializado.]"
+    },
+    {
+      "id": "miopatias-trat-4",
+      "doenca": "Miopatias Inflamatórias (dermato/polimiosite)",
+      "cid": "M33",
+      "topico": "Tratamento — 3ª linha",
+      "fonte": "Critérios EULAR/ACR de miopatias inflamatórias · SBR",
+      "texto": "Etapa: 3ª linha.\n\n- Rituximabe ou Ciclofosfamida: Doença refratária / DPI grave. LME. [Exige LME — Componente Especializado.]"
+    },
+    {
+      "id": "saf-exames",
+      "doenca": "Síndrome Antifosfolípide",
+      "cid": "D68.6",
+      "topico": "Exames a solicitar",
+      "fonte": "Critérios de classificação de SAF (ACR/EULAR 2023) · SBR",
+      "texto": "Exames para confirmação/avaliação inicial: Anticoagulante lúpico; Anticardiolipina IgG e IgM; Anti-beta-2-glicoproteína I IgG e IgM; (repetir os anticorpos em 12 semanas); Tempo de protrombina (TP); TTPa; Hemograma completo; FAN."
+    },
+    {
+      "id": "saf-trat-1",
+      "doenca": "Síndrome Antifosfolípide",
+      "cid": "D68.6",
+      "topico": "Tratamento — SAF trombótica",
+      "fonte": "Critérios de classificação de SAF (ACR/EULAR 2023) · SBR",
+      "texto": "Etapa: SAF trombótica (anticoagulação).\n\n- Varfarina: Dose ajustada para INR 2,0-3,0 (evento venoso). Controle seriado de INR. NÃO usar na gestação. Quantidade de referência: conforme INR.\n- AAS 100 mg: 1 comprimido por via oral 1x/dia (conforme cenário arterial / perfil)."
+    },
+    {
+      "id": "saf-trat-2",
+      "doenca": "Síndrome Antifosfolípide",
+      "cid": "D68.6",
+      "topico": "Tratamento — SAF obstétrica",
+      "fonte": "Critérios de classificação de SAF (ACR/EULAR 2023) · SBR",
+      "texto": "Etapa: SAF obstétrica (gestação).\n\n- AAS 100 mg + Heparina de baixo peso (enoxaparina): Na gestação. Converter varfarina para heparina antes de engravidar."
+    },
+    {
+      "id": "saf-trat-3",
+      "doenca": "Síndrome Antifosfolípide",
+      "cid": "D68.6",
+      "topico": "Tratamento — SAF catastrófica (CAPS)",
+      "fonte": "Critérios de classificação de SAF (ACR/EULAR 2023) · SBR",
+      "texto": "Etapa: SAF catastrófica (CAPS) (emergência). [ATENÇÃO: etapa de alerta/emergência ou conduta com especialista.]\n\n- Terapia tríplice: anticoagulação + pulso de corticoide + IVIG/plasmaférese: UTI. Mortalidade alta."
+    },
+    {
+      "id": "pmr-exames",
+      "doenca": "Polimialgia Reumática",
+      "cid": "M35.3",
+      "topico": "Exames a solicitar",
+      "fonte": "Critérios EULAR/ACR 2012 de polimialgia reumática · SBR",
+      "texto": "Exames para confirmação/avaliação inicial: VHS; PCR; Hemograma completo; TSH; CK (creatinoquinase); Fator reumatoide (FR); Anti-CCP."
+    },
+    {
+      "id": "pmr-trat-1",
+      "doenca": "Polimialgia Reumática",
+      "cid": "M35.3",
+      "topico": "Tratamento — 1ª linha — corticoide",
+      "fonte": "Critérios EULAR/ACR 2012 de polimialgia reumática · SBR",
+      "texto": "Etapa: 1ª linha — corticoide (resposta rápida confirma).\n\n- Prednisona 15 mg: Tomar 1 comprimido por via oral 1x/dia pela manhã (12,5-25 mg/dia). Desmame lento em meses. Quantidade de referência: 30 comprimidos.\n- Carbonato de cálcio 500 mg + vitamina D: Tomar 1 comprimido por via oral de 12/12h (profilaxia de osteoporose). Quantidade de referência: 60 comprimidos.\n\nObservação: Rastrear arterite de células gigantes (cefaleia, claudicação de mandíbula, sintoma visual)."
+    },
+    {
+      "id": "pmr-trat-2",
+      "doenca": "Polimialgia Reumática",
+      "cid": "M35.3",
+      "topico": "Tratamento — Poupador de corticoide",
+      "fonte": "Critérios EULAR/ACR 2012 de polimialgia reumática · SBR",
+      "texto": "Etapa: Poupador de corticoide (recaídas frequentes).\n\n- Metotrexato 2,5 mg: 6 comprimidos por via oral 1x/semana + ácido fólico. Quantidade de referência: 24 comprimidos. [Exige LME — Componente Especializado.]"
+    },
+    {
+      "id": "acg-exames",
+      "doenca": "Arterite de Células Gigantes",
+      "cid": "M31.6",
+      "topico": "Exames a solicitar",
+      "fonte": "Recomendações EULAR de arterite de células gigantes · SBR",
+      "texto": "Exames para confirmação/avaliação inicial: VHS; PCR; Hemograma completo; Biópsia de artéria temporal; Ultrassom de artérias temporais (se disponível)."
+    },
+    {
+      "id": "acg-trat-1",
+      "doenca": "Arterite de Células Gigantes",
+      "cid": "M31.6",
+      "topico": "Tratamento — 1ª linha — corticoide IMEDIATO",
+      "fonte": "Recomendações EULAR de arterite de células gigantes · SBR",
+      "texto": "Etapa: 1ª linha — corticoide IMEDIATO (não aguardar biópsia). [ATENÇÃO: etapa de alerta/emergência ou conduta com especialista.]\n\n- Prednisona 20 mg: Tomar 2 a 3 comprimidos por via oral 1x/dia (40-60 mg/dia). Se sintoma visual: pulso hospitalar de metilprednisolona 1 g/dia EV por 3 dias. Quantidade de referência: conforme esquema.\n- AAS 100 mg: 1 comprimido por via oral 1x/dia, se sem contraindicação.\n- Carbonato de cálcio 500 mg + vitamina D: 1 comprimido por via oral de 12/12h. Quantidade de referência: 60 comprimidos."
+    },
+    {
+      "id": "acg-trat-2",
+      "doenca": "Arterite de Células Gigantes",
+      "cid": "M31.6",
+      "topico": "Tratamento — Poupador de corticoide",
+      "fonte": "Recomendações EULAR de arterite de células gigantes · SBR",
+      "texto": "Etapa: Poupador de corticoide.\n\n- Tocilizumabe OU Metotrexato: Reduz recaídas e dose de corticoide. LME (tocilizumabe). [Exige LME — Componente Especializado.]"
+    },
+    {
+      "id": "anca-exames",
+      "doenca": "Vasculites ANCA-associadas",
+      "cid": "M31",
+      "topico": "Exames a solicitar",
+      "fonte": "PCDT/Diretrizes de vasculites associadas ao ANCA · EULAR · SBR",
+      "texto": "Exames para confirmação/avaliação inicial: ANCA (IFI + anti-PR3 e anti-MPO); Hemograma completo; Creatinina; Ureia; EAS com sedimento urinário; Relação proteína/creatinina urinária; PCR; Tomografia de tórax; Tomografia de seios da face; Biópsia do órgão acometido."
+    },
+    {
+      "id": "anca-trat-1",
+      "doenca": "Vasculites ANCA-associadas",
+      "cid": "M31",
+      "topico": "Tratamento — Indução — com especialista",
+      "fonte": "PCDT/Diretrizes de vasculites associadas ao ANCA · EULAR · SBR",
+      "texto": "Etapa: Indução — com especialista (doença grave = internar). [ATENÇÃO: etapa de alerta/emergência ou conduta com especialista.]\n\n- Corticoide em dose alta (± pulso) + Rituximabe OU Ciclofosfamida: Indução de remissão. Plasmaférese em casos selecionados. Profilaxia para Pneumocystis. [Exige LME — Componente Especializado.]"
+    },
+    {
+      "id": "anca-trat-2",
+      "doenca": "Vasculites ANCA-associadas",
+      "cid": "M31",
+      "topico": "Tratamento — Manutenção",
+      "fonte": "PCDT/Diretrizes de vasculites associadas ao ANCA · EULAR · SBR",
+      "texto": "Etapa: Manutenção.\n\n- Rituximabe (preferencial) OU Azatioprina/Metotrexato: Com desmame do corticoide. LME. [Exige LME — Componente Especializado.]"
+    },
+    {
+      "id": "gota-exames",
+      "doenca": "Gota",
+      "cid": "M10",
+      "topico": "Exames a solicitar",
+      "fonte": "Diretriz ACR 2020 de gota · Protocolo de encaminhamento MS/TelessaúdeRS · SBR",
+      "texto": "Exames para confirmação/avaliação inicial: Ácido úrico; Creatinina; Ureia; Hemograma completo; Glicemia de jejum; Perfil lipídico; TGO (AST); TGP (ALT); Análise de líquido sinovial com pesquisa de cristais (se dúvida)."
+    },
+    {
+      "id": "gota-trat-1",
+      "doenca": "Gota",
+      "cid": "M10",
+      "topico": "Tratamento — Crise aguda",
+      "fonte": "Diretriz ACR 2020 de gota · Protocolo de encaminhamento MS/TelessaúdeRS · SBR",
+      "texto": "Etapa: Crise aguda (tratar a dor). [ATENÇÃO: etapa de alerta/emergência ou conduta com especialista.]\n\n- Colchicina 0,5 mg: Tomar 2 comprimidos por via oral agora + 1 após 1 hora; depois 1 comprimido 1-2x/dia. Ajustar/evitar em DRC e com estatinas/macrolídeos. Quantidade de referência: 20 comprimidos.\n- Naproxeno 500 mg (alternativa): 1 comprimido por via oral de 12/12h por 5-7 dias, com protetor gástrico. Quantidade de referência: 14 comprimidos.\n- Prednisona 20 mg (alternativa): 1-2 comprimidos por via oral 1x/dia com desmame em 5-10 dias. Quantidade de referência: conforme esquema.\n\nObservação: Não iniciar nem ajustar alopurinol na crise se o paciente ainda não usa."
+    },
+    {
+      "id": "gota-trat-2",
+      "doenca": "Gota",
+      "cid": "M10",
+      "topico": "Tratamento — Manutenção",
+      "fonte": "Diretriz ACR 2020 de gota · Protocolo de encaminhamento MS/TelessaúdeRS · SBR",
+      "texto": "Etapa: Manutenção (alvo ácido úrico < 6 (< 5 se tofo)).\n\n- Alopurinol 100 mg: 1 comprimido por via oral 1x/dia. Aumentar 100 mg a cada 2-4 semanas até o alvo (máx 800 mg/dia). Iniciar 2-4 semanas após a crise. Quantidade de referência: 30 comprimidos.\n- Colchicina 0,5 mg (profilaxia): 1 comprimido por via oral 1x/dia. Iniciar 1-2 semanas antes do alopurinol e manter 3-6 meses. Quantidade de referência: 30 comprimidos.\n\nObservação: Suspender alopurinol imediatamente se rash. Benzbromarona 25-100 mg/dia se não atingir alvo."
+    },
+    {
+      "id": "pseudogota-exames",
+      "doenca": "Artrite por Pirofosfato (Pseudogota)",
+      "cid": "M11",
+      "topico": "Exames a solicitar",
+      "fonte": "Recomendações EULAR de artrite por pirofosfato de cálcio",
+      "texto": "Exames para confirmação/avaliação inicial: Análise de líquido sinovial com pesquisa de cristais; Radiografia de joelhos, punhos e bacia (condrocalcinose); Cálcio; PTH; Ferritina; Saturação de transferrina; Magnésio; Fosfatase alcalina; TSH."
+    },
+    {
+      "id": "pseudogota-trat-1",
+      "doenca": "Artrite por Pirofosfato (Pseudogota)",
+      "cid": "M11",
+      "topico": "Tratamento — Crise aguda",
+      "fonte": "Recomendações EULAR de artrite por pirofosfato de cálcio",
+      "texto": "Etapa: Crise aguda (tratar a dor). [ATENÇÃO: etapa de alerta/emergência ou conduta com especialista.]\n\n- Naproxeno 500 mg: 1 comprimido por via oral de 12/12h por 5-7 dias, com protetor gástrico. Quantidade de referência: 14 comprimidos.\n- Colchicina 0,5 mg (alternativa): 1 comprimido por via oral 2-3x/dia. Quantidade de referência: 30 comprimidos.\n\nObservação: Excluir artrite séptica. Investigar causa secundária em < 55 anos."
+    },
+    {
+      "id": "pseudogota-trat-2",
+      "doenca": "Artrite por Pirofosfato (Pseudogota)",
+      "cid": "M11",
+      "topico": "Tratamento — Recorrente",
+      "fonte": "Recomendações EULAR de artrite por pirofosfato de cálcio",
+      "texto": "Etapa: Recorrente (profilaxia).\n\n- Colchicina 0,5 mg: 1 comprimido por via oral 1x/dia (profilaxia). Quantidade de referência: 30 comprimidos.\n\nObservação: Tratar hiperparatireoidismo, hemocromatose ou hipomagnesemia se presentes."
+    },
+    {
+      "id": "osteoartrite-exames",
+      "doenca": "Osteoartrite (Artrose)",
+      "cid": "M15-M19",
+      "topico": "Exames a solicitar",
+      "fonte": "Diretrizes ACR/OARSI · Protocolo de encaminhamento MS/TelessaúdeRS",
+      "texto": "Exames para confirmação/avaliação inicial: Radiografia da articulação acometida com carga (joelho/quadril); VHS, PCR e Fator reumatoide (apenas se dúvida com artrite inflamatória)."
+    },
+    {
+      "id": "osteoartrite-trat-1",
+      "doenca": "Osteoartrite (Artrose)",
+      "cid": "M15-M19",
+      "topico": "Tratamento — Tratamento",
+      "fonte": "Diretrizes ACR/OARSI · Protocolo de encaminhamento MS/TelessaúdeRS",
+      "texto": "Etapa: Tratamento (base não farmacológica + analgesia).\n\n- Paracetamol 750 mg: 1 comprimido por via oral até de 8/8h se dor. Quantidade de referência: 30 comprimidos.\n- Diclofenaco dietilamônio gel: Aplicar sobre a articulação 3x/dia. Quantidade de referência: 1 bisnaga.\n- Naproxeno 500 mg: 1 comprimido por via oral de 12/12h por curto período em dor moderada, com protetor gástrico. Quantidade de referência: 14 comprimidos.\n- Fisioterapia e fortalecimento: Programa de exercícios; orientar perda de peso (base do tratamento)."
+    },
+    {
+      "id": "osteoartrite-trat-2",
+      "doenca": "Osteoartrite (Artrose)",
+      "cid": "M15-M19",
+      "topico": "Tratamento — Dor crônica / refratária",
+      "fonte": "Diretrizes ACR/OARSI · Protocolo de encaminhamento MS/TelessaúdeRS",
+      "texto": "Etapa: Dor crônica / refratária.\n\n- Duloxetina 30 mg: 1 comprimido por via oral 1x/dia, titular a 60 mg (dor com componente central).\n- Infiltração intra-articular de corticoide: Para surtos de dor de joelho (efeito de curto prazo).\n\nObservação: Encaminhar à ortopedia se refratário a 6 meses, limitação importante ou deformidade (potencial artroplastia)."
+    },
+    {
+      "id": "osteoporose-exames",
+      "doenca": "Osteoporose",
+      "cid": "M80/M81",
+      "topico": "Exames a solicitar",
+      "fonte": "PCDT/Diretrizes de osteoporose · Protocolo de encaminhamento",
+      "texto": "Exames para confirmação/avaliação inicial: Densitometria óssea (coluna lombar e fêmur); Cálcio total e iônico; Fósforo; Creatinina; TGO (AST); TGP (ALT); 25-OH-vitamina D; PTH; TSH; Calciúria de 24 horas; Fosfatase alcalina; Radiografia de coluna torácica e lombar; Eletroforese de proteínas (se indicado)."
+    },
+    {
+      "id": "osteoporose-trat-1",
+      "doenca": "Osteoporose",
+      "cid": "M80/M81",
+      "topico": "Tratamento — Consulta inicial",
+      "fonte": "PCDT/Diretrizes de osteoporose · Protocolo de encaminhamento",
+      "texto": "Etapa: Consulta inicial (exames + repor base).\n\n- Carbonato de cálcio 500 mg + vitamina D: 1 comprimido por via oral de 12/12h. Quantidade de referência: 60 comprimidos.\n- Colecalciferol 7.000 UI: 1 unidade por via oral 1x/semana (repor conforme dosagem de vitamina D). Quantidade de referência: 4 unidades.\n\nObservação: Solicitar densitometria e exames. Corrigir vitamina D e cálcio antes do antirreabsortivo."
+    },
+    {
+      "id": "osteoporose-trat-2",
+      "doenca": "Osteoporose",
+      "cid": "M80/M81",
+      "topico": "Tratamento — 1ª linha — antirreabsortivo",
+      "fonte": "PCDT/Diretrizes de osteoporose · Protocolo de encaminhamento",
+      "texto": "Etapa: 1ª linha — antirreabsortivo (após exames).\n\n- Alendronato 70 mg: 1 comprimido por via oral 1x/semana, em jejum, com água, permanecendo em pé 30-60 min. Quantidade de referência: 4 comprimidos.\n- Carbonato de cálcio 500 mg + vitamina D: 1 comprimido por via oral de 12/12h. Quantidade de referência: 60 comprimidos.\n\nObservação: Hipocalcemia contraindica bisfosfonato. Uso ~5 anos, reavaliar (drug holiday)."
+    },
+    {
+      "id": "osteoporose-trat-3",
+      "doenca": "Osteoporose",
+      "cid": "M80/M81",
+      "topico": "Tratamento — 2ª linha / refratária",
+      "fonte": "PCDT/Diretrizes de osteoporose · Protocolo de encaminhamento",
+      "texto": "Etapa: 2ª linha / refratária (intolerância ou grave).\n\n- Ácido zoledrônico 5 mg EV 1x/ano OU Denosumabe 60 mg SC 6/6 meses OU Teriparatida: Intolerância oral, DRC ou doença grave. Teriparatida exige LME. [Exige LME — Componente Especializado.]"
+    },
+    {
+      "id": "fibromialgia-exames",
+      "doenca": "Fibromialgia",
+      "cid": "M79.7",
+      "topico": "Exames a solicitar",
+      "fonte": "Recomendações EULAR 2016 de fibromialgia · SBR",
+      "texto": "Exames para confirmação/avaliação inicial: Hemograma completo; VHS; PCR; TSH; CK (creatinoquinase); 25-OH-vitamina D."
+    },
+    {
+      "id": "fibromialgia-trat-1",
+      "doenca": "Fibromialgia",
+      "cid": "M79.7",
+      "topico": "Tratamento — Tratamento",
+      "fonte": "Recomendações EULAR 2016 de fibromialgia · SBR",
+      "texto": "Etapa: Tratamento (não farmacológico + sintomático).\n\n- Amitriptilina 25 mg: Tomar 1 comprimido por via oral à noite (iniciar 12,5-25 mg). Melhora sono e dor. Quantidade de referência: 30 comprimidos.\n- Exercício aeróbico: Atividade aeróbica moderada 3x/semana (1ª linha). Higiene do sono.\n\nObservação: Evitar opioides. Corticoide/AINE não têm papel (doença não inflamatória)."
+    },
+    {
+      "id": "fibromialgia-trat-2",
+      "doenca": "Fibromialgia",
+      "cid": "M79.7",
+      "topico": "Tratamento — Alternativas",
+      "fonte": "Recomendações EULAR 2016 de fibromialgia · SBR",
+      "texto": "Etapa: Alternativas (conforme sintoma).\n\n- Duloxetina 30 mg: 1 comprimido por via oral 1x/dia, titular a 60 mg (dor e humor).\n- Pregabalina: Titular (dor e sono). Receituário de controle especial (B1).\n- Ciclobenzaprina 5-10 mg: À noite, para o sono."
+    },
+    {
+      "id": "febre-exames",
+      "doenca": "Febre Reumática",
+      "cid": "I00-I02",
+      "topico": "Exames a solicitar",
+      "fonte": "Diretriz de Febre Reumática (SBC/SBP/SBR) · Ministério da Saúde",
+      "texto": "Exames para confirmação/avaliação inicial: ASLO; Anti-DNAse B; Cultura de orofaringe (ou teste rápido para estreptococo); VHS; PCR; Hemograma completo; Eletrocardiograma; Ecocardiograma com Doppler."
+    },
+    {
+      "id": "febre-trat-1",
+      "doenca": "Febre Reumática",
+      "cid": "I00-I02",
+      "topico": "Tratamento — Tratamento",
+      "fonte": "Diretriz de Febre Reumática (SBC/SBP/SBR) · Ministério da Saúde",
+      "texto": "Etapa: Tratamento (erradicar estreptococo + artrite).\n\n- Penicilina G benzatina 1.200.000 UI: Aplicar por via intramuscular em dose única (600.000 UI se peso < 20 kg). Quantidade de referência: 1 ampola.\n- Naproxeno 500 mg: 1 comprimido por via oral de 12/12h (artrite), com protetor gástrico. Quantidade de referência: 30 comprimidos.\n\nObservação: Cardite moderada/grave: corticoide. Acompanhamento cardiológico é central."
+    },
+    {
+      "id": "febre-trat-2",
+      "doenca": "Febre Reumática",
+      "cid": "I00-I02",
+      "topico": "Tratamento — Profilaxia secundária",
+      "fonte": "Diretriz de Febre Reumática (SBC/SBP/SBR) · Ministério da Saúde",
+      "texto": "Etapa: Profilaxia secundária (essencial). [ATENÇÃO: etapa de alerta/emergência ou conduta com especialista.]\n\n- Penicilina G benzatina 1.200.000 UI: Aplicar por via intramuscular a cada 21 dias. Duração conforme presença/gravidade de cardite. Quantidade de referência: aplicação seriada."
+    },
+    {
+      "id": "chikungunya-exames",
+      "doenca": "Artropatia por Chikungunya",
+      "cid": "A92.0",
+      "topico": "Exames a solicitar",
+      "fonte": "Protocolo do Ministério da Saúde para chikungunya · SBR",
+      "texto": "Exames para confirmação/avaliação inicial: RT-PCR para chikungunya (na 1ª semana) ou Sorologia IgM/IgG; Hemograma completo; VHS; PCR; Fator reumatoide e Anti-CCP (na fase crônica)."
+    },
+    {
+      "id": "chikungunya-trat-1",
+      "doenca": "Artropatia por Chikungunya",
+      "cid": "A92.0",
+      "topico": "Tratamento — Fase aguda",
+      "fonte": "Protocolo do Ministério da Saúde para chikungunya · SBR",
+      "texto": "Etapa: Fase aguda (evitar AINE/AAS até excluir dengue). [ATENÇÃO: etapa de alerta/emergência ou conduta com especialista.]\n\n- Paracetamol 750 mg: 1 comprimido por via oral até de 6/6h se dor/febre. Quantidade de referência: 30 comprimidos.\n- Dipirona 1 g: 1 comprimido por via oral até de 6/6h se dor/febre. Reforçar hidratação. Quantidade de referência: 20 comprimidos.\n\nObservação: Não usar AINE nem AAS enquanto dengue não excluída (risco de sangramento)."
+    },
+    {
+      "id": "chikungunya-trat-2",
+      "doenca": "Artropatia por Chikungunya",
+      "cid": "A92.0",
+      "topico": "Tratamento — Fase subaguda / crônica",
+      "fonte": "Protocolo do Ministério da Saúde para chikungunya · SBR",
+      "texto": "Etapa: Fase subaguda / crônica (dengue já excluída).\n\n- Naproxeno 500 mg: 1 comprimido por via oral de 12/12h, com protetor gástrico. Quantidade de referência: 30 comprimidos.\n- Metotrexato 2,5 mg (artropatia crônica): Considerar 6 comp/semana + ácido fólico, conduzido pela reumatologia. Quantidade de referência: 24 comprimidos. [Exige LME — Componente Especializado.]"
+    },
+    {
+      "id": "crit-ar",
+      "doenca": "Artrite Reumatoide",
+      "cid": "M05/M06",
+      "topico": "Critérios ACR/EULAR 2010 (escore)",
+      "fonte": "Critérios 2010 ACR/EULAR (reproduzidos no PCDT de AR)",
+      "texto": "Somar 4 domínios; classificação de AR se total >= 6 (em paciente com >= 1 articulação com sinovite e sem diagnóstico alternativo melhor):\n- Articulações: 1 grande = 0; 2-10 grandes = 1; 1-3 pequenas = 2; 4-10 pequenas = 3; > 10 (>= 1 pequena) = 5.\n- Sorologia (FR/anti-CCP): negativos = 0; positivo baixo = 2; positivo alto = 3.\n- Provas inflamatórias (VHS/PCR): normais = 0; elevadas = 1.\n- Duração dos sintomas: < 6 semanas = 0; >= 6 semanas = 1."
+    }
+  ]
+}

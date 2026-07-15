@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import AppShell from '@/components/AppShell';
 import Atendimento from './Atendimento';
 import type { Patient, Consulta, Profile, ExamValue, MedicationEvent } from '@/lib/types';
 
@@ -42,12 +43,14 @@ export default async function PacientePage({ params }: { params: { id: string } 
     .order('data', { ascending: true });
 
   return (
-    <Atendimento
-      patient={patient as Patient}
-      profile={(profile as Profile) || null}
-      consultas={(consultas as Consulta[]) || []}
-      examValues={(examValues as ExamValue[]) || []}
-      medEvents={(medEvents as MedicationEvent[]) || []}
-    />
+    <AppShell>
+      <Atendimento
+        patient={patient as Patient}
+        profile={(profile as Profile) || null}
+        consultas={(consultas as Consulta[]) || []}
+        examValues={(examValues as ExamValue[]) || []}
+        medEvents={(medEvents as MedicationEvent[]) || []}
+      />
+    </AppShell>
   );
 }

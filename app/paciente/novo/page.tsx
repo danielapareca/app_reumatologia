@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
-import Link from 'next/link';
+import NavRail from '@/components/NavRail';
 import { createPatient, type NewPatientResult } from './actions';
 import { idadeFromNascimento } from '@/lib/util';
 
@@ -30,13 +30,10 @@ export default function NovoPaciente() {
 
   return (
     <>
-      <div className="topbar no-print">
-        <span className="tag">Reumatologia</span>
-        <h1>Novo paciente</h1>
-        <span className="spacer" />
-        <Link className="navlink" href="/">Voltar</Link>
-      </div>
+      <NavRail isAdmin={false} />
+      <div className="app-main">
       <div className="page">
+        <p className="eyebrow">Novo paciente</p>
         <h2>Cadastro de paciente</h2>
         <p className="psub">Dados básicos do paciente. Você poderá editar e atender em seguida.</p>
 
@@ -93,6 +90,7 @@ export default function NovoPaciente() {
 
           <SaveBtn />
         </form>
+      </div>
       </div>
     </>
   );

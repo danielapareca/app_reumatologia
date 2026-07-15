@@ -30,11 +30,21 @@ a:hover{color:var(--navy-700)}
 ::selection{background:var(--gold-soft)}
 :focus-visible{outline:2px solid var(--gold-600); outline-offset:2px; border-radius:4px}
 
+/* nav rail (barra de ícones à esquerda) */
+.navrail{position:fixed; left:0; top:0; bottom:0; width:64px; background:var(--navy); display:flex; flex-direction:column; align-items:center; padding:14px 0; z-index:40; gap:10px}
+.nr-logo{width:40px; height:40px; border-radius:12px; background:linear-gradient(140deg,var(--gold),var(--gold-600)); color:var(--navy); display:flex; align-items:center; justify-content:center; box-shadow:0 6px 16px -6px rgba(198,160,82,.7)}
+.nr-items{display:flex; flex-direction:column; align-items:center; gap:6px; margin-top:12px; flex:1}
+.nr-out{margin-top:auto}
+.nr-link{width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; color:#93A4BE; background:none; border:none; cursor:pointer; text-decoration:none; transition:background .15s, color .15s}
+.nr-link:hover{color:#fff; background:var(--navy-700)}
+.nr-link.on{color:#fff; background:var(--navy-600)}
+.app-main{margin-left:64px}
+
 /* topbar */
 .topbar{background:var(--paper); border-bottom:1px solid var(--line); padding:0 24px; height:64px; display:flex; align-items:center; gap:16px; position:sticky; top:0; z-index:10}
 .topbar h1{font-size:16px; margin:0; font-weight:700; letter-spacing:.2px; color:var(--ink)}
 .topbar .tag{font-family:var(--font-doc); font-size:20px; color:var(--navy); letter-spacing:.3px; font-weight:600}
-.topbar .spacer{flex:1}
+.topbar .spacer, .spacer{flex:1}
 .topbar .hint{font-size:12px; color:var(--muted)}
 .topbar a.navlink{font-size:13px; color:var(--muted); text-decoration:none; font-weight:600}
 .topbar a.navlink:hover{color:var(--gold-600)}
@@ -92,6 +102,33 @@ button:disabled{opacity:.5; cursor:not-allowed}
 
 .safety{margin-top:12px; font-size:11.5px; color:#DCE6F2; background:linear-gradient(160deg,var(--navy-700),var(--navy)); border-radius:var(--r-md); padding:12px 14px; line-height:1.55}
 .safety b{color:#fff}
+
+/* faixa de segurança marinho (full-width, abaixo da topbar do atendimento) */
+.safety-bar{background:linear-gradient(90deg,var(--navy-800),var(--navy-700)); color:#DCE6F2; display:flex; align-items:center; gap:10px; padding:10px 24px; font-size:13px; font-weight:600}
+.safety-bar .icon, .safety-bar svg{color:var(--gold); flex-shrink:0}
+
+/* topbar rica do atendimento (paciente) */
+.pt-topbar{background:var(--paper); border-bottom:1px solid var(--line); padding:0 24px; min-height:64px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:10}
+.pt-back{width:40px; height:40px; border-radius:10px; border:1px solid var(--line); background:#fff; color:var(--muted); display:flex; align-items:center; justify-content:center; text-decoration:none; flex-shrink:0}
+.pt-back:hover{border-color:#C9D3E1; color:var(--ink)}
+.pt-avatar{width:42px; height:42px; border-radius:12px; background:var(--gold-soft); color:var(--gold-600); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:14px; flex-shrink:0}
+.pt-id{min-width:0; flex:1}
+.pt-id .pt-nm{display:flex; align-items:center; gap:8px; font-weight:700; font-size:16px}
+.pt-id .pt-nm .pt-pill{font-size:11px; font-weight:700; color:var(--muted); background:var(--line-soft); border-radius:20px; padding:2px 9px}
+.pt-id .pt-dx{font-size:12.5px; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.pt-topnav{display:flex; align-items:center; gap:8px}
+
+/* stepper 1→2→3 */
+.stepper{display:flex; align-items:center; gap:0; margin-bottom:14px}
+.stp{display:flex; flex-direction:column; align-items:center; gap:5px; cursor:pointer; background:none; border:none; font:inherit; padding:0}
+.stp .stp-dot{width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:13px; border:2px solid var(--line); background:#fff; color:var(--faint)}
+.stp .stp-lbl{font-size:11px; font-weight:700; color:var(--faint); white-space:nowrap}
+.stp.on .stp-dot{background:var(--navy); border-color:var(--navy); color:#fff}
+.stp.on .stp-lbl{color:var(--navy)}
+.stp.done .stp-dot{background:var(--green); border-color:var(--green); color:#fff}
+.stp.done .stp-lbl{color:var(--green)}
+.stp-conn{flex:1; height:2px; background:var(--line); margin:0 6px; margin-bottom:16px}
+.stp-conn.done{background:var(--green)}
 
 /* barra de pendências do paciente (abaixo da topbar) */
 .pend-bar{background:var(--red-bg); border-bottom:1px solid #ECC9C4; padding:9px 24px}
@@ -343,7 +380,8 @@ ol.exlist li{margin-bottom:5px; font-size:13.5px}
 @page{ size:A4; margin:14mm }
 @media print{
   body{background:#fff}
-  .topbar,.controls,.doc-tools,.no-print,.maintabs,.safety,.pend-bar,nav{display:none !important}
+  .topbar,.controls,.doc-tools,.no-print,.maintabs,.safety,.safety-bar,.pt-topbar,.navrail,.pend-bar,nav{display:none !important}
+  .app-main{margin-left:0 !important}
   .layout{display:block}
   .stage{padding:0; gap:0}
   .doc-wrap{max-width:none}

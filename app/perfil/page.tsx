@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
-import TopBar from '@/components/TopBar';
+import AppShell from '@/components/AppShell';
 import ProfileForm from './ProfileForm';
 import type { Profile } from '@/lib/types';
 
@@ -20,9 +20,9 @@ export default async function PerfilPage() {
   };
 
   return (
-    <>
-      <TopBar title="Meu perfil" />
+    <AppShell>
       <div className="page">
+        <p className="eyebrow">Meu perfil</p>
         <h2>Cabeçalho do médico</h2>
         <p className="psub">
           Estes dados formam o cabeçalho das receitas e dos pedidos, e preenchem a LME automaticamente.
@@ -30,6 +30,6 @@ export default async function PerfilPage() {
         </p>
         <ProfileForm initial={initial} email={user?.email || ''} />
       </div>
-    </>
+    </AppShell>
   );
 }

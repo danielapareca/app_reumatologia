@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
-import TopBar from '@/components/TopBar';
+import AppShell from '@/components/AppShell';
 import PatientSearch from '@/components/PatientSearch';
 import { DISCLAIMER_LONGO } from '@/lib/disclaimer';
 import type { Patient } from '@/lib/types';
@@ -58,9 +58,9 @@ export default async function Dashboard() {
   }
 
   return (
-    <>
-      <TopBar title="Pacientes" />
+    <AppShell>
       <div className="page">
+        <p className="eyebrow">Pacientes</p>
         <h2>Meus pacientes</h2>
         <p className="psub">
           {nome ? `Bem-vindo, ${nome}. ` : ''}
@@ -77,7 +77,7 @@ export default async function Dashboard() {
           hojeISO={new Date().toISOString().slice(0, 10)}
         />
       </div>
-      <footer className="app-footer">{DISCLAIMER_LONGO}</footer>
-    </>
+      <footer className="app-footer" style={{ marginLeft: 24 }}>{DISCLAIMER_LONGO}</footer>
+    </AppShell>
   );
 }

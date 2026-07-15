@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
-import TopBar from '@/components/TopBar';
+import AppShell from '@/components/AppShell';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,9 +17,9 @@ interface FaseRow { doenca: string; etapa: string; n: number }
 
 function Tile({ label, value }: { label: string; value: string | number }) {
   return (
-    <div style={{ border: '1px solid var(--line)', borderRadius: 10, padding: '14px 16px', background: '#fff', minWidth: 120 }}>
-      <div style={{ fontSize: 22, fontWeight: 700 }}>{value}</div>
-      <div style={{ fontSize: 11.5, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</div>
+    <div className="card" style={{ padding: '16px 18px', minWidth: 140, marginBottom: 0 }}>
+      <div style={{ fontSize: 11.5, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: 0.5, fontWeight: 700, marginBottom: 4 }}>{label}</div>
+      <div style={{ fontFamily: 'var(--font-doc)', fontSize: 30, fontWeight: 700, color: 'var(--navy)' }}>{value}</div>
     </div>
   );
 }
@@ -31,14 +31,14 @@ export default async function GestorPage() {
 
   if (!isAdmin) {
     return (
-      <>
-        <TopBar title="Painel do gestor" />
+      <AppShell>
         <div className="page">
+          <p className="eyebrow">Painel do gestor</p>
           <h2>Acesso restrito</h2>
           <p className="psub">Esta área é só para o gestor (admin). Se você é o dono, cadastre seu usuário como admin no Supabase (veja o comentário no final de <code>supabase/schema.sql</code>) e recarregue.</p>
           <Link className="inline-btn ghost" href="/">Voltar</Link>
         </div>
-      </>
+      </AppShell>
     );
   }
 
@@ -51,10 +51,10 @@ export default async function GestorPage() {
   const totalFases = fases.reduce((acc, f) => acc + Number(f.n), 0);
 
   return (
-    <>
-      <TopBar title="Painel do gestor" />
+    <AppShell>
       <div className="page">
-        <h2>Visão geral</h2>
+        <p className="eyebrow">Painel do gestor</p>
+        <h2>Visão da clínica</h2>
         <p className="psub">Números agregados. Nenhuma tela aqui mostra nome, contato ou dados clínicos ligados a um paciente identificável.</p>
 
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 26 }}>
@@ -138,6 +138,6 @@ export default async function GestorPage() {
           </div>
         )}
       </div>
-    </>
+    </AppShell>
   );
 }

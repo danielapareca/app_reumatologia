@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
+import { useEffect, useMemo, useRef, useState, useCallback, Fragment } from 'react';
 import Link from 'next/link';
+import Icon from '@/components/Icon';
 import { D, ORDER } from '@/lib/clinical/diseases';
 import { computeFlags } from '@/lib/clinical/flags';
 import { scanText } from '@/lib/clinical/insights';
@@ -29,6 +30,20 @@ type Tab = 'docs' | 'anamnese' | 'evolucao';
 function todayBR() {
   return new Date().toLocaleDateString('pt-BR');
 }
+
+// Iniciais do paciente para o avatar da topbar.
+function iniciais(nome: string): string {
+  const parts = (nome || '').trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '—';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+const STEPS: { t: Tab; n: number; l: string }[] = [
+  { t: 'anamnese', n: 1, l: 'Anamnese' },
+  { t: 'docs', n: 2, l: 'Conduta' },
+  { t: 'evolucao', n: 3, l: 'Evolução' },
+];
 
 export default function Atendimento({
   patient,
@@ -540,12 +555,34 @@ export default function Atendimento({
 
   return (
     <>
-      <div className="topbar no-print">
-        <span className="tag">Condutas</span>
-        <h1>Atendimento</h1>
+      <div className="pt-topbar no-print">
+        <Link className="pt-back" href="/" title="Voltar aos pacientes"><Icon name="arrowleft" size={20} /></Link>
+        <div className="pt-avatar">{iniciais(pacNome)}</div>
+        <div className="pt-id">
+          <div className="pt-nm">
+            {pacNome || 'Novo atendimento'}
+            {pacIdade && <span className="pt-pill">{pacIdade}</span>}
+          </div>
+          <div className="pt-dx">
+            {disease?.n || 'Selecione a condição na coluna à esquerda'}
+            {currentStage ? ' · ' + currentStage.label : ''}
+            {diasUltima !== null ? ' · última consulta ' + haQuantoTempo(diasUltima) : ''}
+          </div>
+        </div>
         <span className="spacer" />
-        <Link className="navlink" href="/">Pacientes</Link>
-        <Link className="navlink" href="/perfil">Meu perfil</Link>
+        <div className="pt-topnav">
+          <button className="btn-ghost" onClick={() => setTab('evolucao')} style={{ height: 40, padding: '0 14px', fontSize: 13 }}>
+            <Icon name="clock" size={16} /> Histórico
+          </button>
+          <button className="btn-primary" onClick={onSalvar} disabled={saving} style={{ height: 40, padding: '0 16px', fontSize: 13 }}>
+            <Icon name="save" size={16} /> {saving ? 'Salvando…' : 'Salvar'}
+          </button>
+        </div>
+      </div>
+
+      <div className="safety-bar no-print">
+        <Icon name="shield" size={16} />
+        <span>Apoio ao médico — todas as sugestões exigem revisão e validação clínica. Não substitui o médico.</span>
       </div>
 
       {!profile?.cnes && (
@@ -566,6 +603,21 @@ export default function Atendimento({
       <div className="layout">
         {/* ------- CONTROLES ------- */}
         <aside className="controls no-print">
+          <div className="stepper">
+            {STEPS.map((s, i) => {
+              const curIdx = STEPS.findIndex((x) => x.t === tab);
+              return (
+                <Fragment key={s.t}>
+                  {i > 0 && <div className={'stp-conn' + (i <= curIdx ? ' done' : '')} />}
+                  <button className={'stp' + (i === curIdx ? ' on' : '') + (i < curIdx ? ' done' : '')} onClick={() => setTab(s.t)}>
+                    <span className="stp-dot">{i < curIdx ? <Icon name="check" size={15} /> : s.n}</span>
+                    <span className="stp-lbl">{s.l}</span>
+                  </button>
+                </Fragment>
+              );
+            })}
+          </div>
+
           <div className="block">
             <p className="eyebrow">Paciente</p>
             <div className="field"><label>Nome do paciente</label><input value={pacNome} onChange={(e) => setPacNome(e.target.value)} /></div>

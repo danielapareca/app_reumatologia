@@ -67,7 +67,8 @@ details.acc>summary::before{content:"▸ "; color:var(--gold-600)}
 details.acc[open]>summary::before{content:"▾ "}
 details.acc .inner{padding:2px 0 12px}
 
-select.doenca{font-size:15px; padding:12px 12px; font-weight:600}
+select.doenca{display:block; width:100%; max-width:100%; box-sizing:border-box; font-size:15px; padding:12px 12px; font-weight:600; border:1px solid var(--line); border-radius:var(--r-sm); background:#fff; color:var(--ink)}
+select.doenca:focus{outline:none; border-color:var(--gold); box-shadow:0 0 0 3px var(--gold-soft)}
 .picker label{font-size:11px; letter-spacing:.04em; text-transform:uppercase; color:var(--faint); font-weight:700; margin-bottom:5px; display:block}
 
 /* chips */

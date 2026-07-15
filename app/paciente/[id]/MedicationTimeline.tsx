@@ -5,11 +5,11 @@ import type { MedicationEvent, MedEventTipo } from '@/lib/types';
 import { addMedEvent, deleteMedEvent } from './medActions';
 
 const EVENTOS: { v: MedEventTipo; label: string; cor: string }[] = [
-  { v: 'inicio', label: 'Início', cor: '#2f7d32' },
-  { v: 'troca', label: 'Troca', cor: '#8A6D3B' },
-  { v: 'aumento', label: 'Aumento', cor: '#8a5a1b' },
-  { v: 'reducao', label: 'Redução', cor: '#8a5a1b' },
-  { v: 'suspensao', label: 'Suspensão', cor: '#9B2D22' },
+  { v: 'inicio', label: 'Início', cor: 'var(--green)' },
+  { v: 'troca', label: 'Troca', cor: 'var(--gold-600)' },
+  { v: 'aumento', label: 'Aumento', cor: 'var(--amber)' },
+  { v: 'reducao', label: 'Redução', cor: 'var(--amber)' },
+  { v: 'suspensao', label: 'Suspensão', cor: 'var(--red)' },
 ];
 
 export default function MedicationTimeline({

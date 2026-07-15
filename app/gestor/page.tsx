@@ -77,10 +77,10 @@ export default async function GestorPage() {
                 const pct = Math.round((Number(f.n) / max) * 100);
                 return (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div style={{ width: 260, fontSize: 12.5, textAlign: 'right', color: '#444' }}>
+                    <div style={{ width: 260, fontSize: 12.5, textAlign: 'right', color: 'var(--muted)' }}>
                       <b style={{ color: 'var(--gold)' }}>{f.doenca}</b>{f.etapa && f.etapa !== '—' ? ' · ' + f.etapa : ''}
                     </div>
-                    <div style={{ flex: 1, background: '#f0ece3', borderRadius: 6, height: 18, position: 'relative' }}>
+                    <div style={{ flex: 1, background: 'var(--line-soft)', borderRadius: 6, height: 18, position: 'relative' }}>
                       <div style={{ width: pct + '%', height: '100%', background: 'var(--gold)', borderRadius: 6, minWidth: 2 }} />
                     </div>
                     <div style={{ width: 34, fontSize: 12.5, fontWeight: 700 }}>{f.n}</div>
@@ -116,21 +116,21 @@ export default async function GestorPage() {
             {rows.map((r) => (
               <div key={r.id} style={{ border: '1px solid var(--line)', borderRadius: 10, padding: '12px 14px', background: '#fff' }}>
                 <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-                  <span style={{ fontWeight: 700, color: r.rating <= 3 ? 'var(--red)' : '#2f7d32' }}>Nota {r.rating}</span>
+                  <span style={{ fontWeight: 700, color: r.rating <= 3 ? 'var(--red)' : 'var(--green)' }}>Nota {r.rating}</span>
                   <span style={{ fontSize: 12, color: 'var(--muted)' }}>Paciente #{r.patient_ref}</span>
                   {r.doenca_id && <span style={{ fontSize: 12, color: 'var(--gold)', fontWeight: 600 }}>{r.doenca_id}</span>}
                   {r.ai_model && <span style={{ fontSize: 11, color: 'var(--muted)' }}>{r.ai_model}</span>}
                   <span style={{ fontSize: 11, color: 'var(--muted)', marginLeft: 'auto' }}>{new Date(r.created_at).toLocaleDateString('pt-BR')}</span>
                 </div>
                 {r.disagreement && (
-                  <div style={{ fontSize: 13, marginTop: 6, color: '#5b451e', background: 'var(--gold-soft)', padding: '6px 10px', borderRadius: 6 }}>
+                  <div style={{ fontSize: 13, marginTop: 6, color: 'var(--ink)', background: 'var(--gold-soft)', padding: '6px 10px', borderRadius: 6 }}>
                     <b>Discordância:</b> {r.disagreement}
                   </div>
                 )}
                 {r.ai_response && (
                   <details style={{ marginTop: 6 }}>
                     <summary style={{ cursor: 'pointer', fontSize: 12, color: 'var(--gold)', fontWeight: 600 }}>Ver o que a IA respondeu</summary>
-                    <div style={{ fontSize: 12.5, whiteSpace: 'pre-wrap', marginTop: 6, color: '#444' }}>{r.ai_response}</div>
+                    <div style={{ fontSize: 12.5, whiteSpace: 'pre-wrap', marginTop: 6, color: 'var(--muted)' }}>{r.ai_response}</div>
                   </details>
                 )}
               </div>

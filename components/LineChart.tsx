@@ -10,7 +10,7 @@ export default function LineChart({
   points,
   titulo,
   unidade,
-  color = '#8A6D3B',
+  color = '#B08A38',
 }: {
   points: ChartPoint[];
   titulo: string;
@@ -40,24 +40,24 @@ export default function LineChart({
   };
 
   return (
-    <div style={{ border: '1px solid var(--line)', borderRadius: 10, padding: '10px 12px', background: '#fff' }}>
+    <div style={{ border: '1px solid var(--line)', borderRadius: 12, padding: '12px 14px', background: '#fff', boxShadow: 'var(--sh-1)' }}>
       <div style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 4 }}>
         {titulo}{unidade ? <span style={{ color: 'var(--muted)', fontWeight: 400 }}> ({unidade})</span> : null}
       </div>
       <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{ display: 'block' }} role="img" aria-label={`Evolução de ${titulo}`}>
         {/* eixos */}
-        <line x1={padL} y1={padT} x2={padL} y2={H - padB} stroke="#e4dfd4" strokeWidth={1} />
-        <line x1={padL} y1={H - padB} x2={W - padR} y2={H - padB} stroke="#e4dfd4" strokeWidth={1} />
+        <line x1={padL} y1={padT} x2={padL} y2={H - padB} stroke="#E1E7F0" strokeWidth={1} />
+        <line x1={padL} y1={H - padB} x2={W - padR} y2={H - padB} stroke="#E1E7F0" strokeWidth={1} />
         {/* rótulos min/max */}
-        <text x={padL - 4} y={y(max) + 3} textAnchor="end" fontSize={8} fill="#9a9a9a">{Math.round(max * 100) / 100}</text>
-        <text x={padL - 4} y={y(min) + 3} textAnchor="end" fontSize={8} fill="#9a9a9a">{Math.round(min * 100) / 100}</text>
-        {/* linha */}
+        <text x={padL - 4} y={y(max) + 3} textAnchor="end" fontSize={8} fill="#8A98AB">{Math.round(max * 100) / 100}</text>
+        <text x={padL - 4} y={y(min) + 3} textAnchor="end" fontSize={8} fill="#8A98AB">{Math.round(min * 100) / 100}</text>
+        {/* linha dourada */}
         <path d={line} fill="none" stroke={color} strokeWidth={2} />
-        {/* pontos + datas */}
+        {/* pontos marinho + datas */}
         {pts.map((p, i) => (
           <g key={i}>
-            <circle cx={x(i)} cy={y(p.valor)} r={3} fill={color} />
-            <text x={x(i)} y={H - padB + 12} textAnchor="middle" fontSize={8} fill="#9a9a9a">{fmtDate(p.data)}</text>
+            <circle cx={x(i)} cy={y(p.valor)} r={3} fill="#1E3A5F" />
+            <text x={x(i)} y={H - padB + 12} textAnchor="middle" fontSize={8} fill="#8A98AB">{fmtDate(p.data)}</text>
           </g>
         ))}
       </svg>

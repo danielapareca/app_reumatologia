@@ -860,7 +860,7 @@ export default function Atendimento({
                     {consultaList[0].etapa ? <> · {consultaList[0].etapa}</> : null}.
                   </p>
                   {faseInicial.id && (
-                    <p className="sub" style={{ margin: '4px 0 0', color: '#6b5326' }}>
+                    <p className="sub" style={{ margin: '4px 0 0', color: 'var(--amber)' }}>
                       Já carreguei a <b>doença e a fase</b> abaixo a partir da última consulta — confirme ou ajuste na coluna à esquerda.
                     </p>
                   )}
@@ -903,7 +903,7 @@ export default function Atendimento({
                           <div style={{ fontSize: 12, color: 'var(--gold)', marginTop: 6, fontWeight: 600 }}>
                             {(jL + jS > 0 && jointSc !== null) ? `Categoria ACR/EULAR: ${jointCat} — ${jointSc} ponto${jointSc === 1 ? '' : 's'}` : ''}
                           </div>
-                          <div style={{ fontSize: 11, color: '#999', marginTop: 3 }}>Grandes: ombro, cotovelo, quadril, joelho, tornozelo. Pequenas: MCF, IFP, punho, MTF, IF do polegar.</div>
+                          <div style={{ fontSize: 11, color: 'var(--faint)', marginTop: 3 }}>Grandes: ombro, cotovelo, quadril, joelho, tornozelo. Pequenas: MCF, IFP, punho, MTF, IF do polegar.</div>
                         </div>
                       ) : (
                         <div className="an-q" key={qd.id}>
@@ -989,14 +989,14 @@ export default function Atendimento({
                 <p className="sub">
                   Achados reconhecidos no texto ditado ou digitado (apoio, não diagnóstico).{' '}
                   <span style={{ color: 'var(--red)', fontWeight: 600 }}>Vermelho</span> = alerta ·{' '}
-                  <span style={{ color: '#6b5326', fontWeight: 600 }}>dourado</span> = pista diagnóstica.
+                  <span style={{ color: 'var(--gold-600)', fontWeight: 600 }}>dourado</span> = pista diagnóstica.
                 </p>
                 {textInsights.length === 0 ? (
                   <p className="empty-note" style={{ fontSize: 12.5 }}>Conforme o doutor dita ou digita a história, os achados relevantes aparecem aqui.</p>
                 ) : (
                   <ul style={{ margin: 0, paddingLeft: 18 }}>
                     {textInsights.map((r, i) => (
-                      <li key={i} style={{ fontSize: 12.5, marginBottom: 5, color: r.lvl === 'flag' ? 'var(--red)' : (r.lvl === 'point' ? '#6b5326' : '#555') }}>{r.m}</li>
+                      <li key={i} style={{ fontSize: 12.5, marginBottom: 5, color: r.lvl === 'flag' ? 'var(--red)' : (r.lvl === 'point' ? 'var(--gold-600)' : 'var(--muted)') }}>{r.m}</li>
                     ))}
                   </ul>
                 )}
@@ -1056,10 +1056,10 @@ export default function Atendimento({
               </div>
 
               {monitorAlerts.length > 0 && (
-                <div className="card" style={{ borderColor: '#d9b8b4', background: '#F7E9E7' }}>
+                <div className="card" style={{ borderColor: '#ECC9C4', background: 'var(--red-bg)' }}>
                   <h3 style={{ color: 'var(--red)' }}>Alertas de monitorização</h3>
                   <ul style={{ margin: 0, paddingLeft: 18 }}>
-                    {monitorAlerts.map((a, i) => <li key={i} style={{ fontSize: 13, color: '#5b451e', marginBottom: 4 }}>{a}</li>)}
+                    {monitorAlerts.map((a, i) => <li key={i} style={{ fontSize: 13, color: '#7a3a30', marginBottom: 4 }}>{a}</li>)}
                   </ul>
                 </div>
               )}

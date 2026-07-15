@@ -34,7 +34,7 @@ export default function AiFeedback({
   }
 
   if (saved) {
-    return <div style={{ marginTop: 12, fontSize: 12.5, color: '#2f7d32', fontWeight: 600 }}>Avaliação registrada. Obrigado — isso ajuda a melhorar a IA.</div>;
+    return <div style={{ marginTop: 12, fontSize: 12.5, color: 'var(--green)', fontWeight: 600 }}>Avaliação registrada. Obrigado — isso ajuda a melhorar a IA.</div>;
   }
 
   return (

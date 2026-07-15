@@ -296,9 +296,9 @@ ol.exlist li{margin-bottom:5px; font-size:13.5px}
 .lme2 .g2d{display:grid; grid-template-columns:1fr 1fr}
 .lme2 .g2e{display:grid; grid-template-columns:1fr 200px}
 .lme2 input.f{border:none; border-bottom:1px dotted #a5a5a5; font-family:inherit; font-size:11px; width:100%; padding:1px 2px; background:none; color:#000}
-.lme2 input.f:focus{outline:none; background:#fff7df; border-bottom-color:#8A6D3B}
+.lme2 input.f:focus{outline:none; background:#FBF3DF; border-bottom-color:var(--gold-600)}
 .lme2 textarea.f{border:none; width:100%; resize:vertical; font-family:inherit; font-size:11px; padding:2px; background:none}
-.lme2 textarea.f:focus{outline:none; background:#fff7df}
+.lme2 textarea.f:focus{outline:none; background:#FBF3DF}
 .lme2 textarea.ta{min-height:56px}
 .lme2 table.med{width:100%; border-collapse:collapse; border-bottom:1px solid #000}
 .lme2 table.med td{border:1px solid #000; font-size:8.5px; padding:1px; text-align:center}

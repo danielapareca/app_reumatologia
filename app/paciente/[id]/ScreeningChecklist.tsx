@@ -13,9 +13,9 @@ const ITENS: { key: string; label: string; detalhe: string }[] = [
 ];
 
 const CORES: Record<ScreeningStatus, { bg: string; fg: string; label: string }> = {
-  pendente: { bg: '#F7E9E7', fg: 'var(--red)', label: 'Pendente' },
-  ok: { bg: '#eaf5ea', fg: '#2f7d32', label: 'OK' },
-  na: { bg: '#eee', fg: '#666', label: 'N/A' },
+  pendente: { bg: 'var(--red-bg)', fg: 'var(--red)', label: 'Pendente' },
+  ok: { bg: 'var(--green-bg)', fg: 'var(--green)', label: 'OK' },
+  na: { bg: 'var(--line-soft)', fg: 'var(--muted)', label: 'N/A' },
 };
 
 export default function ScreeningChecklist({
@@ -80,7 +80,7 @@ export default function ScreeningChecklist({
       })}
 
       <button className="btn-primary" onClick={salvar} style={{ marginTop: 8, maxWidth: 200 }}>Salvar rastreio</button>
-      {msg && <span style={{ fontSize: 12, color: '#2f7d32', marginLeft: 10 }}>{msg}</span>}
+      {msg && <span style={{ fontSize: 12, color: 'var(--green)', marginLeft: 10 }}>{msg}</span>}
     </div>
   );
 }

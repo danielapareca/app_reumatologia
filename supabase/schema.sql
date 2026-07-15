@@ -85,6 +85,52 @@ alter table patients add column if not exists consent_marketing_at timestamptz;
 -- Rastreio pré-biológico (TB, HBV, HCV, HIV, vacinas) por paciente.
 alter table patients add column if not exists screening jsonb;
 
+-- ---- Painel do gestor / QA da IA (apenas admin) ----
+create table if not exists app_admins (user_id uuid primary key references auth.users(id));
+
+-- Agregados globais (sem identidade de paciente). Só para admin.
+create or replace function admin_stats() returns jsonb
+language plpgsql stable security definer set search_path = public as $$
+declare r jsonb;
+begin
+  if not exists (select 1 from app_admins where user_id = auth.uid()) then
+    raise exception 'not_admin';
+  end if;
+  select jsonb_build_object(
+    'medicos', (select count(*) from profiles),
+    'pacientes', (select count(*) from patients),
+    'consultas', (select count(*) from consultas),
+    'exames', (select count(*) from exam_values),
+    'ia_total', (select count(*) from ai_feedback),
+    'ia_media', (select round(coalesce(avg(rating),0)::numeric, 2) from ai_feedback),
+    'ia_baixas', (select count(*) from ai_feedback where rating <= 3),
+    'ia_dist', (select coalesce(jsonb_object_agg(rating, c), '{}'::jsonb)
+                from (select rating, count(*) c from ai_feedback group by rating) t)
+  ) into r;
+  return r;
+end $$;
+
+-- Avaliações da IA de-identificadas (paciente vira um código). Só para admin.
+create or replace function admin_ai_feedback(lim int default 100) returns table(
+  id uuid, created_at timestamptz, doenca_id text, ai_model text, rating int,
+  disagreement text, ai_response text, patient_ref text
+) language plpgsql stable security definer set search_path = public as $$
+begin
+  if not exists (select 1 from app_admins where user_id = auth.uid()) then
+    raise exception 'not_admin';
+  end if;
+  return query
+    select f.id, f.created_at, f.doenca_id, f.ai_model, f.rating, f.disagreement, f.ai_response,
+           substr(md5(coalesce(f.patient_id::text, f.id::text)), 1, 6) as patient_ref
+    from ai_feedback f order by f.rating asc, f.created_at desc limit lim;
+end $$;
+
+grant execute on function admin_stats() to authenticated;
+grant execute on function admin_ai_feedback(int) to authenticated;
+
+-- Para virar admin: descubra seu user id em Authentication → Users e rode:
+--   insert into app_admins (user_id) values ('SEU-UUID-AQUI');
+
 -- Row Level Security: cada médico só enxerga os próprios dados.
 alter table profiles enable row level security;
 alter table patients enable row level security;

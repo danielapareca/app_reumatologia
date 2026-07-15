@@ -236,6 +236,9 @@ export default function Atendimento({
   function copiarTexto(txt: string) {
     navigator.clipboard.writeText(txt.trim()).then(() => showFlash('Copiado'));
   }
+  function scrollToDoc(id: string) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
   // Junta exames + receita (e resumo da LME) num texto só, para colar no sistema da clínica.
   function copiarTudo() {
     const partes = ['SOLICITAÇÃO DE EXAMES', examesToText(), '', 'RECEITUÁRIO', receitaToText()];
@@ -775,7 +778,27 @@ export default function Atendimento({
                 patientId={patient.id}
                 doencaId={curId}
                 aiModel={iaModel}
+                onCopy={copiarTexto}
               />
+            </div>
+
+            {/* Atalhos: Exames · Receita · LME */}
+            <div className="no-print cond-actions" style={{ width: '100%', maxWidth: 720 }}>
+              <button className="cond-card" onClick={() => scrollToDoc('wrapExames')}>
+                <Icon name="clipboard" size={20} />
+                <span className="cc-t">Exames</span>
+                <span className="cc-s">Solicitar</span>
+              </button>
+              <button className="cond-card" onClick={() => scrollToDoc('wrapReceita')}>
+                <Icon name="pill" size={20} />
+                <span className="cc-t">Receita</span>
+                <span className="cc-s">Emitir</span>
+              </button>
+              <button className={'cond-card cond-card-lme' + (stageHasCeaf ? '' : ' disabled')} onClick={() => scrollToDoc('wrapLME')}>
+                <Icon name="printer" size={20} />
+                <span className="cc-t">LME</span>
+                <span className="cc-s">{stageHasCeaf ? 'PDF oficial' : 'não se aplica'}</span>
+              </button>
             </div>
 
             {/* Exames */}
@@ -880,16 +903,18 @@ export default function Atendimento({
 
             {/* LME */}
             {stageHasCeaf && (
-              <LmePreview
-                fields={lme}
-                setField={setLmeField}
-                meds={lmeMeds}
-                setMeds={setLmeMeds}
-                onDownload={baixarLME}
-                downloading={downloading}
-                onGerarAnamnese={gerarLmeAnamnese}
-                gerandoAnamnese={gerandoAnamnese}
-              />
+              <div className="doc-wrap" id="wrapLME">
+                <LmePreview
+                  fields={lme}
+                  setField={setLmeField}
+                  meds={lmeMeds}
+                  setMeds={setLmeMeds}
+                  onDownload={baixarLME}
+                  downloading={downloading}
+                  onGerarAnamnese={gerarLmeAnamnese}
+                  gerandoAnamnese={gerandoAnamnese}
+                />
+              </div>
             )}
 
             {/* Documentos com IA (laudo/atestado/relatório/resumo) */}
@@ -1162,6 +1187,7 @@ function IAInsights({
   patientId,
   doencaId,
   aiModel,
+  onCopy,
 }: {
   onGerar: () => void;
   loading: boolean;
@@ -1170,6 +1196,7 @@ function IAInsights({
   patientId: string;
   doencaId: string;
   aiModel: string;
+  onCopy: (t: string) => void;
 }) {
   return (
     <div className="insight">
@@ -1213,34 +1240,78 @@ function IAInsights({
           </>
         )}
       </div>
+      {insight && !loading && (
+        <div className="insight-foot">
+          <button className="btn-primary" onClick={() => onCopy(insight)}><Icon name="copy" size={16} /> Copiar insight</button>
+        </div>
+      )}
     </div>
   );
 }
 
-// Renderiza o texto de insight (com títulos "## " e listas "- ") de forma legível.
+// Renderiza texto em negrito inline (**assim**).
+function renderInline(s: string) {
+  return s.split('**').map((p, i) => (i % 2 === 1 ? <b key={i}>{p}</b> : <Fragment key={i}>{p}</Fragment>));
+}
+
+// Ícone da seção do insight, conforme o título.
+function secIcon(title: string): string {
+  const t = title.toLowerCase();
+  if (/font/.test(t)) return 'clipboard';
+  if (/sugest|conduta|pr[óo]xim|plano/.test(t)) return 'pill';
+  if (/avali|resumo|an[áa]lise/.test(t)) return 'sparkles';
+  if (/alert|seguran|aten/.test(t)) return 'shield';
+  return 'chevron';
+}
+
+// Renderiza o insight da IA no formato do design: seções, sugestões em caixas e fontes em chips.
 function InsightRender({ text }: { text: string }) {
   const lines = text.split('\n');
-  return (
-    <div style={{ fontSize: 13, lineHeight: 1.5, color: 'var(--ink)' }}>
-      {lines.map((raw, i) => {
-        const line = raw.trimEnd();
-        if (!line.trim()) return <div key={i} style={{ height: 6 }} />;
-        if (line.startsWith('## ')) {
-          return <div key={i} style={{ fontSize: 12, letterSpacing: 0.5, textTransform: 'uppercase', color: 'var(--gold-600)', fontWeight: 800, margin: '12px 0 4px' }}>{line.slice(3)}</div>;
-        }
-        if (line.startsWith('# ')) {
-          return <div key={i} style={{ fontSize: 14, fontWeight: 700, margin: '10px 0 4px' }}>{line.slice(2)}</div>;
-        }
-        if (/^[-*]\s+/.test(line)) {
-          return <div key={i} style={{ paddingLeft: 16, position: 'relative', margin: '2px 0' }}><span style={{ position: 'absolute', left: 2, color: 'var(--gold-600)' }}>•</span>{line.replace(/^[-*]\s+/, '')}</div>;
-        }
-        if (/^\*.+\*$/.test(line)) {
-          return <div key={i} style={{ fontStyle: 'italic', color: 'var(--muted)', marginTop: 8, fontSize: 12 }}>{line.replace(/^\*|\*$/g, '')}</div>;
-        }
-        return <div key={i} style={{ margin: '2px 0' }}>{line}</div>;
-      })}
-    </div>
-  );
+  const out: React.ReactNode[] = [];
+  let fontes: string[] = [];
+  let inFontes = false;
+
+  const flushFontes = (key: string) => {
+    if (fontes.length) {
+      out.push(
+        <div key={'f' + key} className="ins-chips">
+          {fontes.map((f, j) => <span key={j} className="source-chip">{f}</span>)}
+        </div>
+      );
+      fontes = [];
+    }
+  };
+
+  lines.forEach((raw, i) => {
+    const line = raw.trimEnd();
+    if (!line.trim()) return;
+    if (line.startsWith('## ') || line.startsWith('# ')) {
+      flushFontes(String(i));
+      const title = line.replace(/^#+\s/, '');
+      inFontes = /font/i.test(title);
+      out.push(<div key={i} className="ins-head"><Icon name={secIcon(title)} size={14} /> {title}</div>);
+      return;
+    }
+    if (/^[-*]\s+/.test(line)) {
+      const content = line.replace(/^[-*]\s+/, '');
+      if (inFontes) { fontes.push(content.replace(/\*\*/g, '')); return; }
+      out.push(
+        <div key={i} className="insight-rec">
+          <Icon name="chevron" size={16} style={{ color: 'var(--gold-600)', flexShrink: 0, marginTop: 1 }} />
+          <span>{renderInline(content)}</span>
+        </div>
+      );
+      return;
+    }
+    if (/^\*.+\*$/.test(line)) {
+      out.push(<div key={i} className="ins-note">{line.replace(/^\*|\*$/g, '')}</div>);
+      return;
+    }
+    out.push(<p key={i} className="ins-p">{renderInline(line)}</p>);
+  });
+  flushFontes('end');
+
+  return <div className="ins-body-text">{out}</div>;
 }
 
 // ---- subcomponentes de documento ----

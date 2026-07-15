@@ -304,6 +304,28 @@ ol.exlist li{margin-bottom:5px; font-size:13.5px}
 .insight-body{padding:20px 22px}
 .insight-foot{border-top:1px solid var(--line); background:#FBFCFE; padding:14px 22px; display:flex; gap:10px; flex-wrap:wrap}
 .source-chip{font-size:12.5px; font-weight:600; background:var(--gold-soft); color:var(--gold-600); border-radius:8px; padding:5px 10px}
+.insight-foot .btn-primary, .insight-foot .btn-ghost{height:40px; font-size:13px; padding:0 16px}
+/* corpo do insight renderizado */
+.ins-body-text{font-size:14px; line-height:1.55; color:var(--ink)}
+.ins-head{display:flex; align-items:center; gap:7px; font-size:11.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--gold-600); font-weight:800; margin:16px 0 8px}
+.ins-head:first-child{margin-top:0}
+.ins-p{margin:0 0 12px}
+.insight-rec{align-items:flex-start; margin-bottom:8px}
+.ins-chips{display:flex; flex-wrap:wrap; gap:8px; margin-top:2px}
+.ins-note{font-size:12px; color:var(--muted); font-style:italic; margin-top:8px}
+
+/* cartões de atalho da conduta (Exames · Receita · LME) */
+.cond-actions{display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px}
+.cond-card{display:flex; flex-direction:column; align-items:flex-start; gap:2px; padding:16px; border:1px solid var(--line); border-radius:var(--r-lg); background:#fff; box-shadow:var(--sh-1); cursor:pointer; text-align:left; color:var(--ink); transition:border-color .15s, box-shadow .15s}
+.cond-card:hover{border-color:var(--gold); box-shadow:var(--sh-2)}
+.cond-card svg{color:var(--gold-600); margin-bottom:6px}
+.cond-card .cc-t{font-size:15px; font-weight:800}
+.cond-card .cc-s{font-size:12px; color:var(--muted)}
+.cond-card-lme{background:linear-gradient(160deg,var(--navy-700),var(--navy)); border-color:var(--navy)}
+.cond-card-lme svg{color:var(--gold)}
+.cond-card-lme .cc-t{color:#fff}
+.cond-card-lme .cc-s{color:#B9C6DA}
+.cond-card.disabled{opacity:.5; pointer-events:none}
 /* escore ACR/EULAR (caixa de escore na anamnese) */
 .scorebox{background:var(--gold-soft); border:1px solid #E7D6AF; border-radius:var(--r-md); padding:14px 16px; margin-top:4px}
 .scorebox .it{font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--gold-600); font-weight:800; margin-bottom:8px}

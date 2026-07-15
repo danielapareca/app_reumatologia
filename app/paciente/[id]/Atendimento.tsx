@@ -16,6 +16,7 @@ import ExamValuesPanel from './ExamValuesPanel';
 import ActivityCalculators from './ActivityCalculators';
 import ScreeningChecklist from './ScreeningChecklist';
 import AiFeedback from './AiFeedback';
+import AiDocs from './AiDocs';
 import { saveConsulta, updatePatient } from './actions';
 
 type Tab = 'docs' | 'anamnese' | 'evolucao';
@@ -356,6 +357,37 @@ export default function Atendimento({
     }
   }
 
+  // Contexto para os documentos de IA (capturado no clique).
+  function buildAiContext(): Record<string, string> {
+    return {
+      paciente: pacNome, idade: pacIdade, doencaId: curId,
+      doenca: disease?.n || '', cid: disease?.cid || '',
+      hda, antecedentes, exames: examResults,
+      etapa: currentStage?.label || '', receita: receitaToText(),
+      medico: profile?.nome || '',
+    };
+  }
+
+  // Redige a anamnese/justificativa da LME (campo 11) com IA.
+  const [gerandoAnamnese, setGerandoAnamnese] = useState(false);
+  async function gerarLmeAnamnese() {
+    setGerandoAnamnese(true);
+    try {
+      const res = await fetch('/api/ai-doc', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tipo: 'lme_anamnese', ...buildAiContext() }),
+      });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(j.error || 'Falha ao gerar');
+      if (j.texto) setLmeField('anamnese', j.texto);
+      showFlash('Anamnese da LME gerada');
+    } catch (e) {
+      showFlash(e instanceof Error ? e.message : 'Falha ao gerar');
+    } finally {
+      setGerandoAnamnese(false);
+    }
+  }
+
   // ---- salvar ----
   async function onSalvar() {
     if (!pacNome.trim()) { showFlash('Preencha o nome do paciente'); return; }
@@ -684,6 +716,8 @@ export default function Atendimento({
                 setMeds={setLmeMeds}
                 onDownload={baixarLME}
                 downloading={downloading}
+                onGerarAnamnese={gerarLmeAnamnese}
+                gerandoAnamnese={gerandoAnamnese}
               />
             )}
           </div>
@@ -819,6 +853,8 @@ export default function Atendimento({
               <ActivityCalculators patientId={patient.id} today={todayISO} onSaved={(v) => setExamList((l) => [...l, v])} />
 
               <ScreeningChecklist patientId={patient.id} initial={patient.screening} precisaRastreio={stageHasCeaf} />
+
+              <AiDocs buildContext={buildAiContext} onFlash={showFlash} />
 
               <IAInsights
                 onGerar={gerarInsights}

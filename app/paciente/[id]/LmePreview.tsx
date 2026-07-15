@@ -33,6 +33,8 @@ export default function LmePreview({
   setMeds,
   onDownload,
   downloading,
+  onGerarAnamnese,
+  gerandoAnamnese,
 }: {
   fields: LmeFields;
   setField: (k: keyof LmeFields, v: string) => void;
@@ -40,6 +42,8 @@ export default function LmePreview({
   setMeds: (meds: LmeMed[]) => void;
   onDownload: () => void;
   downloading: boolean;
+  onGerarAnamnese?: () => void;
+  gerandoAnamnese?: boolean;
 }) {
   // 6 linhas fixas de medicamento.
   const rows = Array.from({ length: 6 }, (_, i) => meds[i] || { m: '', q: '' });
@@ -110,7 +114,15 @@ export default function LmePreview({
             <div className="cell bl"><span className="lbl">10- Diagnóstico</span><input className="f" value={fields.diagnostico} onChange={(e) => setField('diagnostico', e.target.value)} /></div>
           </div>
 
-          <div className="cell"><span className="lbl">11- Anamnese*</span><textarea className="f ta" value={fields.anamnese} onChange={(e) => setField('anamnese', e.target.value)} /></div>
+          <div className="cell">
+            <span className="lbl">11- Anamnese*</span>
+            {onGerarAnamnese && (
+              <button className="btn-ghost no-print" onClick={onGerarAnamnese} disabled={gerandoAnamnese} style={{ float: 'right', padding: '3px 8px', fontSize: 11 }}>
+                {gerandoAnamnese ? 'Gerando…' : 'Redigir com IA'}
+              </button>
+            )}
+            <textarea className="f ta" value={fields.anamnese} onChange={(e) => setField('anamnese', e.target.value)} />
+          </div>
 
           <div className="cell">
             <span className="lbl">12- Paciente realizou tratamento prévio ou está em tratamento da doença?*</span>

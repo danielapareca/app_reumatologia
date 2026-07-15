@@ -78,7 +78,6 @@ export default function Atendimento({
   // ---- texto ----
   const [hda, setHda] = useState('');
   const [antecedentes, setAntecedentes] = useState('');
-  const [examResults, setExamResults] = useState('');
 
   // ---- ui ----
   const [tab, setTab] = useState<Tab>('docs');
@@ -97,6 +96,16 @@ export default function Atendimento({
   const [examList, setExamList] = useState<ExamValue[]>(examValues);
   const [medList, setMedList] = useState<MedicationEvent[]>(medEvents);
   const monitorAlerts = useMemo(() => computeMonitorAlerts(medList, examList, todayISO), [medList, examList, todayISO]);
+
+  // Resumo dos exames salvos (marcador: valores por data) — para IA e histórico.
+  function examesResumo(): string {
+    const marcadores = Array.from(new Set(examList.map((e) => e.marcador)));
+    if (!marcadores.length) return '';
+    return 'Exames (marcador: valores por data) — ' + marcadores.map((m) => {
+      const arr = examList.filter((e) => e.marcador === m).sort((a, b) => a.data.localeCompare(b.data));
+      return `${m}: ${arr.map((e) => `${e.data}=${Number(e.valor)}${e.unidade || ''}`).join(', ')}`;
+    }).join(' | ');
+  }
 
   const disease = curId ? D[curId] : null;
   const stages = disease?.etapas || [];
@@ -172,8 +181,8 @@ export default function Atendimento({
 
   const flags = useMemo(() => computeFlags({ ...Q, alergia: pacAlergia }), [Q, pacAlergia]);
   const textInsights = useMemo(
-    () => scanText(hda, antecedentes, examResults),
-    [hda, antecedentes, examResults]
+    () => scanText(hda, antecedentes),
+    [hda, antecedentes]
   );
   const anamInsight = curId === 'ar' ? computeAnamInsight(anam) : null;
 
@@ -333,14 +342,6 @@ export default function Atendimento({
         receita: c.receita_texto || '',
       }));
       // Resumo das medições numéricas (laboratório + escores) para a IA analisar tendência.
-      const marcadores = Array.from(new Set(examList.map((e) => e.marcador)));
-      const numeric = marcadores.length
-        ? 'Medições numéricas ao longo do tempo — ' + marcadores.map((m) => {
-            const arr = examList.filter((e) => e.marcador === m).sort((a, b) => a.data.localeCompare(b.data));
-            return `${m}: ${arr.map((e) => `${e.data}=${Number(e.valor)}${e.unidade || ''}`).join(', ')}`;
-          }).join(' | ')
-        : '';
-
       const payload = {
         paciente: pacNome,
         idade: pacIdade,
@@ -353,7 +354,7 @@ export default function Atendimento({
             .slice().sort((a, b) => a.data.localeCompare(b.data))
             .map((m) => `${m.data} ${m.evento} ${m.medicamento}${m.dose ? ' (' + m.dose + ')' : ''}${m.motivo ? ' — ' + m.motivo : ''}`)
             .join('; ') : ''].filter(Boolean).join('\n'),
-          exames: [examResults, numeric].filter(Boolean).join('\n'),
+          exames: examesResumo(),
           escore: anamInsight ? `${anamInsight.score}/10 (ACR/EULAR 2010)` : '',
         },
         historico,
@@ -380,7 +381,7 @@ export default function Atendimento({
     return {
       paciente: pacNome, idade: pacIdade, doencaId: curId,
       doenca: disease?.n || '', cid: disease?.cid || '',
-      hda, antecedentes, exames: examResults,
+      hda, antecedentes, exames: examesResumo(),
       etapa: currentStage?.label || '', receita: receitaToText(),
       medico: profile?.nome || '',
     };
@@ -438,7 +439,7 @@ export default function Atendimento({
         doencaNome: disease?.n || '',
         etapa: currentStage?.label || '',
         consultaTipo: Q.consulta,
-        hda, antecedentes, examResults,
+        hda, antecedentes, examResults: examesResumo(),
         insight: insightText,
         examesTexto: examesToText(),
         receitaTexto: receitaToText(),
@@ -453,7 +454,7 @@ export default function Atendimento({
         id: 'tmp-' + nowIso, patient_id: patient.id, doctor_id: patient.doctor_id,
         data: nowIso, doenca_id: curId || null, doenca_nome: disease?.n || null,
         etapa: currentStage?.label || null, consulta_tipo: Q.consulta,
-        hda: hda || null, antecedentes: antecedentes || null, exam_results: examResults || null,
+        hda: hda || null, antecedentes: antecedentes || null, exam_results: examesResumo() || null,
         insight: insightText || null, exames_texto: null, receita_texto: null, lme_json: lmeJson,
         ia_insight: iaInsight || null,
       }, ...list]);
@@ -839,15 +840,6 @@ export default function Atendimento({
                     <textarea value={antecedentes} onChange={(e) => setAntecedentes(e.target.value)} placeholder="Dite ou digite..." />
                     <VoiceMic onText={(chunk) => setAntecedentes((v) => (v ? v.trim() + ' ' : '') + chunk)} />
                   </div>
-                </div>
-              </div>
-
-              <div className="card">
-                <h3>Resultados de exames</h3>
-                <p className="sub">Cole ou dite os resultados que o paciente trouxe. Ficam salvos no histórico da consulta.</p>
-                <div className="fieldrow">
-                  <textarea value={examResults} onChange={(e) => setExamResults(e.target.value)} placeholder="Ex.: FR positivo 1:320; anti-CCP 240; VHS 48; PCR 3,2..." style={{ minHeight: 90 }} />
-                  <VoiceMic onText={(chunk) => setExamResults((v) => (v ? v.trim() + ' ' : '') + chunk)} />
                 </div>
               </div>
 

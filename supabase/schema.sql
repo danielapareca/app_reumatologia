@@ -188,3 +188,33 @@ create policy "pacientes proprios" on patients for all
   using (doctor_id = auth.uid()) with check (doctor_id = auth.uid());
 create policy "consultas proprias" on consultas for all
   using (doctor_id = auth.uid()) with check (doctor_id = auth.uid());
+
+-- ============================================================
+-- Proteção (RLS) das tabelas da Fase 3 + lista de admins.
+-- IMPORTANTE: rode este bloco. Sem ele, um médico poderia ver dados de outro
+-- ou se tornar admin. As funções admin_* são SECURITY DEFINER e continuam
+-- funcionando (elas ignoram o RLS de propósito).
+-- ============================================================
+alter table exam_values       enable row level security;
+alter table medication_events enable row level security;
+alter table ai_feedback       enable row level security;
+alter table app_admins        enable row level security;  -- sem policy: ninguém lê/grava via API
+
+drop policy if exists "exames proprios"   on exam_values;
+drop policy if exists "meds proprios"     on medication_events;
+drop policy if exists "feedback proprio"  on ai_feedback;
+
+create policy "exames proprios" on exam_values for all
+  using (doctor_id = auth.uid()) with check (doctor_id = auth.uid());
+create policy "meds proprios" on medication_events for all
+  using (doctor_id = auth.uid()) with check (doctor_id = auth.uid());
+create policy "feedback proprio" on ai_feedback for all
+  using (doctor_id = auth.uid()) with check (doctor_id = auth.uid());
+
+-- Detecta se o usuário logado é admin (para mostrar o link do painel).
+-- Não expõe a tabela app_admins.
+create or replace function is_admin() returns boolean
+language sql stable security definer set search_path = public as $$
+  select exists(select 1 from app_admins where user_id = auth.uid());
+$$;
+grant execute on function is_admin() to authenticated;

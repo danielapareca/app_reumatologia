@@ -142,8 +142,28 @@ begin
     from ai_feedback f order by f.rating asc, f.created_at desc limit lim;
 end $$;
 
+-- Pacientes por doença e fase (a fase atual = etapa da última consulta). Só para admin.
+create or replace function admin_fase_stats() returns table(doenca text, etapa text, n bigint)
+language plpgsql stable security definer set search_path = public as $$
+begin
+  if not exists (select 1 from app_admins where user_id = auth.uid()) then
+    raise exception 'not_admin';
+  end if;
+  return query
+    with ult as (
+      select distinct on (patient_id) patient_id, doenca_nome, etapa
+      from consultas
+      order by patient_id, data desc
+    )
+    select coalesce(doenca_nome, '—') as doenca, coalesce(etapa, '—') as etapa, count(*) as n
+    from ult
+    group by 1, 2
+    order by 3 desc, 1 asc;
+end $$;
+
 grant execute on function admin_stats() to authenticated;
 grant execute on function admin_ai_feedback(int) to authenticated;
+grant execute on function admin_fase_stats() to authenticated;
 
 -- Para virar admin: descubra seu user id em Authentication → Users e rode:
 --   insert into app_admins (user_id) values ('SEU-UUID-AQUI');

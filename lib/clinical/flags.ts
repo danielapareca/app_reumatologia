@@ -12,6 +12,10 @@ export function computeFlags(Q: QState): string[] {
     f.push('TFG < 30: AINEs contraindicados; metotrexato contraindicado; ajustar colchicina e alopurinol.');
   if (Q.hepato === 'alt' || Q.comorb.includes('hepato'))
     f.push('Transaminases elevadas / hepatopatia: cautela ou contraindicação a metotrexato, leflunomida e sulfassalazina.');
+  if (Q.renal === 'desc')
+    f.push('Função renal desconhecida: solicite creatinina / TFG antes de AINE, metotrexato, colchicina ou alopurinol.');
+  if (Q.hepato === 'desc')
+    f.push('Transaminases desconhecidas: solicite TGO/TGP (e sorologias) antes de iniciar MMCD hepatotóxico.');
   if (Q.infec === 'sim')
     f.push('Infecção ativa ou rastreio TB/HBV pendente: não inicie imunossupressor/biológico até rastreio negativo ou TB latente tratada. Mantenha sintomático.');
   if (Q.comorb.includes('gi'))

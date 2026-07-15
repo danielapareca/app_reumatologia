@@ -8,7 +8,7 @@ import { scanText } from '@/lib/clinical/insights';
 import { ANAM, jointScoreCat, computeAnamInsight, type AnamState } from '@/lib/clinical/anamnese';
 import { defaultQState, type QState, type RxItem } from '@/lib/clinical/types';
 import type { Patient, Profile, Consulta, LmeJson, ExamValue, MedicationEvent } from '@/lib/types';
-import { idadeFromNascimento } from '@/lib/util';
+import { idadeFromNascimento, diasDesde, haQuantoTempo } from '@/lib/util';
 import { computeMonitorAlerts } from '@/lib/clinical/monitor';
 import { DISCLAIMER_LONGO, DISCLAIMER_DOC } from '@/lib/disclaimer';
 import VoiceMic from '@/components/VoiceMic';
@@ -68,9 +68,17 @@ export default function Atendimento({
   }
 
   // ---- clínico ----
-  const [curId, setCurId] = useState('');
-  const [curStage, setCurStage] = useState('');
-  const [Q, setQ] = useState<QState>(defaultQState);
+  // Paciente já acompanhado: pré-carrega doença e fase da última consulta (o médico confirma/ajusta).
+  const ultimaConsulta = consultas.length > 0 ? consultas[0] : null;
+  const faseInicial = (() => {
+    const did = ultimaConsulta?.doenca_id;
+    if (!did || !D[did]) return { id: '', stage: '' };
+    const et = D[did].etapas.find((e) => e.label === ultimaConsulta?.etapa);
+    return { id: did, stage: et ? et.id : (D[did].etapas[0]?.id || '') };
+  })();
+  const [curId, setCurId] = useState(faseInicial.id);
+  const [curStage, setCurStage] = useState(faseInicial.stage);
+  const [Q, setQ] = useState<QState>(() => ({ ...defaultQState, consulta: ultimaConsulta ? 'retorno' : defaultQState.consulta }));
 
   // ---- anamnese ----
   const [anam, setAnam] = useState<AnamState>({});
@@ -149,6 +157,25 @@ export default function Atendimento({
 
   const ceafMeds = useMemo(() => receitaItens.filter((i) => i.m.trim() && i.ceaf), [receitaItens]);
   const stageHasCeaf = ceafMeds.length > 0;
+
+  // ---- pendências deste paciente (rastreio + monitorização) ----
+  const screeningPendentes = useMemo(() => {
+    const st = patient.screening || {};
+    const KEYS: [string, string][] = [['tb', 'Tuberculose'], ['hbv', 'Hepatite B'], ['hcv', 'Hepatite C'], ['hiv', 'HIV'], ['vacinas', 'Vacinação']];
+    return KEYS.filter(([k]) => (st[k]?.status || 'pendente') === 'pendente').map(([, l]) => l);
+  }, [patient.screening]);
+
+  const pendencias = useMemo(() => {
+    const p: string[] = [];
+    if (stageHasCeaf && screeningPendentes.length > 0) {
+      p.push(`Rastreio pré-biológico pendente: ${screeningPendentes.join(', ')}. Concluir antes de iniciar imunossupressor/biológico.`);
+    }
+    monitorAlerts.forEach((a) => p.push(a));
+    return p;
+  }, [stageHasCeaf, screeningPendentes, monitorAlerts]);
+
+  // Dias desde a última consulta (paciente já acompanhado).
+  const diasUltima = ultimaConsulta ? diasDesde(ultimaConsulta.data, todayISO) : null;
 
   // helpers de edição
   const updConf = (i: number, v: string) => setExamesConf((a) => a.map((x, idx) => (idx === i ? v : x)));
@@ -291,19 +318,22 @@ export default function Atendimento({
   }
 
   // ---- impressão ----
-  const imprimir = useCallback((which: 'all' | 'ex' | 'rc' | 'lme') => {
-    document.body.classList.remove('only-ex', 'only-rc', 'only-lme');
+  const imprimir = useCallback((which: 'all' | 'ex' | 'rc' | 'lme' | 'hist') => {
+    document.body.classList.remove('only-ex', 'only-rc', 'only-lme', 'only-hist');
     if (which === 'ex') document.body.classList.add('only-ex');
     else if (which === 'rc') document.body.classList.add('only-rc');
     else if (which === 'lme') {
       if (!stageHasCeaf) return;
       document.body.classList.add('only-lme');
+    } else if (which === 'hist') {
+      if (consultaList.length === 0) { showFlash('Sem consultas para imprimir'); return; }
+      document.body.classList.add('only-hist');
     }
     window.print();
-  }, [stageHasCeaf]);
+  }, [stageHasCeaf, consultaList.length, showFlash]);
 
   useEffect(() => {
-    const clear = () => document.body.classList.remove('only-ex', 'only-rc', 'only-lme');
+    const clear = () => document.body.classList.remove('only-ex', 'only-rc', 'only-lme', 'only-hist');
     window.addEventListener('afterprint', clear);
     return () => window.removeEventListener('afterprint', clear);
   }, []);
@@ -498,6 +528,15 @@ export default function Atendimento({
       {!profile?.cnes && (
         <div className="no-print" style={{ background: 'var(--amber-bg)', borderBottom: '1px solid #e6d3a8', padding: '8px 22px', fontSize: 12.5, color: '#5b451e' }}>
           Complete o <Link href="/perfil" style={{ color: 'var(--gold)', fontWeight: 600 }}>cabeçalho do médico</Link> (CNES, CNS) para a LME sair completa.
+        </div>
+      )}
+
+      {pendencias.length > 0 && (
+        <div className="no-print pend-bar">
+          <span className="pend-title">Pendências deste paciente</span>
+          <ul>
+            {pendencias.map((p, i) => <li key={i}>{p}</li>)}
+          </ul>
         </div>
       )}
 
@@ -791,11 +830,17 @@ export default function Atendimento({
                 <div className="card" style={{ borderColor: '#e0cfa0', background: 'var(--amber-bg)' }}>
                   <h3 style={{ marginBottom: 4 }}>Paciente já acompanhado</h3>
                   <p className="sub" style={{ margin: 0 }}>
-                    <b>{consultaList.length}</b> consulta(s) registrada(s). Última em{' '}
+                    <b>{consultaList.length}</b> consulta(s). Última{' '}
                     <b>{new Date(consultaList[0].data).toLocaleDateString('pt-BR')}</b>
+                    {diasUltima !== null && <> ({haQuantoTempo(diasUltima)})</>}
                     {consultaList[0].doenca_nome ? <> — {consultaList[0].doenca_nome}</> : null}
                     {consultaList[0].etapa ? <> · {consultaList[0].etapa}</> : null}.
                   </p>
+                  {faseInicial.id && (
+                    <p className="sub" style={{ margin: '4px 0 0', color: '#6b5326' }}>
+                      Já carreguei a <b>doença e a fase</b> abaixo a partir da última consulta — confirme ou ajuste na coluna à esquerda.
+                    </p>
+                  )}
                   {consultaList[0].exam_results && (
                     <p className="sub" style={{ margin: '4px 0 0' }}><span className="k">Últimos exames:</span> {consultaList[0].exam_results}</p>
                   )}
@@ -935,8 +980,16 @@ export default function Atendimento({
           <div className="tabpanel" style={{ display: tab === 'evolucao' ? 'block' : 'none' }}>
             <div className="panel-inner">
               <div className="card">
-                <h3>Evolução do paciente</h3>
-                <p className="sub">{pacNome} — {consultaList.length} consulta(s) registrada(s).</p>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10, flexWrap: 'wrap' }}>
+                  <div>
+                    <h3>Evolução do paciente</h3>
+                    <p className="sub" style={{ marginBottom: 0 }}>{pacNome} — {consultaList.length} consulta(s) registrada(s).</p>
+                  </div>
+                  {consultaList.length > 0 && (
+                    <button className="btn-ghost no-print" style={{ padding: '7px 12px', fontSize: 12 }} onClick={() => imprimir('hist')}>Imprimir histórico</button>
+                  )}
+                </div>
+                <div style={{ height: 10 }} />
                 {consultaList.length === 0 ? (
                   <p className="evo-empty">Nenhuma consulta salva para este paciente. Use “Salvar consulta”.</p>
                 ) : (
@@ -979,6 +1032,29 @@ export default function Atendimento({
               <ExamValuesPanel patientId={patient.id} values={examList} onChanged={setExamList} today={todayISO} />
             </div>
           </div>
+
+          {/* HISTÓRICO IMPRIMÍVEL (só aparece ao imprimir o histórico) */}
+          <article className="doc doc-hist" id="docHistorico">
+            <Letterhead profile={profile} />
+            <div className="doc-title">Histórico do paciente</div>
+            <DocMeta nome={pacNome} idade={pacIdade} data={pacData} />
+            {consultaList.map((c) => (
+              <div className="hist-c" key={c.id}>
+                <div className="hist-c-head">
+                  <b>{new Date(c.data).toLocaleDateString('pt-BR')}</b>
+                  {c.doenca_nome ? <> — {c.doenca_nome}</> : null}
+                  {c.etapa ? <> · {c.etapa}</> : null}
+                  {c.consulta_tipo ? <> · {c.consulta_tipo === 'primeira' ? 'Primeira consulta' : 'Retorno'}</> : null}
+                </div>
+                {c.insight && <div className="hist-c-line"><span className="k">Escore:</span> {c.insight}</div>}
+                {c.exam_results && <div className="hist-c-line"><span className="k">Exames:</span> {c.exam_results}</div>}
+                {c.hda && <div className="hist-c-line"><span className="k">HDA:</span> {c.hda}</div>}
+                {c.antecedentes && <div className="hist-c-line"><span className="k">Antecedentes:</span> {c.antecedentes}</div>}
+                {c.receita_texto && <div className="hist-c-line"><span className="k">Conduta:</span> {c.receita_texto}</div>}
+              </div>
+            ))}
+            <div className="doc-disclaimer">{DISCLAIMER_DOC}</div>
+          </article>
         </main>
       </div>
 

@@ -13,6 +13,7 @@ interface FbRow {
   id: string; created_at: string; doenca_id: string | null; ai_model: string | null;
   rating: number; disagreement: string | null; ai_response: string | null; patient_ref: string;
 }
+interface FaseRow { doenca: string; etapa: string; n: number }
 
 function Tile({ label, value }: { label: string; value: string | number }) {
   return (
@@ -44,6 +45,10 @@ export default async function GestorPage() {
   const s = stats as Stats;
   const { data: fb } = await supabase.rpc('admin_ai_feedback', { lim: 100 });
   const rows = (fb as FbRow[]) || [];
+  // Opcional: pacientes por doença/fase (some se o SQL da função ainda não foi rodado).
+  const { data: faseData } = await supabase.rpc('admin_fase_stats');
+  const fases = (faseData as FaseRow[]) || [];
+  const totalFases = fases.reduce((acc, f) => acc + Number(f.n), 0);
 
   return (
     <>
@@ -61,6 +66,30 @@ export default async function GestorPage() {
           <Tile label="Nota média IA" value={s.ia_media || '—'} />
           <Tile label="Notas baixas (≤3)" value={s.ia_baixas} />
         </div>
+
+        {fases.length > 0 && (
+          <>
+            <h2>Pacientes por doença e fase</h2>
+            <p className="psub">Onde os pacientes estão hoje (fase = etapa da última consulta). Total: {totalFases}.</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 30 }}>
+              {fases.map((f, i) => {
+                const max = Math.max(1, ...fases.map((x) => Number(x.n)));
+                const pct = Math.round((Number(f.n) / max) * 100);
+                return (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{ width: 260, fontSize: 12.5, textAlign: 'right', color: '#444' }}>
+                      <b style={{ color: 'var(--gold)' }}>{f.doenca}</b>{f.etapa && f.etapa !== '—' ? ' · ' + f.etapa : ''}
+                    </div>
+                    <div style={{ flex: 1, background: '#f0ece3', borderRadius: 6, height: 18, position: 'relative' }}>
+                      <div style={{ width: pct + '%', height: '100%', background: 'var(--gold)', borderRadius: 6, minWidth: 2 }} />
+                    </div>
+                    <div style={{ width: 34, fontSize: 12.5, fontWeight: 700 }}>{f.n}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
 
         <h2>Distribuição das notas da IA</h2>
         <p className="psub">Quantas avaliações receberam cada nota (1 a 5).</p>

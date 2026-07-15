@@ -70,6 +70,19 @@ button:disabled{opacity:.5; cursor:not-allowed}
 .safety{margin-top:12px; font-size:11.5px; color:var(--muted); background:var(--gold-soft); border-left:3px solid var(--gold); padding:10px 12px; border-radius:0 6px 6px 0; line-height:1.5}
 .safety b{color:#6b5326}
 
+/* barra de pendências do paciente (abaixo da topbar) */
+.pend-bar{background:#F7E9E7; border-bottom:1px solid #d9b8b4; padding:9px 22px}
+.pend-bar .pend-title{font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--red); font-weight:700}
+.pend-bar ul{margin:4px 0 0; padding-left:18px}
+.pend-bar li{font-size:12.5px; color:#5b451e; margin-bottom:2px}
+
+/* histórico imprimível */
+.doc-hist{display:none}
+.doc-hist .hist-c{padding:8px 0; border-bottom:1px dashed var(--line)}
+.doc-hist .hist-c-head{font-size:13px; margin-bottom:3px}
+.doc-hist .hist-c-line{font-size:12px; color:#333; margin:2px 0}
+.doc-hist .hist-c-line .k{color:var(--muted); font-weight:600}
+
 .stage{padding:24px 24px 60px; display:flex; flex-direction:column; gap:24px; align-items:center}
 .doc-wrap{width:100%; max-width:720px}
 .doc-tools{display:flex; gap:8px; justify-content:space-between; align-items:center; margin-bottom:8px}
@@ -150,12 +163,17 @@ ol.exlist li{margin-bottom:5px; font-size:13.5px}
 
 /* prontuário / lista */
 .pt-search{position:relative}
-.pt-list{margin-top:8px; border:1px solid var(--line); border-radius:8px; background:#fff; max-height:190px; overflow:auto}
-.pt-item{padding:9px 11px; border-bottom:1px solid var(--line); cursor:pointer; font-size:12.5px; display:block; text-decoration:none; color:inherit}
+.pt-list{margin-top:8px; border:1px solid var(--line); border-radius:8px; background:#fff; max-height:60vh; overflow:auto}
+.pt-item{padding:10px 12px; border-bottom:1px solid var(--line); cursor:pointer; font-size:12.5px; display:block; text-decoration:none; color:inherit}
 .pt-item:last-child{border-bottom:none}
 .pt-item:hover{background:var(--gold-soft)}
 .pt-item .nm{font-weight:600}
-.pt-item .mt{color:var(--muted); font-size:11px}
+.pt-item .mt{color:var(--muted); font-size:11px; margin-top:2px}
+.pt-item-top{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+.pt-badge{font-size:10.5px; font-weight:700; color:var(--gold); background:var(--gold-soft); border:1px solid #e6d9bd; border-radius:20px; padding:2px 9px; letter-spacing:.2px}
+.pt-badge.atrasado{color:var(--red); background:#F7E9E7; border-color:#d9b8b4}
+.pt-filter{margin-top:10px; font-size:12px; font-weight:600; color:var(--red); background:#fff; border:1px solid #d9b8b4; border-radius:20px; padding:5px 13px; cursor:pointer}
+.pt-filter.on{background:var(--red); color:#fff; border-color:var(--red)}
 .pt-empty{padding:12px; font-size:12px; color:#b7b0a0; font-style:italic}
 .savedtag{font-size:11px; color:#3c7a3c; font-weight:600}
 
@@ -276,6 +294,10 @@ ol.exlist li{margin-bottom:5px; font-size:13.5px}
   body.only-rc #wrapExames, body.only-rc #wrapLME{display:none !important}
   body.only-lme #wrapExames, body.only-lme #wrapReceita{display:none !important}
   body.only-ex #wrapExames, body.only-rc #wrapReceita, body.only-lme #wrapLME{page-break-after:auto}
+  /* impressão do histórico do paciente */
+  body.only-hist .tabpanel.docs-panel{display:none !important}
+  body.only-hist .doc-hist{display:block !important}
+  .doc-hist .hist-c{page-break-inside:avoid}
   .doc.lme-doc{padding:0}
   .lme2 input.f, .lme2 textarea.f{background:none !important}
   .rmbtn, .addbtn, .lme-tag-btn, .app-footer{display:none !important}

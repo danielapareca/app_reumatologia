@@ -45,6 +45,15 @@ const STEPS: { t: Tab; n: number; l: string }[] = [
   { t: 'evolucao', n: 3, l: 'Evolução' },
 ];
 
+// Doenças mais comuns, como chips de acesso rápido (as demais ficam na lista completa).
+const DOENCAS_COMUNS: [string, string][] = [
+  ['ar', 'Artrite Reumatoide'],
+  ['aps', 'Artrite Psoriásica'],
+  ['ea', 'Espondiloartrite'],
+  ['les', 'LES'],
+  ['gota', 'Gota'],
+];
+
 export default function Atendimento({
   patient,
   profile,
@@ -198,6 +207,17 @@ export default function Atendimento({
 
   // Dias desde a última consulta (paciente já acompanhado).
   const diasUltima = ultimaConsulta ? diasDesde(ultimaConsulta.data, todayISO) : null;
+
+  // Resumo dos escores mais recentes (para a barra lateral).
+  const escoresResumo = useMemo(() => {
+    const byM = new Map<string, ExamValue>();
+    for (const e of examList) {
+      if (e.tipo !== 'escore') continue;
+      const cur = byM.get(e.marcador);
+      if (!cur || e.data > cur.data) byM.set(e.marcador, e);
+    }
+    return Array.from(byM.values());
+  }, [examList]);
 
   // helpers de edição
   const updConf = (i: number, v: string) => setExamesConf((a) => a.map((x, idx) => (idx === i ? v : x)));
@@ -645,8 +665,13 @@ export default function Atendimento({
           </div>
 
           <div className="block picker">
-            <p className="eyebrow"><Icon name="stethoscope" size={14} /> Condição</p>
-            <label>Selecione a doença</label>
+            <p className="eyebrow"><Icon name="stethoscope" size={14} /> Doença ativa</p>
+            <div className="chips" style={{ marginBottom: 9 }}>
+              {DOENCAS_COMUNS.filter(([id]) => D[id]).map(([id, lbl]) => (
+                <span key={id} className={'chip' + (curId === id ? ' on' : '')} onClick={() => onDiseaseChange(id)}>{lbl}</span>
+              ))}
+            </div>
+            <label>Ou selecione na lista completa</label>
             <select className="doenca" value={curId} onChange={(e) => onDiseaseChange(e.target.value)}>
               <option value="">— escolha a doença —</option>
               {ORDER.map(([grp, ids]) => (
@@ -712,6 +737,26 @@ export default function Atendimento({
               </div>
             </div>
           </details>
+
+          <div className="block">
+            <p className="eyebrow" style={{ justifyContent: 'space-between' }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}><Icon name="chart" size={14} /> Escores</span>
+              <button className="eb-link" onClick={() => setTab('anamnese')}>Calcular</button>
+            </p>
+            {escoresResumo.length === 0 ? (
+              <p className="empty-note" style={{ fontSize: 12 }}>Sem escores ainda. Calcule na aba Anamnese (DAS28, CDAI, BASDAI, SLEDAI).</p>
+            ) : (
+              <div className="esc-grid">
+                {escoresResumo.map((e) => (
+                  <div key={e.id} className="esc-cell">
+                    <div className="esc-k">{e.marcador}</div>
+                    <div className="esc-v">{Number(e.valor)}</div>
+                    <div className="esc-d">{e.data.slice(8, 10)}/{e.data.slice(5, 7)}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
 
           <div className="block">
             <p className="eyebrow"><Icon name="pill" size={14} /> Etapa do tratamento</p>

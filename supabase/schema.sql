@@ -86,6 +86,24 @@ create policy "ai_feedback proprio" on ai_feedback for all
 alter table patients add column if not exists consent_marketing boolean default false;
 alter table patients add column if not exists consent_marketing_at timestamptz;
 
+-- Consentimento do paciente para tratamento de dados de saúde (LGPD).
+alter table patients add column if not exists consent_data boolean default false;
+alter table patients add column if not exists consent_data_at timestamptz;
+
+-- Uso da IA (para limite diário / controle de custo por médico).
+create table if not exists ai_usage (
+  id uuid primary key default gen_random_uuid(),
+  doctor_id uuid not null default auth.uid() references auth.users(id),
+  kind text not null,            -- 'insight' | 'ai-doc' | 'extract'
+  model text,
+  created_at timestamptz default now()
+);
+create index if not exists ai_usage_doctor_dia on ai_usage (doctor_id, created_at);
+alter table ai_usage enable row level security;
+drop policy if exists "ai_usage proprio" on ai_usage;
+create policy "ai_usage proprio" on ai_usage for all
+  using (doctor_id = auth.uid()) with check (doctor_id = auth.uid());
+
 -- Rastreio pré-biológico (TB, HBV, HCV, HIV, vacinas) por paciente.
 alter table patients add column if not exists screening jsonb;
 

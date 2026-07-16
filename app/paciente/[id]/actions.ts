@@ -102,6 +102,65 @@ export async function saveConsulta(input: SaveConsultaInput): Promise<SaveConsul
   return { ok: true };
 }
 
+// Corrige os textos livres de uma consulta já salva (HDA, antecedentes, observações).
+export async function updateConsulta(input: {
+  id: string; patientId: string; hda: string; antecedentes: string; observacoes: string;
+}): Promise<SaveConsultaResult> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: 'Sessão expirada.' };
+  const patch: Record<string, unknown> = {
+    hda: input.hda || null, antecedentes: input.antecedentes || null, observacoes: input.observacoes || null,
+  };
+  let { error } = await supabase.from('consultas').update(patch).eq('id', input.id);
+  if (error && (error.code === 'PGRST204' || error.code === '42703' || /observ/i.test(error.message))) {
+    delete patch.observacoes;
+    ({ error } = await supabase.from('consultas').update(patch).eq('id', input.id));
+  }
+  if (error) return { error: error.message };
+  revalidatePath(`/paciente/${input.patientId}`);
+  return { ok: true };
+}
+
+// Exclui uma consulta do histórico.
+export async function deleteConsulta(id: string, patientId: string): Promise<SaveConsultaResult> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: 'Sessão expirada.' };
+  const { error } = await supabase.from('consultas').delete().eq('id', id);
+  if (error) return { error: error.message };
+  revalidatePath(`/paciente/${patientId}`);
+  return { ok: true };
+}
+
+// Exclui o paciente e todo o seu histórico (consultas, exames e medicação em cascata).
+export async function deletePatient(id: string): Promise<SaveConsultaResult> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: 'Sessão expirada.' };
+  const { error } = await supabase.from('patients').delete().eq('id', id);
+  if (error) return { error: error.message };
+  revalidatePath('/');
+  return { ok: true };
+}
+
+// Registra/atualiza o consentimento do paciente para o tratamento de dados (LGPD).
+export async function setConsent(patientId: string, value: boolean): Promise<SaveConsultaResult> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: 'Sessão expirada.' };
+  const patch = { consent_data: value, consent_data_at: value ? new Date().toISOString() : null };
+  const { error } = await supabase.from('patients').update(patch).eq('id', patientId);
+  if (error) {
+    if (error.code === 'PGRST204' || error.code === '42703' || /consent/i.test(error.message)) {
+      return { error: 'Rode o SQL de consentimento no Supabase para salvar essa opção.' };
+    }
+    return { error: error.message };
+  }
+  revalidatePath(`/paciente/${patientId}`);
+  return { ok: true };
+}
+
 // Salva o rastreio pré-biológico do paciente.
 export async function saveScreening(patientId: string, screening: ScreeningState): Promise<SaveConsultaResult> {
   const supabase = createClient();

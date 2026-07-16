@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@/lib/supabase/server';
 import { chunksParaDoenca, GROUNDING_META } from '@/lib/clinical/grounding';
+import { limiteAtingido, registrarUso, AI_DAILY_LIMIT } from '@/lib/aiUsage';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -133,6 +134,13 @@ export async function POST(request: Request) {
     );
   }
 
+  if (await limiteAtingido(supabase, user.id)) {
+    return NextResponse.json(
+      { error: `Limite diário de uso da IA atingido (${AI_DAILY_LIMIT} usos hoje). Tente amanhã ou aumente o limite (AI_DAILY_LIMIT no servidor).` },
+      { status: 429 }
+    );
+  }
+
   let input: InsightsInput;
   try {
     input = (await request.json()) as InsightsInput;
@@ -155,6 +163,7 @@ export async function POST(request: Request) {
       .join('\n')
       .trim();
 
+    await registrarUso(supabase, user.id, 'insight', MODEL);
     return NextResponse.json({ insight: texto, model: MODEL });
   } catch (err) {
     if (err instanceof Anthropic.APIError) {

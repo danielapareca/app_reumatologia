@@ -27,6 +27,8 @@ export interface Patient {
   estado: string | null;
   cep: string | null;
   screening: ScreeningState | null;
+  consent_data?: boolean | null;
+  consent_data_at?: string | null;
   created_at?: string;
 }
 

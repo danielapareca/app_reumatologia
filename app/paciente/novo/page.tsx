@@ -88,6 +88,11 @@ export default function NovoPaciente() {
             <input name="cep" placeholder="00000-000" />
           </div>
 
+          <label className="consent-box">
+            <input type="checkbox" name="consent" />
+            <span>O paciente <b>consente</b> com o registro e o tratamento dos seus dados de saúde para acompanhamento clínico, conforme a LGPD. <span className="consent-hint">(A data e hora ficam registradas.)</span></span>
+          </label>
+
           <SaveBtn />
         </form>
       </div>

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@/lib/supabase/server';
 import { chunksParaDoenca } from '@/lib/clinical/grounding';
+import { limiteAtingido, registrarUso, AI_DAILY_LIMIT } from '@/lib/aiUsage';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -71,6 +72,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'A chave da IA (ANTHROPIC_API_KEY) não foi configurada no servidor.' }, { status: 503 });
   }
 
+  if (await limiteAtingido(supabase, user.id)) {
+    return NextResponse.json({ error: `Limite diário de uso da IA atingido (${AI_DAILY_LIMIT} usos hoje). Tente amanhã ou aumente o limite (AI_DAILY_LIMIT no servidor).` }, { status: 429 });
+  }
+
   let input: DocInput;
   try { input = await request.json(); } catch { return NextResponse.json({ error: 'JSON inválido.' }, { status: 400 }); }
   const prompt = PROMPTS[input.tipo];
@@ -87,6 +92,7 @@ export async function POST(request: Request) {
     const texto = message.content
       .filter((b): b is Anthropic.TextBlock => b.type === 'text')
       .map((b) => b.text).join('\n').trim();
+    await registrarUso(supabase, user.id, 'ai-doc', MODEL);
     return NextResponse.json({ texto });
   } catch (err) {
     if (err instanceof Anthropic.APIError) {

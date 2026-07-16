@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, useCallback, Fragment } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import Icon from '@/components/Icon';
 import { D, ORDER } from '@/lib/clinical/diseases';
 import { computeFlags } from '@/lib/clinical/flags';
@@ -21,7 +22,7 @@ import ScreeningChecklist from './ScreeningChecklist';
 import MedicationTimeline from './MedicationTimeline';
 import AiFeedback from './AiFeedback';
 import AiDocs from './AiDocs';
-import { saveConsulta, updatePatient } from './actions';
+import { saveConsulta, updatePatient, setConsent, updateConsulta, deleteConsulta, deletePatient } from './actions';
 import { addMedEvent } from './medActions';
 import { derivarEventosReceita } from '@/lib/clinical/medsync';
 
@@ -81,6 +82,44 @@ export default function Atendimento({
   const [pacData, setPacData] = useState('');
   const [pacAlergia, setPacAlergia] = useState('');
   const [todayISO, setTodayISO] = useState('');
+  const [consent, setConsentState] = useState(!!patient.consent_data);
+  const router = useRouter();
+
+  // Consentimento LGPD do paciente.
+  async function onConsent(v: boolean) {
+    setConsentState(v);
+    const r = await setConsent(patient.id, v);
+    if (r.error) { setConsentState(!v); showFlash(r.error); }
+    else showFlash(v ? 'Consentimento registrado' : 'Consentimento removido');
+  }
+
+  // Editar / excluir consultas e excluir paciente.
+  const [editId, setEditId] = useState<string | null>(null);
+  const [editVals, setEditVals] = useState({ hda: '', antecedentes: '', observacoes: '' });
+  function startEdit(c: Consulta) {
+    setEditId(c.id);
+    setEditVals({ hda: c.hda || '', antecedentes: c.antecedentes || '', observacoes: c.observacoes || '' });
+  }
+  async function saveEdit(c: Consulta) {
+    const r = await updateConsulta({ id: c.id, patientId: patient.id, ...editVals });
+    if (r.error) { showFlash(r.error); return; }
+    setConsultaList((list) => list.map((x) => (x.id === c.id ? { ...x, ...editVals } : x)));
+    setEditId(null);
+    showFlash('Consulta atualizada');
+  }
+  async function delConsulta(c: Consulta) {
+    if (!window.confirm('Excluir esta consulta do histórico? Não dá para desfazer.')) return;
+    const r = await deleteConsulta(c.id, patient.id);
+    if (r.error) { showFlash(r.error); return; }
+    setConsultaList((list) => list.filter((x) => x.id !== c.id));
+    showFlash('Consulta excluída');
+  }
+  async function delPaciente() {
+    if (!window.confirm(`Excluir o paciente ${pacNome || ''} e TODO o histórico (consultas, exames, medicação)? Não dá para desfazer.`)) return;
+    const r = await deletePatient(patient.id);
+    if (r.error) { showFlash(r.error); return; }
+    router.push('/');
+  }
 
   useEffect(() => {
     setPacData(todayBR());
@@ -664,6 +703,13 @@ export default function Atendimento({
               <div className="field"><label>Estado (UF)</label><input value={pacEstado} onChange={(e) => setPacEstado(e.target.value)} maxLength={2} placeholder="SP" /></div>
             </div>
             <div className="field"><label>CEP</label><input value={pacCep} onChange={(e) => setPacCep(e.target.value)} placeholder="00000-000" /></div>
+            <label className="consent-box">
+              <input type="checkbox" checked={consent} onChange={(e) => onConsent(e.target.checked)} />
+              <span>Paciente <b>consente</b> com o tratamento dos dados de saúde (LGPD).
+                {consent && patient.consent_data_at && <span className="consent-hint"> Registrado em {new Date(patient.consent_data_at).toLocaleDateString('pt-BR')}.</span>}
+              </span>
+            </label>
+            {!consent && <div className="consent-warn">Sem consentimento registrado.</div>}
           </div>
 
           <div className="block picker">
@@ -803,6 +849,10 @@ export default function Atendimento({
           <div className="safety">
             <b>Apoio ao médico — não substitui o médico.</b> {DISCLAIMER_LONGO} Os itens vêm pré-preenchidos pelo protocolo; revise, acrescente ou retire e individualize as doses (peso, função renal, interações, gestação) antes de assinar. A tarja <b>LME</b> marca o que exige Laudo do Componente Especializado.
           </div>
+
+          <button className="btn-danger" onClick={delPaciente} style={{ marginTop: 12 }}>
+            <Icon name="logout" size={15} /> Excluir paciente e histórico
+          </button>
         </aside>
 
         {/* ------- PALCO ------- */}
@@ -1153,11 +1203,20 @@ export default function Atendimento({
                 {consultaList.length === 0 ? (
                   <p className="evo-empty">Nenhuma consulta salva para este paciente. Use “Salvar consulta”.</p>
                 ) : (
-                  consultaList.map((c) => (
+                  consultaList.map((c) => {
+                    const tmp = String(c.id).startsWith('tmp-');
+                    const editando = editId === c.id;
+                    return (
                     <div className="evo-item" key={c.id}>
                       <div className="evo-head">
                         <span className="evo-date">{new Date(c.data).toLocaleDateString('pt-BR')}</span>
                         <span className="evo-dis">{c.doenca_nome || ''}</span>
+                        {!tmp && !editando && (
+                          <span className="evo-acts no-print">
+                            <button title="Editar textos" onClick={() => startEdit(c)}>Editar</button>
+                            <button title="Excluir consulta" onClick={() => delConsulta(c)} style={{ color: 'var(--red)' }}>Excluir</button>
+                          </span>
+                        )}
                       </div>
                       {c.consulta_tipo && (
                         <div className="evo-line">
@@ -1166,16 +1225,31 @@ export default function Atendimento({
                       )}
                       {c.insight && <div className="evo-line"><span className="k">Escore:</span> {c.insight}</div>}
                       {c.exam_results && <div className="evo-line"><span className="k">Exames:</span> {c.exam_results}</div>}
-                      {c.hda && <div className="evo-line"><span className="k">HDA:</span> {c.hda}</div>}
-                      {c.observacoes && <div className="evo-line"><span className="k">Observações:</span> {c.observacoes}</div>}
+                      {editando ? (
+                        <div className="evo-edit no-print">
+                          <label>HDA<textarea value={editVals.hda} onChange={(e) => setEditVals((v) => ({ ...v, hda: e.target.value }))} /></label>
+                          <label>Antecedentes<textarea value={editVals.antecedentes} onChange={(e) => setEditVals((v) => ({ ...v, antecedentes: e.target.value }))} /></label>
+                          <label>Observações<textarea value={editVals.observacoes} onChange={(e) => setEditVals((v) => ({ ...v, observacoes: e.target.value }))} /></label>
+                          <div style={{ display: 'flex', gap: 8 }}>
+                            <button className="btn-primary" style={{ height: 36, fontSize: 13 }} onClick={() => saveEdit(c)}>Salvar correção</button>
+                            <button className="btn-ghost" style={{ height: 36, fontSize: 13 }} onClick={() => setEditId(null)}>Cancelar</button>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          {c.hda && <div className="evo-line"><span className="k">HDA:</span> {c.hda}</div>}
+                          {c.observacoes && <div className="evo-line"><span className="k">Observações:</span> {c.observacoes}</div>}
+                        </>
+                      )}
                       {c.ia_insight && (
                         <details style={{ marginTop: 8 }}>
-                          <summary style={{ cursor: 'pointer', fontSize: 12, fontWeight: 600, color: 'var(--gold)' }}>Insight da IA desta consulta</summary>
+                          <summary style={{ cursor: 'pointer', fontSize: 12, fontWeight: 600, color: 'var(--gold-600)' }}>Insight da IA desta consulta</summary>
                           <div style={{ marginTop: 6 }}><InsightRender text={c.ia_insight} /></div>
                         </details>
                       )}
                     </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
 

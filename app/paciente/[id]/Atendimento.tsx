@@ -6,7 +6,7 @@ import Icon from '@/components/Icon';
 import { D, ORDER } from '@/lib/clinical/diseases';
 import { computeFlags } from '@/lib/clinical/flags';
 import { scanText } from '@/lib/clinical/insights';
-import { ANAM, jointScoreCat, computeAnamInsight, type AnamState } from '@/lib/clinical/anamnese';
+import { ANAM, jointScoreCat, computeAnamInsight, computeGenericAnamInsight, type AnamState } from '@/lib/clinical/anamnese';
 import { defaultQState, type QState, type RxItem } from '@/lib/clinical/types';
 import type { Patient, Profile, Consulta, LmeJson, ExamValue, MedicationEvent } from '@/lib/types';
 import { idadeFromNascimento, diasDesde, haQuantoTempo } from '@/lib/util';
@@ -274,7 +274,9 @@ export default function Atendimento({
     () => scanText(hda, antecedentes),
     [hda, antecedentes]
   );
-  const anamInsight = curId === 'ar' ? computeAnamInsight(anam) : null;
+  const anamInsight = curId === 'ar'
+    ? computeAnamInsight(anam)
+    : (curId && ANAM[curId] ? computeGenericAnamInsight(ANAM[curId], anam) : null);
 
   // ---- LME ----
   const [lme, setLme] = useState<LmeFields>({
@@ -1059,8 +1061,8 @@ export default function Atendimento({
                     {anamInsight && (
                       <>
                         <div className="scorebox">
-                          <div className="it">Insight — ACR/EULAR 2010</div>
-                          <div className="score">{anamInsight.score} <small>/ 10 pontos{anamInsight.done ? '' : ' (parcial)'}</small></div>
+                          <div className="it">Insight — {anamInsight.criterio}</div>
+                          <div className="score">{anamInsight.score} <small>/ {anamInsight.max} pontos{anamInsight.done ? '' : ' (parcial)'}</small></div>
                           <div className={'verdict ' + (anamInsight.yes ? 'yes' : 'no')}>{anamInsight.verdict}</div>
                           {anamInsight.tips.length > 0 && (
                             <ul>{anamInsight.tips.map((t, i) => <li key={i}>{t}</li>)}</ul>

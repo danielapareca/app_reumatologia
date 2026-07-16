@@ -27,19 +27,25 @@ export default function ExamValuesPanel({
     return Array.from(map.entries());
   }, [values]);
 
-  // Laudos originais guardados (Storage).
-  const supabase = useMemo(() => createClient(), []);
+  // Laudos originais guardados (Storage). Cliente de navegador criado com proteção.
+  const supabase = useMemo(() => {
+    try { return createClient(); } catch { return null; }
+  }, []);
   const [laudos, setLaudos] = useState<ExamFile[]>([]);
   useEffect(() => {
+    if (!supabase) return;
     let vivo = true;
     (async () => {
-      const { data, error } = await supabase.from('exam_files').select('*').eq('patient_id', patientId).order('created_at', { ascending: false });
-      if (vivo && !error && data) setLaudos(data as ExamFile[]);
+      try {
+        const { data, error } = await supabase.from('exam_files').select('*').eq('patient_id', patientId).order('created_at', { ascending: false });
+        if (vivo && !error && data) setLaudos(data as ExamFile[]);
+      } catch { /* ignora */ }
     })();
     return () => { vivo = false; };
   }, [supabase, patientId]);
 
   async function guardarLaudo(file: File) {
+    if (!supabase) return;
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -52,10 +58,12 @@ export default function ExamValuesPanel({
     } catch { /* ignora */ }
   }
   async function baixarLaudo(f: ExamFile) {
+    if (!supabase) return;
     const { data } = await supabase.storage.from('exames').createSignedUrl(f.path, 120);
     if (data?.signedUrl) window.open(data.signedUrl, '_blank');
   }
   async function removerLaudo(f: ExamFile) {
+    if (!supabase) return;
     if (!window.confirm('Remover este laudo anexado?')) return;
     await supabase.storage.from('exames').remove([f.path]);
     await supabase.from('exam_files').delete().eq('id', f.id);

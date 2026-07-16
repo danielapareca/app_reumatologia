@@ -579,7 +579,7 @@ export default function Atendimento({
   return (
     <>
       <div className="pt-topbar no-print">
-        <Link className="pt-back" href="/" title="Voltar aos pacientes"><Icon name="arrowleft" size={20} /></Link>
+        <Link className="pt-back" href="/" title="Voltar aos pacientes"><Icon name="arrowleft" size={20} /><span className="pt-back-txt">Voltar</span></Link>
         <div className="pt-avatar">{iniciais(pacNome)}</div>
         <div className="pt-id">
           <div className="pt-nm">

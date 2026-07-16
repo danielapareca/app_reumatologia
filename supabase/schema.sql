@@ -104,6 +104,34 @@ drop policy if exists "ai_usage proprio" on ai_usage;
 create policy "ai_usage proprio" on ai_usage for all
   using (doctor_id = auth.uid()) with check (doctor_id = auth.uid());
 
+-- Laudos de exame (arquivo original) — metadados + Storage privado.
+create table if not exists exam_files (
+  id uuid primary key default gen_random_uuid(),
+  patient_id uuid not null references patients(id) on delete cascade,
+  doctor_id uuid not null default auth.uid() references auth.users(id),
+  path text not null,            -- caminho no bucket 'exames'
+  filename text,
+  data date,
+  created_at timestamptz default now()
+);
+alter table exam_files enable row level security;
+drop policy if exists "exam_files proprios" on exam_files;
+create policy "exam_files proprios" on exam_files for all
+  using (doctor_id = auth.uid()) with check (doctor_id = auth.uid());
+
+-- Bucket privado para os laudos + policies por dono do arquivo.
+insert into storage.buckets (id, name, public) values ('exames', 'exames', false)
+  on conflict (id) do nothing;
+drop policy if exists "exames select proprio" on storage.objects;
+drop policy if exists "exames insert proprio" on storage.objects;
+drop policy if exists "exames delete proprio" on storage.objects;
+create policy "exames select proprio" on storage.objects for select
+  using (bucket_id = 'exames' and owner = auth.uid());
+create policy "exames insert proprio" on storage.objects for insert
+  with check (bucket_id = 'exames' and owner = auth.uid());
+create policy "exames delete proprio" on storage.objects for delete
+  using (bucket_id = 'exames' and owner = auth.uid());
+
 -- Rastreio pré-biológico (TB, HBV, HCV, HIV, vacinas) por paciente.
 alter table patients add column if not exists screening jsonb;
 

@@ -71,6 +71,16 @@ export interface MedicationEvent {
   created_at?: string;
 }
 
+export interface ExamFile {
+  id: string;
+  patient_id: string;
+  doctor_id: string;
+  path: string;
+  filename: string | null;
+  data: string | null;
+  created_at?: string;
+}
+
 export interface ExamValue {
   id: string;
   patient_id: string;

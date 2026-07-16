@@ -1,8 +1,9 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import LineChart from '@/components/LineChart';
-import type { ExamValue } from '@/lib/types';
+import { createClient } from '@/lib/supabase/client';
+import type { ExamValue, ExamFile } from '@/lib/types';
 import { addExamValue, deleteExamValue } from './examActions';
 
 export default function ExamValuesPanel({
@@ -26,6 +27,41 @@ export default function ExamValuesPanel({
     return Array.from(map.entries());
   }, [values]);
 
+  // Laudos originais guardados (Storage).
+  const supabase = useMemo(() => createClient(), []);
+  const [laudos, setLaudos] = useState<ExamFile[]>([]);
+  useEffect(() => {
+    let vivo = true;
+    (async () => {
+      const { data, error } = await supabase.from('exam_files').select('*').eq('patient_id', patientId).order('created_at', { ascending: false });
+      if (vivo && !error && data) setLaudos(data as ExamFile[]);
+    })();
+    return () => { vivo = false; };
+  }, [supabase, patientId]);
+
+  async function guardarLaudo(file: File) {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const safe = (file.name || 'laudo.pdf').replace(/[^a-zA-Z0-9._-]+/g, '_').slice(0, 60);
+      const path = `${user.id}/${patientId}/${Date.now()}-${safe}`;
+      const up = await supabase.storage.from('exames').upload(path, file, { contentType: 'application/pdf', upsert: false });
+      if (up.error) return; // bucket/tabela ainda não criados → guarda silenciosamente falha, extração segue
+      const ins = await supabase.from('exam_files').insert({ patient_id: patientId, doctor_id: user.id, path, filename: file.name, data: today }).select('*').single();
+      if (!ins.error && ins.data) setLaudos((l) => [ins.data as ExamFile, ...l]);
+    } catch { /* ignora */ }
+  }
+  async function baixarLaudo(f: ExamFile) {
+    const { data } = await supabase.storage.from('exames').createSignedUrl(f.path, 120);
+    if (data?.signedUrl) window.open(data.signedUrl, '_blank');
+  }
+  async function removerLaudo(f: ExamFile) {
+    if (!window.confirm('Remover este laudo anexado?')) return;
+    await supabase.storage.from('exames').remove([f.path]);
+    await supabase.from('exam_files').delete().eq('id', f.id);
+    setLaudos((l) => l.filter((x) => x.id !== f.id));
+  }
+
   // Análise de PDF com IA.
   interface Extraido { marcador: string; valor: string; unidade: string; data: string; incluir: boolean }
   const [pdfBusy, setPdfBusy] = useState(false);
@@ -41,6 +77,7 @@ export default function ExamValuesPanel({
     if (file.type !== 'application/pdf') { setPdfErr('Envie um arquivo PDF.'); return; }
     if (file.size > 4 * 1024 * 1024) { setPdfErr('PDF muito grande (máx 4 MB). Reduza o arquivo ou envie menos páginas.'); return; }
     setPdfBusy(true);
+    guardarLaudo(file); // guarda o arquivo original em paralelo à análise
     try {
       const b64 = await new Promise<string>((res, rej) => {
         const r = new FileReader();
@@ -88,7 +125,7 @@ export default function ExamValuesPanel({
   return (
     <div className="card">
       <h3>Exames — anexe o PDF e a IA preenche</h3>
-      <p className="sub">Anexe o laudo em PDF: a IA lê e extrai os valores (com data e nome do exame). Você revisa e confirma. Os exames ficam salvos aqui e viram gráficos de evolução.</p>
+      <p className="sub">Anexe o laudo em PDF: a IA lê e extrai os valores (com data e nome do exame). Você revisa e confirma. Os exames viram gráficos de evolução e o <b>arquivo original fica guardado</b> aqui.</p>
 
       <input type="file" accept="application/pdf" disabled={pdfBusy}
         onChange={(e) => { const f = e.target.files?.[0]; if (f) analisarPdf(f); e.target.value = ''; }} />
@@ -110,6 +147,20 @@ export default function ExamValuesPanel({
             </div>
           ))}
           <button className="btn-primary" onClick={adicionarExtraidos} style={{ marginTop: 6, padding: '8px 14px' }}>Adicionar selecionados</button>
+        </div>
+      )}
+
+      {laudos.length > 0 && (
+        <div style={{ marginTop: 16 }}>
+          <div style={{ fontSize: 11, letterSpacing: '.06em', textTransform: 'uppercase', color: 'var(--gold-600)', fontWeight: 800, marginBottom: 6 }}>Laudos anexados</div>
+          {laudos.map((f) => (
+            <div key={f.id} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12.5, padding: '5px 0', borderBottom: '1px solid var(--line-soft)' }}>
+              <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.filename || 'laudo.pdf'}</span>
+              <span style={{ color: 'var(--muted)', fontSize: 11 }}>{f.data ? new Date(f.data).toLocaleDateString('pt-BR') : ''}</span>
+              <button className="btn-ghost" style={{ height: 30, padding: '0 10px', fontSize: 12 }} onClick={() => baixarLaudo(f)}>Abrir</button>
+              <button onClick={() => removerLaudo(f)} title="Remover" style={{ border: 'none', background: 'none', color: 'var(--red)', cursor: 'pointer', fontSize: 14 }}>×</button>
+            </div>
+          ))}
         </div>
       )}
 

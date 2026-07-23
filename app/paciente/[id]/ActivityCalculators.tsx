@@ -4,11 +4,12 @@ import { useState } from 'react';
 import {
   das28crp, das28Categoria, cdai, cdaiCategoria, basdai, basdaiCategoria,
   sledai, sledaiCategoria, SLEDAI_ITENS,
+  cjadas10, cjadasCategoria, asdasCrp, asdasCategoria,
 } from '@/lib/clinical/scores';
 import type { ExamValue } from '@/lib/types';
 import { addExamValue } from './examActions';
 
-type Calc = 'das28' | 'cdai' | 'basdai' | 'sledai';
+type Calc = 'das28' | 'cdai' | 'basdai' | 'sledai' | 'jadas' | 'asdas';
 
 const num = (s: string) => parseFloat((s || '').replace(',', '.')) || 0;
 
@@ -40,6 +41,12 @@ export default function ActivityCalculators({
   } else if (calc === 'basdai') {
     resultado = basdai([num(f.q1), num(f.q2), num(f.q3), num(f.q4), num(f.q5), num(f.q6)]);
     categoria = basdaiCategoria(resultado); marcador = 'BASDAI';
+  } else if (calc === 'jadas') {
+    resultado = cjadas10(num(f.aj), num(f.phga), num(f.pga));
+    categoria = cjadasCategoria(resultado); marcador = 'cJADAS-10';
+  } else if (calc === 'asdas') {
+    resultado = asdasCrp(num(f.bp), num(f.ms), num(f.pg), num(f.per), num(f.pcr));
+    categoria = asdasCategoria(resultado); marcador = 'ASDAS-PCR';
   } else {
     resultado = sledai(Array.from(sled));
     categoria = sledaiCategoria(resultado); marcador = 'SLEDAI-2K';
@@ -66,7 +73,7 @@ export default function ActivityCalculators({
       <p className="sub">O resultado é salvo na evolução (vira ponto no gráfico) e ajuda a IA. Apoio — confira o instrumento oficial.</p>
 
       <div className="chips" style={{ marginBottom: 12 }}>
-        {([['das28', 'DAS28 (AR)'], ['cdai', 'CDAI (AR)'], ['basdai', 'BASDAI (espondilite)'], ['sledai', 'SLEDAI-2K (lúpus)']] as const).map(([v, t]) => (
+        {([['das28', 'DAS28 (AR)'], ['cdai', 'CDAI (AR)'], ['basdai', 'BASDAI (espondilite)'], ['asdas', 'ASDAS (espondilite)'], ['sledai', 'SLEDAI-2K (lúpus)'], ['jadas', 'cJADAS (juvenil)']] as const).map(([v, t]) => (
           <span key={v} className={'chip' + (calc === v ? ' on' : '')} onClick={() => setCalc(v)}>{t}</span>
         ))}
       </div>
@@ -95,6 +102,22 @@ export default function ActivityCalculators({
           <label>{lbl('4. Entesite/desconforto (0-10)')}<br />{inp('q4', '0')}</label>
           <label>{lbl('5. Rigidez matinal — intensidade (0-10)')}<br />{inp('q5', '0')}</label>
           <label>{lbl('6. Rigidez matinal — duração (0-10)')}<br />{inp('q6', '0')}</label>
+        </div>
+      )}
+      {calc === 'asdas' && (
+        <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+          <label>{lbl('Dor lombar (0-10)')}<br />{inp('bp', '0')}</label>
+          <label>{lbl('Rigidez matinal (0-10)')}<br />{inp('ms', '0')}</label>
+          <label>{lbl('Global do paciente (0-10)')}<br />{inp('pg', '0')}</label>
+          <label>{lbl('Dor/edema periférico (0-10)')}<br />{inp('per', '0')}</label>
+          <label>{lbl('PCR (mg/L)')}<br />{inp('pcr', '0')}</label>
+        </div>
+      )}
+      {calc === 'jadas' && (
+        <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+          <label>{lbl('Articulações ativas (0-10)')}<br />{inp('aj', '0')}</label>
+          <label>{lbl('Global do médico (0-10)')}<br />{inp('phga', '0')}</label>
+          <label>{lbl('Global do paciente (0-10)')}<br />{inp('pga', '0')}</label>
         </div>
       )}
       {calc === 'sledai' && (

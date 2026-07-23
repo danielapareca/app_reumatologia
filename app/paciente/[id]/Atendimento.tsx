@@ -12,6 +12,7 @@ import { defaultQState, type QState, type RxItem } from '@/lib/clinical/types';
 import type { Patient, Profile, Consulta, LmeJson, ExamValue, MedicationEvent } from '@/lib/types';
 import { idadeFromNascimento, diasDesde, haQuantoTempo } from '@/lib/util';
 import { computeMonitorAlerts } from '@/lib/clinical/monitor';
+import { redFlagsParaDoenca } from '@/lib/clinical/redflags';
 import { DISCLAIMER_LONGO, DISCLAIMER_DOC } from '@/lib/disclaimer';
 import VoiceMic from '@/components/VoiceMic';
 import TextTemplates from '@/components/TextTemplates';
@@ -19,6 +20,7 @@ import LmePreview, { type LmeFields, type LmeMed } from './LmePreview';
 import ExamValuesPanel from './ExamValuesPanel';
 import ActivityCalculators from './ActivityCalculators';
 import ScreeningChecklist from './ScreeningChecklist';
+import DxaReader from './DxaReader';
 import MedicationTimeline from './MedicationTimeline';
 import AiFeedback from './AiFeedback';
 import AiDocs from './AiDocs';
@@ -1047,6 +1049,15 @@ export default function Atendimento({
                   </p>
                 </div>
               )}
+              {curId && redFlagsParaDoenca(curId).length > 0 && (
+                <div className="card" style={{ borderColor: '#ECC9C4', background: 'var(--red-bg)' }}>
+                  <h3 style={{ color: 'var(--red)', display: 'flex', alignItems: 'center', gap: 8 }}><Icon name="shield" size={16} /> Sinais de alarme — {disease?.n}</h3>
+                  <ul style={{ margin: '4px 0 0', paddingLeft: 18 }}>
+                    {redFlagsParaDoenca(curId).map((f, i) => <li key={i} style={{ fontSize: 12.5, color: '#7a3a30', marginBottom: 5, lineHeight: 1.45 }}>{f}</li>)}
+                  </ul>
+                </div>
+              )}
+
               <div className="card">
                 <h3>Anamnese guiada</h3>
                 <p className="sub">
@@ -1179,6 +1190,8 @@ export default function Atendimento({
               <ActivityCalculators patientId={patient.id} today={todayISO} onSaved={(v) => setExamList((l) => [...l, v])} />
 
               <ScreeningChecklist patientId={patient.id} initial={patient.screening} precisaRastreio={stageHasCeaf} />
+
+              <DxaReader patientId={patient.id} today={todayISO} onSaved={(v) => setExamList((l) => [...l, v])} />
 
               <p className="sub" style={{ textAlign: 'center', marginTop: 4 }}>
                 Preencheu a anamnese? Vá para <button className="btn-ghost" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => setTab('docs')}>2 · Conduta</button> para ver os insights da IA, exames e receita.

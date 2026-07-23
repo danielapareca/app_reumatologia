@@ -468,6 +468,10 @@ ol.exlist li{margin-bottom:5px; font-size:13.5px}
 .inline-btn.ghost{background:#fff; color:var(--muted); border:1px solid var(--line)}
 .inline-btn.ghost:hover{border-color:#C9D3E1; color:var(--ink)}
 
+/* assistente — pergunta livre à IA */
+.ask-input{width:100%; font-family:inherit; font-size:15px; padding:12px 14px; border:1px solid var(--line); border-radius:var(--r-md); resize:vertical; min-height:70px; color:var(--ink); background:#fff}
+.ask-input:focus{outline:none; border-color:var(--gold); box-shadow:0 0 0 3px var(--gold-soft)}
+
 .flashmsg{position:fixed; bottom:22px; left:50%; transform:translateX(-50%); background:linear-gradient(160deg,var(--navy-700),var(--navy)); color:#fff; padding:12px 20px; border-radius:var(--r-md); font-size:13px; font-weight:600; z-index:50; box-shadow:var(--sh-2); transition:opacity .4s}
 
 /* ===================== RESPONSIVO (tablet / celular) ===================== */

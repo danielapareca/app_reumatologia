@@ -330,6 +330,83 @@ export const ANAM: Record<string, AnamneseDef> = {
       { id: 'persist', q: 'Persistência de dor após a fase aguda?' },
     ],
   },
+
+  miofascial: {
+    titulo: 'Síndrome da Dor Miofascial — apoio',
+    criterio: 'Dor miofascial (apoio)', limiar: 4,
+    scored: [
+      { id: 'gatilho', q: 'Ponto-gatilho (nódulo em banda tensa que reproduz a dor referida)', opts: [['Presente', 3], ['Ausente', 0]] },
+      { id: 'padrao', q: 'Padrão da dor', opts: [['Regional, referida e reprodutível', 2], ['Difusa / generalizada', 0]] },
+      { id: 'achados', q: 'Achados ao exame', opts: [['Banda tensa + twitch / sinal do pulo', 2], ['Só dor à palpação', 1], ['Nenhum', 0]] },
+    ],
+    clinical: [
+      { id: 'amplitude', q: 'Amplitude reduzida / alongamento doloroso?' },
+      { id: 'perpetuante', q: 'Fator perpetuante identificado (postura, sono, tireoide, vitamina D)?' },
+      { id: 'fibro', q: 'Coexiste com fibromialgia?' },
+    ],
+  },
+
+  sdcr: {
+    titulo: 'Dor Complexa Regional — critérios de Budapeste',
+    criterio: 'Budapeste (apoio)', limiar: 6,
+    positivo: 'Preenche o padrão de Budapeste (dor desproporcional + 3 sintomas + 2 sinais) — apoio; afastar outros diagnósticos.',
+    scored: [
+      { id: 'dor', q: 'Dor contínua desproporcional ao evento', opts: [['Sim', 2], ['Não', 0]] },
+      { id: 'sintomas', q: 'Sintomas relatados (sensitivo / vasomotor / sudomotor-edema / motor-trófico)', opts: [['≥ 3 categorias', 3], ['2', 2], ['1', 1], ['0', 0]] },
+      { id: 'sinais', q: 'Sinais ao exame (nas mesmas categorias)', opts: [['≥ 2 categorias', 3], ['1', 1], ['0', 0]] },
+    ],
+    clinical: [
+      { id: 'evento', q: 'Evento desencadeante (fratura, entorse, cirurgia, imobilização)?' },
+      { id: 'assimetria', q: 'Assimetria de temperatura ou cor da pele?' },
+      { id: 'exclui', q: 'Outro diagnóstico foi afastado?' },
+    ],
+  },
+
+  fadiga: {
+    titulo: 'Fadiga Crônica / EM — critérios IOM 2015',
+    criterio: 'IOM 2015 (apoio)', limiar: 7,
+    scored: [
+      { id: 'fadiga', q: 'Fadiga incapacitante > 6 meses, não aliviada pelo repouso', opts: [['Sim', 3], ['Não', 0]] },
+      { id: 'pem', q: 'Mal-estar pós-esforço (PEM)', opts: [['Presente', 3], ['Ausente', 0]] },
+      { id: 'sono', q: 'Sono não reparador', opts: [['Sim', 1], ['Não', 0]] },
+      { id: 'cog', q: 'Comprometimento cognitivo OU intolerância ortostática', opts: [['Presente', 2], ['Ausente', 0]] },
+    ],
+    clinical: [
+      { id: 'gatilho', q: 'Gatilho infeccioso identificável?' },
+      { id: 'exclui', q: 'Outras causas excluídas por exames?' },
+    ],
+  },
+
+  aij: {
+    titulo: 'Artrite Idiopática Juvenil — apoio (ILAR)',
+    criterio: 'AIJ / ILAR (apoio)', limiar: 4,
+    scored: [
+      { id: 'artrite', q: 'Artrite persistente ≥ 6 semanas, início < 16 anos', opts: [['Sim', 3], ['Não', 0]] },
+      { id: 'padrao', q: 'Nº de articulações nos primeiros 6 meses', opts: [['≥ 5 (poliarticular)', 2], ['≤ 4 (oligoarticular)', 1], ['Nenhuma definida', 0]] },
+      { id: 'sistemica', q: 'Forma sistêmica (febre diária, rash salmão, serosite)', opts: [['Presente', 2], ['Ausente', 0]] },
+    ],
+    clinical: [
+      { id: 'fan', q: 'FAN positivo (risco de uveíte)?' },
+      { id: 'entesite', q: 'Entesite / HLA-B27 / dor sacroilíaca?' },
+      { id: 'alarme', q: 'ALARME: dor noturna intensa, acorda chorando, perda de peso? (afastar leucemia/neoplasia)' },
+    ],
+  },
+
+  fmf: {
+    titulo: 'Febre Familiar do Mediterrâneo — apoio',
+    criterio: 'FMF (apoio)', limiar: 5,
+    scored: [
+      { id: 'crises', q: 'Crises febris recorrentes autolimitadas (12–72h)', opts: [['Típicas', 3], ['Atípicas', 1], ['Ausentes', 0]] },
+      { id: 'serosite', q: 'Serosite / artrite / eritema erisipeloide na crise', opts: [['≥ 2 manifestações', 2], ['1', 1], ['Nenhuma', 0]] },
+      { id: 'genetica', q: 'Ancestralidade mediterrânea OU MEFV com 2 mutações', opts: [['Sim', 2], ['Não / desconhecido', 0]] },
+      { id: 'colchicina', q: 'Resposta à colchicina', opts: [['Boa', 2], ['Não testada', 0]] },
+    ],
+    clinical: [
+      { id: 'inicio', q: 'Início antes dos 20 anos?' },
+      { id: 'proteinuria', q: 'Proteinúria (rastreio de amiloidose)?' },
+      { id: 'familia', q: 'História familiar?' },
+    ],
+  },
 };
 
 // Categoria de articulações do escore ACR/EULAR a partir da contagem.

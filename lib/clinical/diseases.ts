@@ -324,6 +324,87 @@ export const D: Diseases = {
         { m: 'Metotrexato 2,5 mg (artropatia crônica)', p: 'Considerar 6 comp/semana + ácido fólico, conduzido pela reumatologia.', q: '24 comprimidos', ceaf: true }] },
     ],
   },
+
+  // ===== Módulos solicitados pelo Dr. Willian (validar antes de publicar) =====
+  miofascial: {
+    n: 'Síndrome da Dor Miofascial',
+    cid: 'M79.1',
+    conf: ['Diagnóstico clínico — ponto-gatilho em banda tensa (dor referida reprodutível)', 'TSH', '25-OH-vitamina D', 'Vitamina B12', 'Ferritina', 'Magnésio'],
+    etapas: [
+      { id: 'inicial', label: '1ª linha — não farmacológico + sintomático', sub: 'base do tratamento', itens: [
+        { m: 'Fisioterapia / alongamento / agulhamento a seco', p: 'Alongamento do músculo, correção postural, liberação por pressão isquêmica, exercício aeróbico e fortalecimento. Corrigir fatores perpetuantes.' },
+        { m: 'Amitriptilina 25 mg', p: 'Tomar 10 a 25 mg por via oral à noite, sobretudo se distúrbio do sono associado.' },
+        { m: 'Ciclobenzaprina 5 mg', p: 'Tomar 5 a 10 mg por via oral à noite por período curto (ponte).' }],
+        nota: 'Não usar opioide. AINE/paracetamol curto para exacerbação.' },
+      { id: 'segunda', label: 'Injeção de ponto-gatilho', sub: 'dor localizada', itens: [
+        { m: 'Lidocaína 1% sem vasoconstritor', p: 'Injeção de 0,5 a 1 mL por ponto-gatilho. Alternativa: agulhamento a seco (eficácia semelhante). Corticoide na injeção não traz benefício.' }] },
+      { id: 'terceira', label: 'Refratário', sub: 'pontos bem localizados', itens: [
+        { m: 'Toxina botulínica tipo A', p: 'Reservada a casos refratários e pontos bem localizados (evidência heterogênea).' }] },
+    ],
+  },
+
+  sdcr: {
+    n: 'Síndrome da Dor Complexa Regional',
+    cid: 'G90.5',
+    conf: ['Diagnóstico clínico — critérios de Budapeste', 'Radiografia do segmento (osteopenia irregular tardia)', 'Cintilografia óssea trifásica (apoio em casos duvidosos)', 'Exames apenas para afastar fratura oculta, infecção, TVP ou compressão nervosa'],
+    etapas: [
+      { id: 'inicial', label: '1ª linha — reabilitação precoce', sub: 'quanto antes, melhor', alerta: true, itens: [
+        { m: 'Reabilitação funcional precoce', p: 'Dessensibilização progressiva, carga gradual, uso funcional do membro, imagética motora graduada e terapia espelho. Evitar imobilização e repouso. TCC.' },
+        { m: 'Prednisona 20 mg', p: 'Fase inicial inflamatória: 30 a 40 mg por dia por via oral por 2 a 3 semanas, com desmame. Maior benefício quanto mais precoce.' }] },
+      { id: 'segunda', label: 'Dor neuropática + bifosfonato', sub: 'edema e osteopenia', itens: [
+        { m: 'Gabapentina / Pregabalina / Amitriptilina / Duloxetina', p: 'Para o componente de dor neuropática, titular conforme tolerância.' },
+        { m: 'Bifosfonato (pamidronato, alendronato, neridronato ou zoledrônico)', p: 'Em fase precoce com edema e osteopenia regional. Uma das poucas classes com evidência positiva específica.' }] },
+      { id: 'terceira', label: 'Refratário (intervencionista)', sub: 'após falha conservadora', itens: [
+        { m: 'Bloqueio simpático / estimulação medular / cetamina EV', p: 'Bloqueio simpático como teste e janela para reabilitação; estimulação medular após 6 meses de tratamento conservador; cetamina EV em centro especializado. Evitar simpatectomia.' }] },
+    ],
+  },
+
+  fadiga: {
+    n: 'Fadiga Crônica / Encefalomielite Miálgica',
+    cid: 'G93.3',
+    conf: ['Hemograma, VHS, PCR', 'TSH e T4 livre', 'Glicemia de jejum e HbA1c', 'Ureia, creatinina/TFG e eletrólitos', 'TGO, TGP, GGT, FA, bilirrubinas, CPK', 'Ferritina, ferro, saturação, B12, folato, 25-OH-vitamina D', 'FAN, fator reumatoide, anti-Ro e anti-La', 'Sorologias infecciosas DIRIGIDAS pela história (EBV, HIV, hepatites B/C, etc.)'],
+    etapas: [
+      { id: 'inicial', label: 'Manejo (sintomático e de suporte)', sub: 'sem tratamento curativo específico', itens: [
+        { m: 'Manejo de energia (pacing)', p: 'Respeitar o limiar de esforço para evitar o mal-estar pós-esforço. O exercício progressivo forçado NÃO é intervenção primária.' },
+        { m: 'Tratamento do sono, da dor e da intolerância ortostática', p: 'Higiene do sono; tratar POTS/intolerância ortostática; abordar dor. Rastrear e tratar comorbidades (hipotireoidismo, anemia, depressão).' },
+        { m: 'Suporte psicológico', p: 'Apoio psicológico e educação sobre a doença.' }],
+        nota: 'Diagnóstico de exclusão (critérios IOM 2015). Os exames servem para excluir alternativas e documentar comorbidades tratáveis.' },
+    ],
+  },
+
+  aij: {
+    n: 'Artrite Idiopática Juvenil',
+    cid: 'M08',
+    conf: ['Hemograma com esfregaço, VHS, PCR', 'LDH e ácido úrico (rastreio de leucemia/linfoma)', 'Função hepática e renal', 'Ferritina (forma sistêmica e rastreio de SAM)', 'FAN (define risco de uveíte)', 'Fator reumatoide e anti-CCP', 'HLA-B27 (se suspeita de forma relacionada a entesite)', 'Exame oftalmológico com lâmpada de fenda (obrigatório)'],
+    basal: ['PPD ou IGRA', 'Radiografia de tórax', 'HBsAg, Anti-HBc, Anti-HBs', 'Anti-HCV', 'Anti-HIV', 'Atualização vacinal (evitar vírus vivo sob imunossupressão)'],
+    etapas: [
+      { id: 'inicial', label: '1ª linha — AINE + infiltração', sub: 'oligoarticular', itens: [
+        { m: 'Naproxeno (dose pediátrica)', p: 'Naproxeno 10 a 20 mg/kg/dia em 2 tomadas (ou ibuprofeno 30 a 40 mg/kg/dia). Isolado resolve poucos casos.' },
+        { m: 'Infiltração intra-articular de triancinolona hexacetonida', p: 'Tratamento de escolha na forma oligoarticular. Pode ser sob sedação em crianças menores.' }] },
+      { id: 'base', label: 'Base — MMCD (poliarticular)', sub: 'no retorno', itens: [
+        { m: 'Metotrexato 10 a 15 mg/m²/semana', p: 'Via oral ou subcutânea, com ácido fólico. Droga de base nas formas poliarticulares.', ceaf: true },
+        { m: 'Leflunomida ou sulfassalazina', p: 'Alternativas (sulfassalazina útil na forma relacionada a entesite).', ceaf: true }] },
+      { id: 'segunda', label: '2ª linha — biológico', sub: 'falha ou forma sistêmica', itens: [
+        { m: 'Anti-TNF (adalimumabe; preferir monoclonal se uveíte)', p: 'Etanercepte não é eficaz para uveíte. Exige rastreio infeccioso e LME.', ceaf: true },
+        { m: 'Tocilizumabe (anti-IL-6)', p: 'Forma sistêmica e poliarticular refratária.', ceaf: true },
+        { m: 'Anakinra / canaquinumabe (anti-IL-1)', p: '1ª escolha biológica na forma sistêmica com febre e serosite.', ceaf: true }],
+        nota: 'ALERTA — Síndrome de Ativação Macrofágica (emergência) na forma sistêmica: queda de VHS com PCR alta, ferritina muito elevada, citopenias, hipofibrinogenemia, hepatoesplenomegalia.' },
+    ],
+  },
+
+  fmf: {
+    n: 'Febre Familiar do Mediterrâneo',
+    cid: 'E85.0',
+    conf: ['Na crise: hemograma (leucocitose), VHS, PCR, amiloide A sérica (SAA)', 'Entre crises: PCR, VHS e SAA (inflamação subclínica)', 'Proteinúria de 24h ou relação proteína/creatinina (ao menos anual)', 'Creatinina/TFG e urina tipo 1', 'Sequenciamento do gene MEFV'],
+    etapas: [
+      { id: 'inicial', label: '1ª linha — colchicina', sub: 'iniciar ao diagnóstico', itens: [
+        { m: 'Colchicina 0,5 mg', p: 'Adulto: iniciar 1 mg/dia, ajustar até 2 mg/dia (excepcionalmente 3), fracionada. Previne as crises e, principalmente, a amiloidose. Não interromper na crise, gestação ou amamentação.' }],
+        nota: 'Monitorar hemograma, CPK, transaminases e função renal. Interações (claritromicina, eritromicina, cetoconazol, ciclosporina, verapamil, estatinas) aumentam a toxicidade.' },
+      { id: 'segunda', label: '2ª linha — anti-IL-1', sub: 'resistência/intolerância à colchicina', itens: [
+        { m: 'Anakinra 100 mg SC/dia', p: 'Manter a colchicina sempre que tolerada, pelo efeito sobre a amiloidose.', ceaf: true },
+        { m: 'Canaquinumabe 150 mg SC a cada 4 semanas', p: 'Ajustar por peso em crianças. Manter a colchicina.', ceaf: true }] },
+    ],
+  },
 };
 
 // Agrupamento do dropdown de doenças.
@@ -333,4 +414,5 @@ export const ORDER: [string, string[]][] = [
   ['Parte III — Vasculites', ['pmr', 'acg', 'anca']],
   ['Parte IV — Metabólicas e degenerativas', ['gota', 'pseudogota', 'osteoartrite']],
   ['Parte V — Ósseo e outras', ['osteoporose', 'fibromialgia', 'febre', 'chikungunya']],
+  ['Parte VI — Dor, pediátrica e autoinflamatórias', ['miofascial', 'sdcr', 'fadiga', 'aij', 'fmf']],
 ];

@@ -13,6 +13,8 @@ import type { Patient, Profile, Consulta, LmeJson, ExamValue, MedicationEvent } 
 import { idadeFromNascimento, diasDesde, haQuantoTempo } from '@/lib/util';
 import { computeMonitorAlerts } from '@/lib/clinical/monitor';
 import { redFlagsParaDoenca } from '@/lib/clinical/redflags';
+import { checkInteracoes } from '@/lib/clinical/interactions';
+import { lembretesParaDoenca } from '@/lib/clinical/lembretes';
 import { DISCLAIMER_LONGO, DISCLAIMER_DOC } from '@/lib/disclaimer';
 import VoiceMic from '@/components/VoiceMic';
 import TextTemplates from '@/components/TextTemplates';
@@ -237,14 +239,28 @@ export default function Atendimento({
     return KEYS.filter(([k]) => (st[k]?.status || 'pendente') === 'pendente').map(([, l]) => l);
   }, [patient.screening]);
 
+  // ---- interações medicamentosas (receita + medicações em uso + antecedentes) ----
+  const interacoes = useMemo(() => {
+    const textos = [
+      ...receitaItens.map((i) => i.m),
+      ...medList.map((m) => m.medicamento),
+      antecedentes,
+    ];
+    return checkInteracoes(textos);
+  }, [receitaItens, medList, antecedentes]);
+
+  // ---- lembretes contextuais da doença (inclui lembrar de calcular o FRAX) ----
+  const lembretes = useMemo(() => lembretesParaDoenca(curId), [curId]);
+
   const pendencias = useMemo(() => {
     const p: string[] = [];
+    interacoes.filter((x) => x.nivel === 'grave').forEach((x) => p.push('Interação grave: ' + x.msg));
     if (stageHasCeaf && screeningPendentes.length > 0) {
       p.push(`Rastreio pré-biológico pendente: ${screeningPendentes.join(', ')}. Concluir antes de iniciar imunossupressor/biológico.`);
     }
     monitorAlerts.forEach((a) => p.push(a));
     return p;
-  }, [stageHasCeaf, screeningPendentes, monitorAlerts]);
+  }, [interacoes, stageHasCeaf, screeningPendentes, monitorAlerts]);
 
   // Dias desde a última consulta (paciente já acompanhado).
   const diasUltima = ultimaConsulta ? diasDesde(ultimaConsulta.data, todayISO) : null;
@@ -976,6 +992,20 @@ export default function Atendimento({
                     <div className={'stage-banner' + (currentStage.alerta ? ' alert' : '')}>
                       Etapa: {currentStage.label}{currentStage.sub ? ' — ' + currentStage.sub : ''}
                     </div>
+                    {interacoes.length > 0 && (
+                      <div className="interacoes no-print">
+                        <div className="it-head"><Icon name="shield" size={15} /> Interações medicamentosas — revise antes de assinar</div>
+                        <ul>
+                          {interacoes.map((x, i) => (
+                            <li key={i} className={'it-li it-' + x.nivel}>
+                              <span className="it-badge">{x.nivel === 'grave' ? 'EVITAR' : 'CAUTELA'}</span>
+                              <span>{x.msg}</span>
+                            </li>
+                          ))}
+                        </ul>
+                        <div className="it-foot">Apoio — o médico decide. Verificação por nome do medicamento; confira sempre.</div>
+                      </div>
+                    )}
                     {receitaItens.map((it, i) => (
                       <div className="rx-item" key={i}>
                         <div className="rx-num">{i + 1}.</div>
@@ -1054,6 +1084,19 @@ export default function Atendimento({
                   <h3 style={{ color: 'var(--red)', display: 'flex', alignItems: 'center', gap: 8 }}><Icon name="shield" size={16} /> Sinais de alarme — {disease?.n}</h3>
                   <ul style={{ margin: '4px 0 0', paddingLeft: 18 }}>
                     {redFlagsParaDoenca(curId).map((f, i) => <li key={i} style={{ fontSize: 12.5, color: '#7a3a30', marginBottom: 5, lineHeight: 1.45 }}>{f}</li>)}
+                  </ul>
+                </div>
+              )}
+              {lembretes.length > 0 && (
+                <div className="lembretes-card">
+                  <h3><Icon name="bell" size={16} /> Lembretes — {disease?.n}</h3>
+                  <ul>
+                    {lembretes.map((l, i) => (
+                      <li key={i} className={l.destaque ? 'lb-destaque' : ''}>
+                        {l.destaque && <span className="lb-badge">FRAX</span>}
+                        {l.txt}
+                      </li>
+                    ))}
                   </ul>
                 </div>
               )}

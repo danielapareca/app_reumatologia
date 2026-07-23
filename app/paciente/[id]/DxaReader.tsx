@@ -43,10 +43,19 @@ export default function DxaReader({ patientId, today, onSaved }: { patientId: st
       </div>
 
       {grupo === 't' ? (
-        <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'flex-end' }}>
-          <label style={{ fontSize: 12, color: 'var(--muted)' }}>Menor T-score (DP)<br /><input value={t} onChange={(e) => setT(e.target.value)} placeholder="ex.: -2,7" inputMode="decimal" style={inp} /></label>
-          <label style={{ fontSize: 12, color: 'var(--muted)' }}>FRAX principal (%) — opcional<br /><input value={fx} onChange={(e) => setFx(e.target.value)} placeholder="ex.: 12" inputMode="decimal" style={inp} /></label>
-        </div>
+        <>
+          <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'flex-end' }}>
+            <label style={{ fontSize: 12, color: 'var(--muted)' }}>Menor T-score (DP)<br /><input value={t} onChange={(e) => setT(e.target.value)} placeholder="ex.: -2,7" inputMode="decimal" style={inp} /></label>
+            <label style={{ fontSize: 12, color: 'var(--muted)' }}>FRAX principal (%) — do site oficial<br /><input value={fx} onChange={(e) => setFx(e.target.value)} placeholder="ex.: 12" inputMode="decimal" style={inp} /></label>
+          </div>
+          <div style={{ marginTop: 10 }}>
+            <a className="btn-ghost" href="https://frax.shef.ac.uk/FRAX/tool.aspx?lang=pt&country=55" target="_blank" rel="noreferrer"
+              style={{ height: 40, padding: '0 14px', fontSize: 13, textDecoration: 'none', display: 'inline-flex' }}>
+              Abrir calculadora FRAX oficial (Brasil) ↗
+            </a>
+            <div style={{ fontSize: 11, color: 'var(--faint)', marginTop: 6 }}>Calcule no site oficial (selecione <b>Brasil / Português</b> se não abrir direto) e traga o percentual de risco em 10 anos para o campo acima. O FRAX é proprietário e não pode ser recriado dentro do app.</div>
+          </div>
+        </>
       ) : (
         <label style={{ fontSize: 12, color: 'var(--muted)' }}>Menor Z-score (DP)<br /><input value={z} onChange={(e) => setZ(e.target.value)} placeholder="ex.: -2,2" inputMode="decimal" style={{ ...inp, display: 'block' }} /></label>
       )}

@@ -1,7 +1,7 @@
 // Base de conhecimento (grounding) — Reumatologia.
 // GERADO a partir de data/grounding_reumatologia.json. Não editar à mão;
 // regenerar a partir do JSON se a base for atualizada.
-// Revisão da base: 2026-07. Apoio, não decisão. A IA deve citar a fonte e recomendar confirmar no PCDT/diretriz vigente.
+// Revisão da base: 2026-07 (rev. Dr. Willian). Apoio, não decisão. A IA deve citar a fonte e recomendar confirmar no PCDT/diretriz vigente.
 
 export interface GroundingChunk {
   id: string;
@@ -14,7 +14,7 @@ export interface GroundingChunk {
 
 export const GROUNDING_META = {
   "titulo": "Base de conhecimento — Reumatologia (grounding para IA)",
-  "revisao": "2026-07",
+  "revisao": "2026-07 (rev. Dr. Willian)",
   "aviso": "Apoio, não decisão. A IA deve citar a fonte e recomendar confirmar no PCDT/diretriz vigente."
 };
 
@@ -682,10 +682,321 @@ export const GROUNDING: GroundingChunk[] = [
     "topico": "Critérios ACR/EULAR 2010 (escore)",
     "fonte": "Critérios 2010 ACR/EULAR (reproduzidos no PCDT de AR)",
     "texto": "Somar 4 domínios; classificação de AR se total >= 6 (em paciente com >= 1 articulação com sinovite e sem diagnóstico alternativo melhor):\n- Articulações: 1 grande = 0; 2-10 grandes = 1; 1-3 pequenas = 2; 4-10 pequenas = 3; > 10 (>= 1 pequena) = 5.\n- Sorologia (FR/anti-CCP): negativos = 0; positivo baixo = 2; positivo alto = 3.\n- Provas inflamatórias (VHS/PCR): normais = 0; elevadas = 1.\n- Duração dos sintomas: < 6 semanas = 0; >= 6 semanas = 1."
+  },
+  {
+    "id": "osteoporose-diag",
+    "doenca": "Osteoporose",
+    "cid": "M81",
+    "topico": "Diagnóstico (3 caminhos)",
+    "fonte": "Dr. Willian Inácio — documento de trabalho (validar antes de publicar)",
+    "texto": "Diagnóstico por qualquer um dos três caminhos independentes: (1) Densitométrico — T-score ≤ -2,5 em coluna lombar, colo femoral, fêmur total ou rádio 33%. (2) Clínico — fratura por fragilidade de quadril ou vértebra, independente do T-score. (3) Risco — osteopenia (T entre -1,0 e -2,5) com FRAX acima do limiar de intervenção. Sempre rastrear causa secundária (corticoterapia, hiperpara, hipertireoidismo, hipogonadismo, mieloma, doença celíaca, DRC, AR, inibidor de aromatase, anticonvulsivante, IBP crônico, heparina) antes de rotular como primária."
+  },
+  {
+    "id": "osteoporose-dxa",
+    "doenca": "Osteoporose",
+    "cid": "M81",
+    "topico": "Leitor de densitometria (DXA)",
+    "fonte": "Dr. Willian Inácio — documento de trabalho (validar antes de publicar)",
+    "texto": "T-score compara com adulto jovem do mesmo sexo (usar em mulheres pós-menopausa e homens ≥ 50 anos). Classificação OMS: ≥ -1,0 normal; entre -1,1 e -2,4 osteopenia; ≤ -2,5 osteoporose; ≤ -2,5 com fratura por fragilidade = osteoporose estabelecida/grave. Z-score compara com a mesma idade/sexo (usar em pré-menopausa, homens < 50, crianças): Z ≤ -2,0 = massa óssea abaixo do esperado para a idade (investigar secundária); nesses grupos não se usa a palavra osteoporose só pela DXA. Regras: usar o MENOR T-score entre sítios válidos (L1-L4 com ≥ 2 vértebras avaliáveis, colo femoral, fêmur total, rádio 33%); não usar triângulo de Ward nem trocânter isolado; excluir vértebra com fratura/artefato/cirurgia ou que difira > 1,0 DP das adjacentes; não comparar aparelhos diferentes (comparação válida só pelo valor absoluto em g/cm²); variação só é real se > menor mudança significativa do serviço (LSC, ~0,03 g/cm² na coluna). OA avançada, escoliose, calcificação aórtica e artefatos elevam falsamente a DMO da coluna — priorizar o fêmur. TBS agrega microarquitetura e pode entrar no FRAX."
+  },
+  {
+    "id": "osteoporose-risco",
+    "doenca": "Osteoporose",
+    "cid": "M81",
+    "topico": "Estratificação de risco",
+    "fonte": "Dr. Willian Inácio — documento de trabalho (validar antes de publicar)",
+    "texto": "Antes de escolher a droga, estratificar: ALTO risco = T-score ≤ -2,5 sem fratura, ou FRAX acima do limiar. MUITO ALTO risco = fratura recente (12–24 meses), múltiplas fraturas, fratura em vigência de tratamento, T-score ≤ -3,0, corticoide em dose alta, ou risco elevado de queda. Isso define se começa por antirreabsortivo (alto) ou por anabólico (muito alto)."
+  },
+  {
+    "id": "osteoporose-trat-antirreab",
+    "doenca": "Osteoporose",
+    "cid": "M81",
+    "topico": "Tratamento — alto risco (antirreabsortivo)",
+    "fonte": "Dr. Willian Inácio — documento de trabalho (validar antes de publicar)",
+    "texto": "Base para qualquer esquema: cálcio 1000–1200 mg/dia (dieta + suplemento, priorizar dieta) e vitamina D 800–2000 UI/dia (alvo 25-OH-vit D > 30 ng/mL). Primeira linha no alto risco: Alendronato 70 mg/semana VO em jejum, copo cheio de água, permanecer em pé/sentado por 30 min; ou Risedronato 35 mg/semana ou 150 mg/mês; ou Ácido zoledrônico 5 mg IV 1x/ano (útil em intolerância gástrica, má adesão, pós-fratura de quadril); ou Denosumabe 60 mg SC a cada 6 meses (preferir se TFG < 30 mL/min ou intolerância a bifosfonato). Não farmacológico para todos: exercício resistido e de impacto, treino de equilíbrio, cessar tabagismo, reduzir álcool, prevenção de quedas, correção visual."
+  },
+  {
+    "id": "osteoporose-trat-anab",
+    "doenca": "Osteoporose",
+    "cid": "M81",
+    "topico": "Tratamento — muito alto risco (anabólico)",
+    "fonte": "Dr. Willian Inácio — documento de trabalho (validar antes de publicar)",
+    "texto": "Muito alto risco: anabólico primeiro, depois antirreabsortivo. Teriparatida 20 mcg SC/dia por até 24 meses; ou Romosozumabe 210 mg SC/mês por 12 meses (NÃO usar se infarto ou AVC no último ano). Ao terminar o anabólico é OBRIGATÓRIO sequenciar com bifosfonato ou denosumabe, sob risco de perda rápida do ganho. Outras opções: Raloxifeno 60 mg/dia (mulher mais jovem na pós-menopausa com risco vertebral e risco de câncer de mama; contraindicado se tromboembolismo); terapia hormonal apenas próximo da menopausa com sintomas vasomotores e sem contraindicação."
+  },
+  {
+    "id": "osteoporose-seguranca",
+    "doenca": "Osteoporose",
+    "cid": "M81",
+    "topico": "Segurança e monitoramento",
+    "fonte": "Dr. Willian Inácio — documento de trabalho (validar antes de publicar)",
+    "texto": "Contraindicações dos bifosfonatos: TFG < 30–35 mL/min, hipocalcemia não corrigida, doença esofágica com retardo de esvaziamento, incapacidade de ficar ereto por 30 min (orais). DENOSUMABE não pode ser interrompido sem transição para bifosfonato — a suspensão isolada causa rebote com fraturas vertebrais múltiplas. Avaliação odontológica antes de iniciar e evitar procedimentos invasivos durante o uso (osteonecrose de mandíbula). Orientar sobre dor em coxa/quadril insidiosa (fratura atípica de fêmur). Corrigir vitamina D e cálcio antes da 1ª dose de zoledronato ou denosumabe (hipocalcemia). Férias terapêuticas: considerar após 5 anos de bifosfonato oral ou 3 anos de zoledronato se saiu do alto risco (não se aplica a denosumabe). Falha: nova fratura após 12 meses com boa adesão, ou perda de DMO acima do LSC — investigar adesão, absorção, causa secundária e trocar de classe."
+  },
+  {
+    "id": "sjogren-diag",
+    "doenca": "Síndrome de Sjögren",
+    "cid": "M35.0",
+    "topico": "Diagnóstico (ACR/EULAR 2016)",
+    "fonte": "Dr. Willian Inácio — documento de trabalho (validar antes de publicar)",
+    "texto": "Critérios ACR/EULAR 2016 — soma ≥ 4 classifica. Pesos: biópsia de glândula salivar menor com sialadenite linfocítica focal e focus score ≥ 1 (3 pts); anti-Ro/SSA positivo (3 pts); Ocular Staining Score ≥ 5 (ou van Bijsterveld ≥ 4) em ≥ 1 olho (1 pt); Schirmer ≤ 5 mm/5 min em ≥ 1 olho (1 pt); fluxo salivar não estimulado ≤ 0,1 mL/min (1 pt). Critério de entrada: ≥ 1 sintoma de olho ou boca seca > 3 meses, ou suspeita pelo ESSDAI. Exclusões que impedem classificar: radioterapia de cabeça/pescoço, hepatite C ativa (PCR), HIV, sarcoidose, amiloidose, doença do enxerto contra hospedeiro, doença relacionada a IgG4."
+  },
+  {
+    "id": "sjogren-imagem-biopsia",
+    "doenca": "Síndrome de Sjögren",
+    "cid": "M35.0",
+    "topico": "Imagem e biópsia",
+    "fonte": "Dr. Willian Inácio — documento de trabalho (validar antes de publicar)",
+    "texto": "Ultrassom de glândulas salivares maiores: exame inicial de escolha, não invasivo (heterogeneidade, áreas hipoecoicas; score OMERACT ≥ 2 sugestivo). RM de parótidas: padrão sal e pimenta; indicada se aumento persistente/assimétrico e suspeita de linfoma. Biópsia de glândula salivar menor (lábio inferior) é o padrão do critério histológico — indicada com quadro sugestivo e anti-Ro negativo ou diagnóstico indefinido; retirar 4–6 lóbulos (área ≥ 8 mm²), solicitar focus score explicitamente; positivo = sialadenite linfocítica focal com focus score ≥ 1. Não biopsiar mucosa inflamada/operada. PAAF/biópsia de parótida se aumento endurecido/assimétrico com suspeita de linfoma MALT (enviar para imuno-histoquímica e clonalidade)."
+  },
+  {
+    "id": "sjogren-trat",
+    "doenca": "Síndrome de Sjögren",
+    "cid": "M35.0",
+    "topico": "Tratamento",
+    "fonte": "Dr. Willian Inácio — documento de trabalho (validar antes de publicar)",
+    "texto": "Oculares: 1ª linha lágrimas artificiais sem conservantes + gel/pomada à noite e medidas ambientais; 2ª linha ciclosporina colírio 0,05%, corticoide tópico curto, oclusão de ponto lacrimal; 3ª linha soro autólogo, lente escleral. Orais: higiene rigorosa, flúor, revisão odontológica 6/6m, estimulação (goma sem açúcar, xilitol), saliva artificial; secretagogos pilocarpina 5 mg 3–4x/dia ou cevimelina 30 mg 3x/dia (contraindicados em asma não controlada, glaucoma de ângulo fechado, bradiarritmia). Sistêmico (EULAR 2020): hidroxicloroquina 5 mg/kg/dia (artralgia, fadiga, cutâneo; oftalmo anual após 5 anos); glicocorticoide na menor dose/tempo; poupadores (metotrexato, azatioprina, micofenolato, leflunomida) conforme órgão; rituximabe para manifestações graves/refratárias (vasculite crioglobulinêmica, neuropatia, DPI progressiva, citopenias); ciclofosfamida em vasculite grave."
+  },
+  {
+    "id": "sjogren-linfoma",
+    "doenca": "Síndrome de Sjögren",
+    "cid": "M35.0",
+    "topico": "Vigilância de linfoma (alerta)",
+    "fonte": "Dr. Willian Inácio — documento de trabalho (validar antes de publicar)",
+    "texto": "Risco de linfoma MALT ~5–10x maior que na população geral. SINAL DE ALARME — sinalizar quando houver: aumento persistente/recorrente de parótida; linfadenomegalia ou esplenomegalia; púrpura palpável/vasculite cutânea; C4 baixo, crioglobulinemia ou componente monoclonal; linfopenia com queda de imunoglobulinas antes elevadas; ESSDAI persistentemente alto. Investigar com imagem e biópsia."
+  },
+  {
+    "id": "osteoartrite-def",
+    "doenca": "Osteoartrite",
+    "cid": "M19",
+    "topico": "Definição e inflamm-aging",
+    "fonte": "Dr. Willian Inácio — documento de trabalho (validar antes de publicar)",
+    "texto": "Doença de toda a articulação como órgão (cartilagem, osso subcondral, sinóvia, meniscos, ligamentos, cápsula, músculo), não só desgaste. Desequilíbrio entre agressão mecânica e reparo, com metaloproteinases, IL-1β, IL-6, TNF-α. Fenótipos: pós-traumático, metabólico, relacionado à idade, dor centralizada, inflamatório (erosivo de mãos). Inflamm-aging: inflamação crônica sistêmica de baixo grau do envelhecimento (IL-6, TNF-α, PCR-us, IL-1β elevados discretamente) por senescência celular (SASP), disfunção mitocondrial, gordura visceral (adipocinas), disbiose e imunossenescência. Consequência prática: abordar a OA também como doença metabólico-inflamatória — peso, atividade física, sono, controle glicêmico e cessar tabagismo impactam esse eixo."
+  },
+  {
+    "id": "osteoartrite-trat",
+    "doenca": "Osteoartrite",
+    "cid": "M19",
+    "topico": "Tratamento (núcleo)",
+    "fonte": "Dr. Willian Inácio — documento de trabalho (validar antes de publicar)",
+    "texto": "Núcleo para todos: educação e automanejo (dor não significa destruição inevitável); exercício terapêutico (1ª linha, maior evidência — fortalecimento + aeróbico + equilíbrio, manutenção a longo prazo); perda de peso se IMC elevado (5–10% já melhora); fisioterapia/terapia manual adjuvante; bengala no lado contralateral; palmilhas/órteses selecionadas (órtese de base do polegar na rizartrose tem boa evidência); abordagem do sono, humor e dor centralizada (TCC quando indicado). AINE tópico/oral e analgésicos conforme dor, pelo menor tempo, respeitando risco."
+  },
+  {
+    "id": "osteoartrite-nao-indicado",
+    "doenca": "Osteoartrite",
+    "cid": "M19",
+    "topico": "Não indicado / contraindicado",
+    "fonte": "Dr. Willian Inácio — documento de trabalho (validar antes de publicar)",
+    "texto": "NÃO recomendados/contraindicados na OA: PRP, células-tronco e biológicos intra-articulares fora de pesquisa; artroscopia com lavagem/desbridamento no joelho; meniscectomia parcial de rotina em lesão degenerativa; glicocorticoide sistêmico oral; metotrexato, hidroxicloroquina e biológicos imunomoduladores (inclusive na forma erosiva de mãos); colchicina; repouso prolongado/imobilização (pioram). Cautela especial com AINE oral em DRC TFG < 30, IC, coronariopatia, HAS não controlada, cirrose com ascite, úlcera/sangramento prévio, anticoagulante."
+  },
+  {
+    "id": "ea-sacro-suspeita",
+    "doenca": "Espondiloartrite axial / Sacroileíte",
+    "cid": "M46.1",
+    "topico": "Quando suspeitar (lombalgia inflamatória)",
+    "fonte": "Dr. Willian Inácio — documento de trabalho (validar antes de publicar)",
+    "texto": "Gatilho é a lombalgia inflamatória. Suspeitar (ASAS) com dor lombar crônica e ≥ 4 de 5: início < 45 anos; início insidioso; melhora com exercício; não melhora com repouso; dor noturna com melhora ao levantar. Somam-se: duração > 3 meses, rigidez matinal > 30 min, dor alternante em nádegas, boa resposta a AINE em 24–48h. Reforçam a suspeita: entesite (Aquiles, fáscia plantar), dactilite, uveíte anterior aguda recorrente, psoríase, DII, história familiar de espondiloartrite/psoríase/uveíte/DII, artrite periférica assimétrica de MMII, HLA-B27, VHS/PCR elevados, antecedente de infecção GU/entérica (reativa). Diferenciais não inflamatórios: sacroileíte infecciosa (piogênica, TB, brucelose), fratura de insuficiência, osteíte condensante do ílio, degenerativa, gravídica."
+  },
+  {
+    "id": "ea-sacro-imagem",
+    "doenca": "Espondiloartrite axial / Sacroileíte",
+    "cid": "M46.1",
+    "topico": "Diagnóstico e imagem",
+    "fonte": "Dr. Willian Inácio — documento de trabalho (validar antes de publicar)",
+    "texto": "Exame físico: testes de provocação sacroilíaca (Patrick/FABERE, Gaenslen, compressão/distração, Mennell) ganham valor com ≥ 2 positivos; mobilidade axial (Schober modificado, expansão torácica normal > 5 cm, occipito-parede) compõe o BASMI. Imagem: Rx de bacia AP é o 1º exame (Nova York modificada 0–4; sacroileíte radiográfica = grau ≥ 2 bilateral ou ≥ 3 unilateral — leva anos para aparecer). RM de sacroilíacas (STIR/T2 sat gordura) é a escolha na fase precoce: define sacroileíte ativa pelo edema de medula óssea subcondral (≥ 2 lesões num corte ou 1 lesão em 2 cortes) e permite diagnosticar EpA axial não radiográfica. TC para dano estrutural quando Rx duvidosa e RM indisponível. Cintilografia NÃO deve ser usada (baixa especificidade). Laboratório: VHS/PCR (podem ser normais), HLA-B27 (integra ASAS, não isolado). Antes de biológico: PPD/IGRA + Rx tórax, sorologias HBV/HCV/HIV, vacinação."
+  },
+  {
+    "id": "ea-sacro-trat",
+    "doenca": "Espondiloartrite axial / Sacroileíte",
+    "cid": "M46.1",
+    "topico": "Tratamento (ASAS-EULAR)",
+    "fonte": "Dr. Willian Inácio — documento de trabalho (validar antes de publicar)",
+    "texto": "Não farmacológico é pilar: exercício estruturado (alongamento, mobilidade axial, fortalecimento, aeróbico), fisioterapia supervisionada, hidroterapia, CESSAR TABAGISMO (associado a maior atividade e dano), controle de peso e risco CV. Farmacológico: AINE em dose plena é 1ª linha — testar ≥ 2 AINEs, cada um 2–4 semanas; uso contínuo é preferível ao sob demanda na doença persistentemente ativa. DMARD sintético (sulfassalazina, metotrexato) NÃO tem eficácia axial (sulfassalazina só para artrite periférica). Falha de 2 AINEs com doença ativa (ASDAS ≥ 2,1 ou BASDAI ≥ 4) indica biológico: 1ª escolha anti-TNF ou anti-IL-17. Preferir anti-TNF monoclonal (adalimumabe, infliximabe, certolizumabe, golimumabe) se uveíte recorrente ou DII (etanercepte não é eficaz para essas); evitar anti-IL-17 (secuquinumabe, ixequizumabe) se DII. JAKi (upadacitinibe, tofacitinibe) após falha de biológico (atenção risco CV/trombótico/neoplásico > 65 anos, tabagista). Em remissão sustentada, considerar reduzir dose do biológico, não suspender."
+  },
+  {
+    "id": "osteoporose-exames-w",
+    "doenca": "Osteoporose",
+    "cid": "M81",
+    "topico": "Exames detalhados (1ª consulta)",
+    "fonte": "Dr. Willian Inácio — documento de trabalho (validar antes de publicar)",
+    "texto": "DXA de coluna lombar + fêmur proximal (+ rádio 33% se obesidade acima do limite da mesa, hiperpara primário ou sítios não avaliáveis). Rx coluna T/L em perfil ou VFA se perda de altura > 4 cm, dor dorsal, cifose ou corticoide crônico. Labs: hemograma, cálcio total + albumina (ou iônico), fósforo, magnésio, creatinina/TFG, fosfatase alcalina, 25-OH-vit D, PTH, TSH, VHS/PCR, eletroforese de proteínas, calciúria 24h, testosterona total (homens). Conforme suspeita: anti-transglutaminase IgA + IgA total, cortisol livre urinário/supressão, triptase, ferritina, função hepática."
+  },
+  {
+    "id": "osteoartrite-exames-w",
+    "doenca": "Osteoartrite",
+    "cid": "M19",
+    "topico": "Exames para diferencial",
+    "fonte": "Dr. Willian Inácio — documento de trabalho (validar antes de publicar)",
+    "texto": "Diagnóstico clínico. Laboratório apenas para diferencial (hemograma, VHS, PCR, FR, anti-CCP, ácido úrico, ferritina — normais na OA). Líquido sinovial se derrame/dúvida: não inflamatório (< 2.000 leucócitos/mm³, sem cristais, cultura negativa). Antes de AINE crônico: creatinina/TFG, hemograma, PA e revisão de risco CV/GI."
+  },
+  {
+    "id": "miofascial-diag",
+    "doenca": "Síndrome da Dor Miofascial",
+    "cid": "M79.1",
+    "topico": "Diagnóstico",
+    "fonte": "Dr. Willian Inácio — documento de trabalho (validar antes de publicar)",
+    "texto": "Diagnóstico clínico (sem exame confirmatório). Dor regional profunda e contínua, restrita a um músculo/grupo. Achado central: PONTO-GATILHO — nódulo hipersensível dentro de banda tensa palpável, cuja compressão reproduz a dor referida característica do paciente. A dor referida é reprodutível e NÃO segue dermátomo nem território de nervo. Sinal do pulo (jump sign) e resposta de contração local (twitch). Amplitude reduzida e alongamento doloroso. Ponto ativo dói espontaneamente; ponto latente só à palpação. Diferenciar de fibromialgia (dor difusa bilateral, fadiga, sono/cognição, sem dor referida em padrão definido) — podem coexistir."
+  },
+  {
+    "id": "miofascial-fatores",
+    "doenca": "Síndrome da Dor Miofascial",
+    "cid": "M79.1",
+    "topico": "Fatores perpetuantes",
+    "fonte": "Dr. Willian Inácio — documento de trabalho (validar antes de publicar)",
+    "texto": "Investigar antes de rotular como refratária: postura/ergonomia, discrepância de MMII, escoliose; hipotireoidismo, deficiência de vitamina D, B12, ferro, magnésio; distúrbio do sono, apneia, ansiedade/depressão; sobrecarga esportiva/ocupacional e microtrauma repetitivo. Corrigir os fatores identificados."
+  },
+  {
+    "id": "miofascial-trat",
+    "doenca": "Síndrome da Dor Miofascial",
+    "cid": "M79.1",
+    "topico": "Tratamento",
+    "fonte": "Dr. Willian Inácio — documento de trabalho (validar antes de publicar)",
+    "texto": "Base não farmacológica: alongamento do músculo, spray e alongamento, liberação por pressão isquêmica, fisioterapia com correção postural, exercício aeróbico + fortalecimento, termoterapia, TENS, agulhamento a seco (dry needling), e correção dos fatores perpetuantes. Farmacológico: injeção de ponto-gatilho com lidocaína 1% sem vasoconstritor 0,5–1 mL/ponto (alternativa dry needling); toxina botulínica A em casos refratários e pontos localizados; adesivo de lidocaína 5%; amitriptilina 10–25 mg à noite (se distúrbio do sono); ciclobenzaprina 5–10 mg à noite por período curto (ponte); AINE/paracetamol curto para exacerbação. NÃO usar opioide; corticoide na injeção do ponto-gatilho não traz benefício."
+  },
+  {
+    "id": "sdcr-classif",
+    "doenca": "Síndrome da Dor Complexa Regional",
+    "cid": "G90.5",
+    "topico": "Classificação e sintomas",
+    "fonte": "Dr. Willian Inácio — documento de trabalho (validar antes de publicar)",
+    "texto": "Tipo 1 (sem lesão de nervo identificável; antiga distrofia simpático-reflexa) segue injúria mínima, entorse, fratura, imobilização ou cirurgia. Tipo 2 (com lesão de nervo periférico; antiga causalgia) segue trauma mais grave. Quadro e tratamento iguais nos dois. Sintomas: dor contínua em queimação/choque desproporcional; alodínia, hiperalgesia; assimetria de temperatura e cor (palidez, eritema, cianose, marmóreo); edema; sudorese aumentada/reduzida/assimétrica; redução de amplitude, fraqueza, tremor, distonia (mão/pé em garra); alteração trófica de pele/unhas/pelos; negligência do membro; osteopenia regional tardia. Distribuição regional, distal, sem respeitar dermátomo/nervo."
+  },
+  {
+    "id": "sdcr-budapeste",
+    "doenca": "Síndrome da Dor Complexa Regional",
+    "cid": "G90.5",
+    "topico": "Critérios de Budapeste (diagnóstico)",
+    "fonte": "Dr. Willian Inácio — documento de trabalho (validar antes de publicar)",
+    "texto": "Diagnóstico clínico — preencher os 4: (1) dor contínua desproporcional ao evento; (2) ≥ 1 SINTOMA relatado em 3 das 4 categorias; (3) ≥ 1 SINAL ao exame em 2 ou mais das 4 categorias; (4) ausência de outro diagnóstico melhor. Categorias: Sensitiva (hiperestesia, alodínia, hiperalgesia); Vasomotora (assimetria de temperatura, alteração/assimetria de cor); Sudomotora/edema (edema, alteração/assimetria de sudorese); Motora/trófica (redução de amplitude, disfunção motora — fraqueza/tremor/distonia, alteração trófica de pelos/unhas/pele). Exames não fazem o diagnóstico (Rx pode mostrar osteopenia irregular tardia; cintilografia trifásica pode apoiar); imagem só para afastar fratura oculta, infecção, TVP, compressão nervosa."
+  },
+  {
+    "id": "sdcr-trat",
+    "doenca": "Síndrome da Dor Complexa Regional",
+    "cid": "G90.5",
+    "topico": "Tratamento",
+    "fonte": "Dr. Willian Inácio — documento de trabalho (validar antes de publicar)",
+    "texto": "Princípio central: reabilitação funcional PRECOCE (quanto antes, melhor o prognóstico) — dessensibilização progressiva, carga gradual, uso funcional, imagética motora graduada e terapia espelho, TO/fisioterapia especializadas, evitar imobilização/repouso, TCC e abordagem do medo do movimento. O fármaco existe para viabilizar a reabilitação: fase inicial inflamatória prednisona 30–40 mg/dia por 2–3 semanas com desmame (mais precoce, melhor); dor neuropática (gabapentina, pregabalina, amitriptilina, duloxetina); bifosfonatos em fase precoce com edema/osteopenia (pamidronato, alendronato, neridronato, zoledrônico) — das poucas classes com evidência positiva; DMSO 50% tópico e N-acetilcisteína; vitamina C 500 mg/dia por 50 dias pós-fratura de punho como possível profilaxia (evidência conflitante). NÃO usar opioide crônico. Refratário: bloqueio simpático, estimulação medular (após 6 meses), cetamina EV hospitalar; evitar simpatectomia."
+  },
+  {
+    "id": "fadiga-criterios",
+    "doenca": "Fadiga Crônica / Encefalomielite Miálgica",
+    "cid": "G93.3",
+    "topico": "Definição e critérios (IOM 2015)",
+    "fonte": "Dr. Willian Inácio — documento de trabalho (validar antes de publicar)",
+    "texto": "Doença crônica multissistêmica com fadiga incapacitante não explicada por outra condição. Critérios IOM 2015: exigem os 3 primeiros + ≥ 1 dos 2 últimos, por > 6 meses e intensidade moderada a grave em ≥ metade do tempo. (1) Redução substancial da capacidade funcional prévia com fadiga profunda, início definido, não aliviada pelo repouso. (2) Mal-estar pós-esforço (post-exertional malaise): piora desproporcional após esforço físico/cognitivo/emocional, com atraso de horas a dias e recuperação prolongada — achado mais característico. (3) Sono não reparador. (4) Comprometimento cognitivo. (5) Intolerância ortostática. Gatilho infeccioso identificável em 50–80% dos casos."
+  },
+  {
+    "id": "fadiga-exames",
+    "doenca": "Fadiga Crônica / Encefalomielite Miálgica",
+    "cid": "G93.3",
+    "topico": "Exames (exclusão)",
+    "fonte": "Dr. Willian Inácio — documento de trabalho (validar antes de publicar)",
+    "texto": "Sem exame confirmatório — servem para excluir alternativas. Painel básico: hemograma, VHS, PCR, TSH e T4 livre, glicemia/HbA1c, ureia/creatinina/eletrólitos (Na, K, Ca, Mg, P), TGO/TGP/GGT/FA/bilirrubinas, CPK, ferritina/ferro/saturação, B12/folato/25-OH-vit D, urina tipo 1, eletroforese de proteínas, anti-transglutaminase IgA + IgA total, cortisol matinal. Imunológico: FAN, FR, anti-Ro/La (sobreposição com Sjögren), imunoglobulinas. Infeccioso DIRIGIDO por história (não em bloco): EBV (VCA IgM/IgG, EBNA), HHV-6, parvovírus B19, HIV, hepatites B/C, sífilis, CMV, SARS-CoV-2 se pós-COVID; Coxiella (febre Q), Mycoplasma/Chlamydia pneumoniae, Borrelia (só se epidemiologia), Bartonella, Brucella. Funcionais conforme sintoma: polissonografia, tilt/ortostase 10 min (POTS), avaliação neuropsicológica. Conduta: manejo de energia (pacing) respeitando o limiar — o exercício progressivo forçado NÃO é mais recomendado como intervenção primária (piora o mal-estar pós-esforço)."
+  },
+  {
+    "id": "aij-diag",
+    "doenca": "Artrite Idiopática Juvenil",
+    "cid": "M08",
+    "topico": "Definição, subtipos e sinais de alarme",
+    "fonte": "Dr. Willian Inácio — documento de trabalho (validar antes de publicar)",
+    "texto": "Artrite persistente ≥ 6 semanas, início < 16 anos, após exclusão de outras causas (diagnóstico clínico e de exclusão). Subtipos ILAR: oligoarticular (≤ 4 articulações em 6 meses; maior risco de uveíte anterior crônica assintomática, sobretudo FAN+); poliarticular FR negativo (≥ 5); poliarticular FR positivo (comporta-se como AR do adulto; confirmar FR em 2 dosagens com 3 meses); sistêmica/Still juvenil (febre diária ≥ 2 semanas com pico, rash salmão evanescente, linfadenopatia, hepatoesplenomegalia, serosite); psoriásica; relacionada a entesite (HLA-B27, sacroileíte, uveíte aguda, meninos > 6 anos); indiferenciada. SINAIS DE ALARME (afastar antes de assumir AIJ): dor noturna intensa desproporcional ao exame, criança acorda chorando → leucemia/neuroblastoma (solicitar esfregaço, LDH, ácido úrico; considerar mielograma); febre com toxemia + monoartrite + recusa a deambular → séptica/osteomielite; perda de peso, sudorese noturna, massa → neoplasia."
+  },
+  {
+    "id": "aij-exames",
+    "doenca": "Artrite Idiopática Juvenil",
+    "cid": "M08",
+    "topico": "Exames",
+    "fonte": "Dr. Willian Inácio — documento de trabalho (validar antes de publicar)",
+    "texto": "Hemograma com esfregaço, VHS, PCR; LDH e ácido úrico (rastreio leucemia/linfoma); função hepática e renal basal; ferritina (essencial na forma sistêmica e no rastreio de síndrome de ativação macrofágica); FAN (não diagnostica — define risco de uveíte e frequência do rastreio oftalmológico); FR e anti-CCP (subtipo poliarticular e prognóstico); HLA-B27 se suspeita de forma relacionada a entesite; hemocultura/líquido sinovial se suspeita séptica; ASLO/sorologias conforme reativa/febre reumática. EXAME OFTALMOLÓGICO com lâmpada de fenda obrigatório ao diagnóstico e periódico (a cada 3 meses no maior risco: oligoarticular, FAN+, início < 7 anos, doença < 4 anos; 6–12 meses nos demais). Antes de imunobiológico: PPD/IGRA + Rx tórax, HBV/HCV/HIV, vacinação. Imagem: US com Doppler (sinovite subclínica), RM com contraste (padrão, inclui sacroilíacas e ATM), Rx para dano; eco na forma sistêmica."
+  },
+  {
+    "id": "aij-trat",
+    "doenca": "Artrite Idiopática Juvenil",
+    "cid": "M08",
+    "topico": "Tratamento",
+    "fonte": "Dr. Willian Inácio — documento de trabalho (validar antes de publicar)",
+    "texto": "AINE em dose pediátrica plena (naproxeno 10–20 mg/kg/dia em 2 tomadas; ibuprofeno 30–40 mg/kg/dia) — isolado resolve poucos casos. Infiltração intra-articular de triancinolona hexacetonida: escolha na forma oligoarticular. Metotrexato 10–15 mg/m²/semana (VO ou SC) com ácido fólico: base das formas poliarticulares; leflunomida/sulfassalazina alternativas (sulfassalazina útil na relacionada a entesite). Anti-TNF (etanercepte, adalimumabe): preferir monoclonal (adalimumabe/infliximabe) quando há uveíte (etanercepte não é eficaz para uveíte). Tocilizumabe (anti-IL-6): forma sistêmica e poliarticular refratária. Anakinra/canaquinumabe (anti-IL-1): 1ª escolha biológica na forma sistêmica com febre/serosite. Abatacepte após falha de anti-TNF; JAKi (tofacitinibe) em refratários. Glicocorticoide sistêmico como ponte pelo menor tempo; pulsoterapia na sistêmica grave e na SAM. Não usar corticoide crônico que comprometa crescimento sem poupador."
+  },
+  {
+    "id": "aij-acomp",
+    "doenca": "Artrite Idiopática Juvenil",
+    "cid": "M08",
+    "topico": "Acompanhamento e SAM (alerta)",
+    "fonte": "Dr. Willian Inácio — documento de trabalho (validar antes de publicar)",
+    "texto": "Aplicar índice de atividade a cada consulta (JADAS-10/27 ou cJADAS que dispensa a prova de fase aguda); meta é remissão/baixa atividade (treat to target). Contagem articular ativa e limitada; avaliar ATM e coluna cervical (subdiagnosticadas). Curva de crescimento, estágio puberal, peso/altura. Oftalmo no intervalo do risco mesmo com articular controlada. Labs com MTX/leflunomida: hemograma, TGO/TGP, creatinina a cada 4–8 semanas no início, depois 12/12. Vacinação em dia, evitar vírus vivo sob imunossupressão, vacinar contatos. SINAL DE ALARME — Síndrome de Ativação Macrofágica (emergência) na forma sistêmica: queda de VHS com PCR alta, ferritina muito elevada, citopenias, hipofibrinogenemia, hipertrigliceridemia, transaminases elevadas, hepatoesplenomegalia. Planejar transição para reumatologia de adultos."
+  },
+  {
+    "id": "fmf-def",
+    "doenca": "Febre Familiar do Mediterrâneo",
+    "cid": "E85.0",
+    "topico": "Definição e genética",
+    "fonte": "Dr. Willian Inácio — documento de trabalho (validar antes de publicar)",
+    "texto": "Doença autoinflamatória monogênica autossômica recessiva por mutações no gene MEFV (16p13.3, codifica a pirina/marenostrina), com ativação descontrolada do inflamassoma e liberação de IL-1β — a mais comum das febres periódicas hereditárias. Mutações frequentes: M694V (fenótipo mais grave e maior risco de amiloidose), M680I, V726A, M694I, E148Q (penetrância variável). Maior prevalência em judeus sefarditas, armênios, turcos, árabes e povos do Mediterrâneo oriental; no Brasil considerar em descendentes, mas não excluir por ausência de ancestralidade."
+  },
+  {
+    "id": "fmf-quadro",
+    "doenca": "Febre Familiar do Mediterrâneo",
+    "cid": "E85.0",
+    "topico": "Quadro clínico e amiloidose",
+    "fonte": "Dr. Willian Inácio — documento de trabalho (validar antes de publicar)",
+    "texto": "Crises recorrentes autolimitadas de febre (12–72h) com intervalos assintomáticos irregulares: peritonite estéril (dor abdominal com defesa, simula abdome agudo — causa de laparotomia branca); pleurite (dor torácica unilateral); monoartrite aguda de grande articulação (joelho, tornozelo, quadril), autolimitada e não erosiva; eritema erisipeloide (placa dolorosa em perna/tornozelo/dorso do pé — bastante específico); mialgia; orquite em meninos. Início < 20 anos em ~90%. COMPLICAÇÃO PRINCIPAL: amiloidose AA com depósito renal → proteinúria, síndrome nefrótica e DRC terminal — prevenir a amiloidose é o principal objetivo do tratamento."
+  },
+  {
+    "id": "fmf-diag",
+    "doenca": "Febre Familiar do Mediterrâneo",
+    "cid": "E85.0",
+    "topico": "Diagnóstico e exames",
+    "fonte": "Dr. Willian Inácio — documento de trabalho (validar antes de publicar)",
+    "texto": "Diagnóstico clínico, apoiado por critérios (Tel Hashomer, Livneh; Eurofever/PRINTO 2019 incorporam genótipo) e confirmado por genética quando disponível. Resposta sustentada à colchicina apoia o diagnóstico. Na crise: leucocitose/neutrofilia, VHS/PCR elevados, amiloide A sérica (SAA) elevada, fibrinogênio/haptoglobina. ENTRE as crises (fundamentais): PCR, VHS e SAA para detectar inflamação subclínica persistente (principal fator de risco de amiloidose mesmo sem crises); proteinúria de 24h ou relação proteína/creatinina ao menos anual (proteinúria persistente → biópsia renal para amiloide); creatinina/TFG e urina tipo 1. Genética: sequenciamento MEFV — duas mutações patogênicas confirmam; uma única mutação com quadro típico não exclui; genética negativa com quadro clássico e resposta à colchicina não afasta. Diferenciais: TRAPS, deficiência de mevalonato quinase/HIDS, CAPS, PFAPA, Still, Behçet, DII."
+  },
+  {
+    "id": "fmf-trat",
+    "doenca": "Febre Familiar do Mediterrâneo",
+    "cid": "E85.0",
+    "topico": "Tratamento (colchicina)",
+    "fonte": "Dr. Willian Inácio — documento de trabalho (validar antes de publicar)",
+    "texto": "Colchicina é o padrão e deve ser iniciada ao diagnóstico mesmo em oligossintomáticos — previne as crises e, principalmente, a amiloidose. Adulto: iniciar 1 mg/dia, ajustar até 2 mg/dia (excepcionalmente 3), fracionada. Pediátrico: ~0,5 mg/dia < 5 anos; 1 mg/dia 5–10 anos; 1,5 mg/dia > 10 anos. NÃO interromper durante crise, gestação ou amamentação (considerada segura). Monitorizar hemograma, CPK, transaminases e função renal; efeito adverso comum é diarreia (fracionar dose). Interações que aumentam toxicidade: claritromicina, eritromicina, cetoconazol, ciclosporina, verapamil, estatinas; ajustar em disfunção renal. Resistência/intolerância (~5–10%): 6+ crises/ano ou 3 em 4–6 meses com dose máxima e boa adesão, ou inflamação subclínica persistente → 2ª linha anti-IL-1 (anakinra 100 mg SC/dia; canaquinumabe 150 mg SC/4 semanas), mantendo a colchicina se tolerada. AINE para sintoma; corticoide não previne crises."
+  },
+  {
+    "id": "febre-reumatica-w",
+    "doenca": "Febre Reumática",
+    "cid": "I00-I02",
+    "topico": "Referência (caderno)",
+    "fonte": "Dr. Willian Inácio — documento de trabalho (validar antes de publicar)",
+    "texto": "Complemento de referência sobre febre reumática (transcrição do caderno do Dr. Willian): sequela pós-estreptocócica; base de diagnóstico pelos critérios de Jones (maiores: cardite, artrite, coreia, eritema marginado, nódulos subcutâneos; menores: febre, artralgia, VHS/PCR elevados, PR alargado) + evidência de infecção estreptocócica prévia (ASLO, cultura). Confirmar conteúdo com o Dr. Willian antes de publicar."
+  },
+  {
+    "id": "reativa-w",
+    "doenca": "Artrite Reativa",
+    "cid": "M02",
+    "topico": "Referência (espectro das reativas)",
+    "fonte": "Dr. Willian Inácio — documento de trabalho (validar antes de publicar)",
+    "texto": "Complemento de referência sobre o espectro das artrites reativas (transcrição do caderno): artrite estéril pós-infecciosa (geniturinária por Chlamydia ou entérica por Salmonella/Shigella/Yersinia/Campylobacter), 1–4 semanas após; oligoartrite assimétrica de MMII, entesite, dactilite; manifestações extra-articulares (uretrite/cervicite, conjuntivite, queratodermia, balanite); associação com HLA-B27. Validar detalhes com o Dr. Willian."
+  },
+  {
+    "id": "ref-hepatite",
+    "doenca": "Manifestações reumáticas das hepatites B e C",
+    "cid": "B18",
+    "topico": "Referência (caderno)",
+    "fonte": "Dr. Willian Inácio — documento de trabalho (validar antes de publicar)",
+    "texto": "Manifestações reumáticas das hepatites virais B e C (transcrição do caderno do Dr. Willian): HBV pode cursar com artrite/dermatite na fase aguda e com poliarterite nodosa; HCV associa-se a crioglobulinemia mista (púrpura, artralgia, neuropatia, glomerulonefrite) e a fator reumatoide positivo. Importante no diferencial de poliartrite e vasculite, e como exclusão em Sjögren/critérios. Antes de imunossupressão, rastrear e considerar o risco de reativação viral (sobretudo HBV). Validar conteúdo com o Dr. Willian antes de publicar."
+  },
+  {
+    "id": "ref-hiv",
+    "doenca": "Manifestações reumáticas do HIV",
+    "cid": "B23",
+    "topico": "Referência (caderno)",
+    "fonte": "Dr. Willian Inácio — documento de trabalho (validar antes de publicar)",
+    "texto": "Manifestações reumáticas do HIV (transcrição do caderno do Dr. Willian): artralgia/artrite, espondiloartrite e artrite reativa, síndrome de linfocitose infiltrativa difusa (DILS, simula Sjögren), miopatia, vasculites; considerar o HIV como diferencial e como exclusão nos critérios de Sjögren. Cautela com imunossupressão conforme estado imunológico. Validar detalhes com o Dr. Willian antes de publicar."
+  },
+  {
+    "id": "chikungunya-w",
+    "doenca": "Artropatia por Chikungunya",
+    "cid": "B33.1",
+    "topico": "Referência (caderno)",
+    "fonte": "Dr. Willian Inácio — documento de trabalho (validar antes de publicar)",
+    "texto": "Complemento de referência (transcrição do caderno): artropatia por chikungunya com fase aguda febril e poliartralgia/poliartrite simétrica que pode persistir por meses (subaguda/crônica); manejo sintomático na fase aguda (evitar AINE/AAS até excluir dengue) e avaliação reumatológica na persistência. Validar detalhes com o Dr. Willian."
   }
 ];
 
-// Regras/guardrails da IA (chunks ia-*).
 export const GROUNDING_REGRAS = GROUNDING.filter((c) => c.id.startsWith("ia-"));
 // Fundamentos gerais (chunks fund-*).
 export const GROUNDING_FUND = GROUNDING.filter((c) => c.id.startsWith("fund-"));

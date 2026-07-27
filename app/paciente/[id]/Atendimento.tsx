@@ -20,6 +20,7 @@ import VoiceMic from '@/components/VoiceMic';
 import TextTemplates from '@/components/TextTemplates';
 import PrintClinicoReader from './PrintClinicoReader';
 import ConsultaRecorder from './ConsultaRecorder';
+import ConsultaChat from './ConsultaChat';
 import LmePreview, { type LmeFields, type LmeMed } from './LmePreview';
 import ExamValuesPanel from './ExamValuesPanel';
 import ActivityCalculators from './ActivityCalculators';
@@ -544,6 +545,23 @@ export default function Atendimento({
     }
   }
 
+  // Contexto (texto) para o chat da consulta.
+  function buildChatContexto(): string {
+    const l: string[] = [];
+    if (pacNome) l.push(`Paciente: ${pacNome}${pacIdade ? ', ' + pacIdade : ''}`);
+    if (disease) l.push(`Hipótese/doença: ${disease.n} (CID ${disease.cid})`);
+    if (currentStage?.label) l.push(`Fase/etapa: ${currentStage.label}`);
+    if (Q.consulta) l.push(`Tipo de consulta: ${Q.consulta === 'primeira' ? 'primeira' : 'retorno'}`);
+    if (hda.trim()) l.push(`HDA: ${hda.trim()}`);
+    if (antecedentes.trim()) l.push(`Antecedentes/medicações/alergias: ${antecedentes.trim()}`);
+    if (observacoes.trim()) l.push(`Observações da consulta: ${observacoes.trim()}`);
+    const ex = examesResumo();
+    if (ex) l.push(`Exames: ${ex}`);
+    const rc = receitaToText();
+    if (rc.trim()) l.push(`Conduta/receita atual:\n${rc.trim()}`);
+    return l.join('\n');
+  }
+
   // Contexto para os documentos de IA (capturado no clique).
   function buildAiContext(): Record<string, string> {
     return {
@@ -899,19 +917,9 @@ export default function Atendimento({
 
           {/* DOCUMENTOS / CONDUTA */}
           <div className={'tabpanel docs-panel' + (tab === 'docs' ? ' on' : '')} style={{ display: tab === 'docs' ? 'flex' : 'none', flexDirection: 'column', gap: 24, alignItems: 'center' }}>
-            {/* Insight da IA (único, junto da conduta) */}
-            <div className="no-print" style={{ width: '100%', maxWidth: 720 }}>
-              <IAInsights
-                onGerar={gerarInsights}
-                loading={iaLoading}
-                error={iaError}
-                insight={iaInsight}
-                patientId={patient.id}
-                doencaId={curId}
-                aiModel={iaModel}
-                onCopy={copiarTexto}
-              />
-            </div>
+            <p className="sub no-print" style={{ width: '100%', maxWidth: 720, margin: 0 }}>
+              Os <b>insights da IA</b> e a <b>conversa com a IA</b> ficam no fim da aba <button className="btn-ghost" style={{ padding: '3px 9px', fontSize: 12 }} onClick={() => setTab('anamnese')}>1 · Anamnese</button> (Passo 4). Aqui você emite exames, receita e LME.
+            </p>
 
             {/* Atalhos: Exames · Receita · LME */}
             <div className="no-print cond-actions" style={{ width: '100%', maxWidth: 720 }}>
@@ -1090,8 +1098,9 @@ export default function Atendimento({
                     <p className="sub" style={{ margin: '4px 0 0' }}><span className="k">Últimos exames:</span> {consultaList[0].exam_results}</p>
                   )}
                   <p className="sub" style={{ margin: '6px 0 0' }}>
-                    Veja a história completa e os gráficos em{' '}
-                    <button className="btn-ghost" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => setTab('evolucao')}>3 · Evolução</button>.
+                    Histórico das consultas em{' '}
+                    <button className="btn-ghost" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => setTab('evolucao')}>3 · Evolução</button>
+                    {' '}· gráficos de exames no Passo 1 abaixo.
                   </p>
                 </div>
               )}
@@ -1116,6 +1125,18 @@ export default function Atendimento({
                   </ul>
                 </div>
               )}
+
+              {/* Passo 1 · Dados e exames */}
+              <div className="roteiro-h"><span className="rh-n">1</span><div><div className="rh-t">Dados e exames</div><div className="rh-s">Confira os dados do paciente (coluna à esquerda) e anexe ou revise os exames.</div></div></div>
+              <ExamValuesPanel patientId={patient.id} values={examList} onChanged={setExamList} today={todayISO} />
+
+              {/* Passo 2 · Escuta e avaliação */}
+              <div className="roteiro-h"><span className="rh-n">2</span><div><div className="rh-t">Escuta e avaliação</div><div className="rh-s">Grave a conversa e faça a avaliação do paciente.</div></div></div>
+              <div className="card">
+                <h3 style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Icon name="mic" size={16} /> Escuta da consulta</h3>
+                <p className="sub" style={{ margin: '0 0 10px' }}>Grave a conversa ao vivo — a transcrição cai nas Observações e é salva com a consulta. Peça o consentimento do paciente.</p>
+                <ConsultaRecorder onText={(chunk) => setObservacoes((v) => (v ? v.trim() + '\n' : '') + chunk)} />
+              </div>
 
               <div className="card">
                 <h3>Anamnese guiada</h3>
@@ -1228,9 +1249,8 @@ export default function Atendimento({
                   <div className="ql ql-row">Observações da consulta
                     <TextTemplates storageKey={tplKey} atalho={observacoes} onInsert={(t) => setObservacoes((v) => (v ? v.trim() + ' ' : '') + t)} />
                   </div>
-                  <ConsultaRecorder onText={(chunk) => setObservacoes((v) => (v ? v.trim() + '\n' : '') + chunk)} />
-                  <div className="fieldrow" style={{ marginTop: 10 }}>
-                    <textarea value={observacoes} onChange={(e) => setObservacoes(e.target.value)} placeholder="Anotações do médico para o histórico (orientações, retorno, conduta livre…)" />
+                  <div className="fieldrow">
+                    <textarea value={observacoes} onChange={(e) => setObservacoes(e.target.value)} placeholder="Anotações do médico (a transcrição da escuta cai aqui; acrescente orientações, retorno, conduta livre…)" />
                     <VoiceMic onText={(chunk) => setObservacoes((v) => (v ? v.trim() + ' ' : '') + chunk)} />
                   </div>
                 </div>
@@ -1254,14 +1274,33 @@ export default function Atendimento({
                 )}
               </div>
 
-              <ActivityCalculators patientId={patient.id} today={todayISO} onSaved={(v) => setExamList((l) => [...l, v])} />
+              {/* Passo 3 · Cálculos (se necessário) */}
+              <div className="roteiro-h"><span className="rh-n">3</span><div><div className="rh-t">Cálculos <span style={{ fontWeight: 400, color: 'var(--muted)' }}>(se necessário)</span></div><div className="rh-s">Escores de atividade, densitometria (FRAX) e rastreio pré-tratamento.</div></div></div>
 
-              <ScreeningChecklist patientId={patient.id} initial={patient.screening} precisaRastreio={stageHasCeaf} />
+              <ActivityCalculators patientId={patient.id} today={todayISO} onSaved={(v) => setExamList((l) => [...l, v])} />
 
               <DxaReader patientId={patient.id} today={todayISO} onSaved={(v) => setExamList((l) => [...l, v])} />
 
+              <ScreeningChecklist patientId={patient.id} initial={patient.screening} precisaRastreio={stageHasCeaf} />
+
+              {/* Passo 4 · IA da consulta */}
+              <div className="roteiro-h"><span className="rh-n">4</span><div><div className="rh-t">IA da consulta</div><div className="rh-s">Gere os insights e converse com a IA sobre este paciente.</div></div></div>
+
+              <IAInsights
+                onGerar={gerarInsights}
+                loading={iaLoading}
+                error={iaError}
+                insight={iaInsight}
+                patientId={patient.id}
+                doencaId={curId}
+                aiModel={iaModel}
+                onCopy={copiarTexto}
+              />
+
+              <ConsultaChat buildContexto={buildChatContexto} />
+
               <p className="sub" style={{ textAlign: 'center', marginTop: 4 }}>
-                Preencheu a anamnese? Vá para <button className="btn-ghost" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => setTab('docs')}>2 · Conduta</button> para ver os insights da IA, exames e receita.
+                Pronto? Vá para <button className="btn-ghost" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => setTab('docs')}>2 · Conduta</button> para emitir exames, receita e LME.
               </p>
             </div>
           </div>
@@ -1344,7 +1383,9 @@ export default function Atendimento({
 
               <MedicationTimeline patientId={patient.id} events={medList} onChanged={setMedList} today={todayISO} />
 
-              <ExamValuesPanel patientId={patient.id} values={examList} onChanged={setExamList} today={todayISO} />
+              <p className="sub" style={{ textAlign: 'center', marginTop: 4 }}>
+                Os exames e os gráficos de evolução ficam em <button className="btn-ghost" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => setTab('anamnese')}>1 · Anamnese</button> (Passo 1 · Dados e exames).
+              </p>
             </div>
           </div>
 

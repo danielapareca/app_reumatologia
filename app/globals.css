@@ -217,6 +217,12 @@ ol.exlist li{margin-bottom:5px; font-size:13.5px}
 .flags ul{margin:0; padding-left:18px}
 .flags li{font-size:12.5px; margin-bottom:3px; color:#6d4d13}
 
+/* Roteiro da consulta — cabeçalhos de passo na aba Anamnese */
+.roteiro-h{display:flex; align-items:center; gap:12px; margin:6px 0 2px; padding-top:8px}
+.roteiro-h .rh-n{width:30px; height:30px; flex-shrink:0; border-radius:9px; background:var(--navy); color:var(--gold); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:15px; font-variant-numeric:tabular-nums}
+.roteiro-h .rh-t{font-weight:800; font-size:15px; color:var(--ink)}
+.roteiro-h .rh-s{font-size:12px; color:var(--muted); margin-top:1px}
+
 /* Gravar a consulta (transcrição ao vivo) */
 .consulta-rec{background:var(--gold-soft); border:1px solid #E7D9B4; border-radius:var(--r-md); padding:12px 14px}
 .consulta-rec.on{border-color:var(--red); background:var(--red-bg)}

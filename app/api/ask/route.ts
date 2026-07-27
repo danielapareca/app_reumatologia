@@ -76,8 +76,10 @@ export async function POST(request: Request) {
 
   // Aceita conversa (messages[]) ou pergunta única (compatível com o formato antigo).
   let turnos: Turno[] = [];
+  let contexto = '';
   try {
-    const body = (await request.json()) as { pergunta?: string; messages?: Turno[] };
+    const body = (await request.json()) as { pergunta?: string; messages?: Turno[]; contexto?: string };
+    contexto = String(body.contexto || '').trim().slice(0, 4000);
     if (Array.isArray(body.messages) && body.messages.length) {
       turnos = body.messages
         .filter((m) => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string' && m.content.trim())
@@ -95,11 +97,14 @@ export async function POST(request: Request) {
   if (ultimaPergunta.length < 3) return NextResponse.json({ error: 'Escreva a pergunta.' }, { status: 400 });
 
   try {
+    const ctxBloco = contexto
+      ? `\n\n===== CONTEXTO DA CONSULTA (dados deste paciente, informados pelo médico; apoio, não é a base) =====\n${contexto}\n(Use para responder no contexto deste paciente; ainda assim cite a base [id] quando embasar condutas.)`
+      : '';
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     const message = await client.messages.create({
       model: MODEL,
       max_tokens: 2600,
-      system: SYSTEM_PROMPT + '\n\n' + baseBlock(selecionarChunks(ultimaPergunta)),
+      system: SYSTEM_PROMPT + '\n\n' + baseBlock(selecionarChunks(ultimaPergunta)) + ctxBloco,
       messages: turnos,
     });
     const texto = message.content

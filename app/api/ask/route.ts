@@ -45,7 +45,8 @@ REGRAS OBRIGATÓRIAS:
 
 Estruture a resposta de forma legível (use "## " para seções quando fizer sentido) e, ao final, se usou a base, liste em "## Fontes citadas" os ids e a referência. Termine sempre com uma linha em itálico: *Apoio ao médico assistente — revise e confirme no PCDT/diretriz vigente antes de decidir.*`;
 
-function montarPrompt(pergunta: string, chunks: GroundingChunk[]): string {
+// Bloco da base para injetar no system (referência prioritária, citando [id]).
+function baseBlock(chunks: GroundingChunk[]): string {
   const l: string[] = [];
   l.push('===== BASE DE CONHECIMENTO (referência prioritária; cite [id]) =====');
   l.push(`(Base revisão ${GROUNDING_META.revisao}. ${GROUNDING_META.aviso})`);
@@ -56,12 +57,11 @@ function montarPrompt(pergunta: string, chunks: GroundingChunk[]): string {
     l.push(c.texto);
     l.push('');
   });
-  l.push('===== PERGUNTA DO MÉDICO =====');
-  l.push(pergunta);
-  l.push('');
-  l.push('Responda à pergunta com apoio na base acima.');
+  l.push('Use esta base como referência prioritária na resposta seguinte da conversa.');
   return l.join('\n');
 }
+
+type Turno = { role: 'user' | 'assistant'; content: string };
 
 export async function POST(request: Request) {
   const supabase = createClient();
@@ -74,23 +74,33 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: `Limite diário de uso da IA atingido (${AI_DAILY_LIMIT} usos hoje). Tente amanhã ou aumente o limite (AI_DAILY_LIMIT no servidor).` }, { status: 429 });
   }
 
-  let pergunta = '';
+  // Aceita conversa (messages[]) ou pergunta única (compatível com o formato antigo).
+  let turnos: Turno[] = [];
   try {
-    const body = (await request.json()) as { pergunta?: string };
-    pergunta = String(body.pergunta || '').trim();
+    const body = (await request.json()) as { pergunta?: string; messages?: Turno[] };
+    if (Array.isArray(body.messages) && body.messages.length) {
+      turnos = body.messages
+        .filter((m) => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string' && m.content.trim())
+        .map((m) => ({ role: m.role, content: m.content.trim().slice(0, 4000) }))
+        .slice(-16); // limita o histórico enviado
+    } else if (body.pergunta) {
+      turnos = [{ role: 'user', content: String(body.pergunta).trim().slice(0, 4000) }];
+    }
   } catch {
     return NextResponse.json({ error: 'JSON inválido.' }, { status: 400 });
   }
-  if (pergunta.length < 3) return NextResponse.json({ error: 'Escreva a pergunta.' }, { status: 400 });
-  if (pergunta.length > 4000) pergunta = pergunta.slice(0, 4000);
+  // A conversa precisa começar por uma fala do médico.
+  while (turnos.length && turnos[0].role !== 'user') turnos.shift();
+  const ultimaPergunta = [...turnos].reverse().find((t) => t.role === 'user')?.content || '';
+  if (ultimaPergunta.length < 3) return NextResponse.json({ error: 'Escreva a pergunta.' }, { status: 400 });
 
   try {
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     const message = await client.messages.create({
       model: MODEL,
       max_tokens: 2600,
-      system: SYSTEM_PROMPT,
-      messages: [{ role: 'user', content: montarPrompt(pergunta, selecionarChunks(pergunta)) }],
+      system: SYSTEM_PROMPT + '\n\n' + baseBlock(selecionarChunks(ultimaPergunta)),
+      messages: turnos,
     });
     const texto = message.content
       .filter((b): b is Anthropic.TextBlock => b.type === 'text')

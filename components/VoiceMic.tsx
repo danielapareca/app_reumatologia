@@ -7,11 +7,13 @@ export default function VoiceMic({ onText }: { onText: (chunk: string) => void }
   const [supported, setSupported] = useState(true);
   const [rec, setRec] = useState(false);
   const recogRef = useRef<any>(null);
+  const wantOnRef = useRef(false);
 
   useEffect(() => {
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SR) setSupported(false);
     return () => {
+      wantOnRef.current = false;
       try { recogRef.current?.stop(); } catch { /* ignore */ }
     };
   }, []);
@@ -20,6 +22,7 @@ export default function VoiceMic({ onText }: { onText: (chunk: string) => void }
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SR) return;
     if (recogRef.current) {
+      wantOnRef.current = false;
       try { recogRef.current.stop(); } catch { /* ignore */ }
       recogRef.current = null;
       setRec(false);
@@ -36,10 +39,17 @@ export default function VoiceMic({ onText }: { onText: (chunk: string) => void }
       }
       if (fin) onText(fin.trim());
     };
-    recog.onerror = () => { setRec(false); };
-    recog.onend = () => { setRec(false); recogRef.current = null; };
+    recog.onerror = (e: any) => {
+      if (e?.error === 'not-allowed' || e?.error === 'service-not-allowed') { wantOnRef.current = false; setRec(false); }
+    };
+    recog.onend = () => {
+      // Reinicia sozinho enquanto o médico não parou (ditados mais longos não caem).
+      if (wantOnRef.current) { try { recog.start(); } catch { /* ignore */ } }
+      else { setRec(false); recogRef.current = null; }
+    };
+    wantOnRef.current = true;
     recogRef.current = recog;
-    try { recog.start(); setRec(true); } catch { setRec(false); }
+    try { recog.start(); setRec(true); } catch { wantOnRef.current = false; setRec(false); }
   }
 
   return (

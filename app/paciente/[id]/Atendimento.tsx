@@ -19,6 +19,7 @@ import { DISCLAIMER_LONGO, DISCLAIMER_DOC } from '@/lib/disclaimer';
 import VoiceMic from '@/components/VoiceMic';
 import TextTemplates from '@/components/TextTemplates';
 import PrintClinicoReader from './PrintClinicoReader';
+import ConsultaRecorder from './ConsultaRecorder';
 import LmePreview, { type LmeFields, type LmeMed } from './LmePreview';
 import ExamValuesPanel from './ExamValuesPanel';
 import ActivityCalculators from './ActivityCalculators';
@@ -1227,7 +1228,8 @@ export default function Atendimento({
                   <div className="ql ql-row">Observações da consulta
                     <TextTemplates storageKey={tplKey} atalho={observacoes} onInsert={(t) => setObservacoes((v) => (v ? v.trim() + ' ' : '') + t)} />
                   </div>
-                  <div className="fieldrow">
+                  <ConsultaRecorder onText={(chunk) => setObservacoes((v) => (v ? v.trim() + '\n' : '') + chunk)} />
+                  <div className="fieldrow" style={{ marginTop: 10 }}>
                     <textarea value={observacoes} onChange={(e) => setObservacoes(e.target.value)} placeholder="Anotações do médico para o histórico (orientações, retorno, conduta livre…)" />
                     <VoiceMic onText={(chunk) => setObservacoes((v) => (v ? v.trim() + ' ' : '') + chunk)} />
                   </div>

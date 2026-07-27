@@ -15,6 +15,7 @@ import { computeMonitorAlerts } from '@/lib/clinical/monitor';
 import { redFlagsParaDoenca } from '@/lib/clinical/redflags';
 import { checkInteracoes } from '@/lib/clinical/interactions';
 import { lembretesParaDoenca } from '@/lib/clinical/lembretes';
+import { montarRoteiro } from '@/lib/clinical/roteiro';
 import { DISCLAIMER_LONGO, DISCLAIMER_DOC } from '@/lib/disclaimer';
 import VoiceMic from '@/components/VoiceMic';
 import TextTemplates from '@/components/TextTemplates';
@@ -268,6 +269,9 @@ export default function Atendimento({
 
   // ---- lembretes contextuais da doença (inclui lembrar de calcular o FRAX) ----
   const lembretes = useMemo(() => lembretesParaDoenca(curId), [curId]);
+
+  // ---- roteiro adaptativo (doença + tipo + fase) ----
+  const roteiro = useMemo(() => montarRoteiro(curId, curStage, Q.consulta), [curId, curStage, Q.consulta]);
 
   const pendencias = useMemo(() => {
     const p: string[] = [];
@@ -1126,12 +1130,21 @@ export default function Atendimento({
                 </div>
               )}
 
+              {/* Roteiro adaptativo da consulta */}
+              {curId && (
+                <div className="roteiro-resumo">
+                  <Icon name="sparkles" size={15} /> <b>Roteiro desta consulta:</b> {roteiro.resumo}
+                </div>
+              )}
+
               {/* Passo 1 · Dados e exames */}
-              <div className="roteiro-h"><span className="rh-n">1</span><div><div className="rh-t">Dados e exames</div><div className="rh-s">Confira os dados do paciente (coluna à esquerda) e anexe ou revise os exames.</div></div></div>
+              <div className="roteiro-h"><span className="rh-n">1</span><div><div className="rh-t">Dados e exames</div><div className="rh-s">Confira os dados (coluna à esquerda) e os exames.</div></div></div>
+              {roteiro.dados.length > 0 && <ul className="roteiro-foco">{roteiro.dados.map((t, i) => <li key={i}>{t}</li>)}</ul>}
               <ExamValuesPanel patientId={patient.id} values={examList} onChanged={setExamList} today={todayISO} />
 
               {/* Passo 2 · Escuta e avaliação */}
               <div className="roteiro-h"><span className="rh-n">2</span><div><div className="rh-t">Escuta e avaliação</div><div className="rh-s">Grave a conversa e faça a avaliação do paciente.</div></div></div>
+              {roteiro.avaliacao.length > 0 && <ul className="roteiro-foco">{roteiro.avaliacao.map((t, i) => <li key={i}>{t}</li>)}</ul>}
               <div className="card">
                 <h3 style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Icon name="mic" size={16} /> Escuta da consulta</h3>
                 <p className="sub" style={{ margin: '0 0 10px' }}>Grave a conversa ao vivo — a transcrição cai nas Observações e é salva com a consulta. Peça o consentimento do paciente.</p>
@@ -1274,17 +1287,31 @@ export default function Atendimento({
                 )}
               </div>
 
-              {/* Passo 3 · Cálculos (se necessário) */}
-              <div className="roteiro-h"><span className="rh-n">3</span><div><div className="rh-t">Cálculos <span style={{ fontWeight: 400, color: 'var(--muted)' }}>(se necessário)</span></div><div className="rh-s">Escores de atividade, densitometria (FRAX) e rastreio pré-tratamento.</div></div></div>
+              {/* Passo 3 · Cálculos (se necessário) — adaptado à doença/fase */}
+              <div className="roteiro-h"><span className="rh-n">3</span><div><div className="rh-t">Cálculos <span style={{ fontWeight: 400, color: 'var(--muted)' }}>{roteiro.calculos.relevante ? '(recomendado nesta fase)' : '(se necessário)'}</span></div><div className="rh-s">Escores, densitometria (FRAX) e rastreio.</div></div></div>
+              {roteiro.calculos.nota && <ul className="roteiro-foco"><li>{roteiro.calculos.nota}</li></ul>}
 
-              <ActivityCalculators patientId={patient.id} today={todayISO} onSaved={(v) => setExamList((l) => [...l, v])} />
-
-              <DxaReader patientId={patient.id} today={todayISO} onSaved={(v) => setExamList((l) => [...l, v])} />
+              {roteiro.calculos.dxa ? (
+                <>
+                  <DxaReader patientId={patient.id} today={todayISO} onSaved={(v) => setExamList((l) => [...l, v])} />
+                  <details className="acc-tools"><summary>Outras calculadoras de atividade</summary>
+                    <ActivityCalculators patientId={patient.id} today={todayISO} onSaved={(v) => setExamList((l) => [...l, v])} sugerido={roteiro.calculos.escore || undefined} />
+                  </details>
+                </>
+              ) : (
+                <>
+                  <ActivityCalculators patientId={patient.id} today={todayISO} onSaved={(v) => setExamList((l) => [...l, v])} sugerido={roteiro.calculos.escore || undefined} />
+                  <details className="acc-tools"><summary>Leitor de densitometria (DXA / FRAX)</summary>
+                    <DxaReader patientId={patient.id} today={todayISO} onSaved={(v) => setExamList((l) => [...l, v])} />
+                  </details>
+                </>
+              )}
 
               <ScreeningChecklist patientId={patient.id} initial={patient.screening} precisaRastreio={stageHasCeaf} />
 
               {/* Passo 4 · IA da consulta */}
               <div className="roteiro-h"><span className="rh-n">4</span><div><div className="rh-t">IA da consulta</div><div className="rh-s">Gere os insights e converse com a IA sobre este paciente.</div></div></div>
+              {roteiro.ia.length > 0 && <ul className="roteiro-foco">{roteiro.ia.map((t, i) => <li key={i}>{t}</li>)}</ul>}
 
               <IAInsights
                 onGerar={gerarInsights}

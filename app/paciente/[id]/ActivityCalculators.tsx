@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   das28crp, das28Categoria, cdai, cdaiCategoria, basdai, basdaiCategoria,
   sledai, sledaiCategoria, SLEDAI_ITENS,
@@ -17,12 +17,19 @@ export default function ActivityCalculators({
   patientId,
   today,
   onSaved,
+  sugerido,
 }: {
   patientId: string;
   today: string;
   onSaved: (v: ExamValue) => void;
+  sugerido?: Calc;
 }) {
-  const [calc, setCalc] = useState<Calc>('das28');
+  const [calc, setCalc] = useState<Calc>(sugerido || 'das28');
+  const [tocado, setTocado] = useState(false);
+  // Ao trocar de doença, abre o escore sugerido — a não ser que o médico já tenha escolhido outro.
+  useEffect(() => {
+    if (sugerido && !tocado) setCalc(sugerido);
+  }, [sugerido, tocado]);
   const [f, setF] = useState<Record<string, string>>({});
   const [sled, setSled] = useState<Set<string>>(new Set());
   const [msg, setMsg] = useState('');
@@ -74,7 +81,7 @@ export default function ActivityCalculators({
 
       <div className="chips" style={{ marginBottom: 12 }}>
         {([['das28', 'DAS28 (AR)'], ['cdai', 'CDAI (AR)'], ['basdai', 'BASDAI (espondilite)'], ['asdas', 'ASDAS (espondilite)'], ['sledai', 'SLEDAI-2K (lúpus)'], ['jadas', 'cJADAS (juvenil)']] as const).map(([v, t]) => (
-          <span key={v} className={'chip' + (calc === v ? ' on' : '')} onClick={() => setCalc(v)}>{t}</span>
+          <span key={v} className={'chip' + (calc === v ? ' on' : '')} onClick={() => { setCalc(v); setTocado(true); }}>{t}</span>
         ))}
       </div>
 

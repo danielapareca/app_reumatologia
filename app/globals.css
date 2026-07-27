@@ -222,6 +222,18 @@ ol.exlist li{margin-bottom:5px; font-size:13.5px}
 .roteiro-h .rh-n{width:30px; height:30px; flex-shrink:0; border-radius:9px; background:var(--navy); color:var(--gold); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:15px; font-variant-numeric:tabular-nums}
 .roteiro-h .rh-t{font-weight:800; font-size:15px; color:var(--ink)}
 .roteiro-h .rh-s{font-size:12px; color:var(--muted); margin-top:1px}
+.roteiro-resumo{display:flex; align-items:center; gap:8px; flex-wrap:wrap; background:var(--navy); color:#E7EDF5; border-radius:var(--r-md); padding:11px 15px; font-size:13.5px; line-height:1.4}
+.roteiro-resumo b{color:var(--gold)}
+.roteiro-resumo svg{color:var(--gold); flex-shrink:0}
+.roteiro-foco{margin:2px 0 4px; padding:12px 14px 12px 32px; background:var(--gold-soft); border:1px solid #E7D9B4; border-radius:var(--r-md); display:flex; flex-direction:column; gap:5px}
+.roteiro-foco li{font-size:12.5px; color:#5c4a24; line-height:1.45}
+@media (prefers-color-scheme:dark){ .roteiro-foco li{color:#C9B38A} }
+.acc-tools{border:1px solid var(--line); border-radius:var(--r-md); background:var(--paper); padding:0 14px}
+.acc-tools>summary{cursor:pointer; padding:11px 2px; font-size:13px; font-weight:700; color:var(--gold-600); list-style:none}
+.acc-tools>summary::-webkit-details-marker{display:none}
+.acc-tools>summary::before{content:"▸ "; color:var(--gold-600)}
+.acc-tools[open]>summary::before{content:"▾ "}
+.acc-tools .card{border:none; padding:8px 0 14px; box-shadow:none}
 
 /* Gravar a consulta (transcrição ao vivo) */
 .consulta-rec{background:var(--gold-soft); border:1px solid #E7D9B4; border-radius:var(--r-md); padding:12px 14px}

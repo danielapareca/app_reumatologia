@@ -217,6 +217,11 @@ ol.exlist li{margin-bottom:5px; font-size:13.5px}
 .flags ul{margin:0; padding-left:18px}
 .flags li{font-size:12.5px; margin-bottom:3px; color:#6d4d13}
 
+/* Leitor de print da evolução (HDA/antecedentes) */
+.print-clin{background:var(--gold-soft); border:1px solid #E7D9B4; border-radius:var(--r-md); padding:11px 13px}
+.print-clin .pc-btns{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+.print-clin .btn-ghost.disabled{opacity:.55; pointer-events:none}
+
 /* Cadastro guiado (assistente por passos) */
 .wiz-steps{display:flex; align-items:center; gap:10px; margin:6px 0 22px; flex-wrap:wrap}
 .wiz-step{display:inline-flex; align-items:center; gap:8px; font-size:13px; font-weight:700; color:var(--faint)}

@@ -18,6 +18,7 @@ import { lembretesParaDoenca } from '@/lib/clinical/lembretes';
 import { DISCLAIMER_LONGO, DISCLAIMER_DOC } from '@/lib/disclaimer';
 import VoiceMic from '@/components/VoiceMic';
 import TextTemplates from '@/components/TextTemplates';
+import PrintClinicoReader from './PrintClinicoReader';
 import LmePreview, { type LmeFields, type LmeMed } from './LmePreview';
 import ExamValuesPanel from './ExamValuesPanel';
 import ActivityCalculators from './ActivityCalculators';
@@ -1196,8 +1197,15 @@ export default function Atendimento({
               </div>
 
               <div className="card">
-                <h3>Queixa e história (ditar por voz)</h3>
-                <div className="an-q">
+                <h3>Queixa e história (ditar, digitar ou ler print)</h3>
+                <p className="sub" style={{ margin: '0 0 10px' }}>Anexe um <b>print/foto da evolução do seu sistema</b> e a IA organiza em HDA, antecedentes e observações — sem redigitar. Você revisa e edita.</p>
+                <PrintClinicoReader onLido={(d) => {
+                  const junta = (atual: string, novo: string) => !novo ? atual : (atual.trim() ? atual.trim() + '\n' + novo : novo);
+                  if (d.hda) setHda((v) => junta(v, d.hda));
+                  if (d.antecedentes) setAntecedentes((v) => junta(v, d.antecedentes));
+                  if (d.observacoes) setObservacoes((v) => junta(v, d.observacoes));
+                }} />
+                <div className="an-q" style={{ marginTop: 14 }}>
                   <div className="ql ql-row">História da doença atual
                     <TextTemplates storageKey={tplKey} atalho={hda} onInsert={(t) => setHda((v) => (v ? v.trim() + ' ' : '') + t)} />
                   </div>

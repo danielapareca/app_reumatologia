@@ -49,9 +49,9 @@ export default function ExamValuesPanel({
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-      const safe = (file.name || 'laudo.pdf').replace(/[^a-zA-Z0-9._-]+/g, '_').slice(0, 60);
+      const safe = (file.name || 'laudo').replace(/[^a-zA-Z0-9._-]+/g, '_').slice(0, 60);
       const path = `${user.id}/${patientId}/${Date.now()}-${safe}`;
-      const up = await supabase.storage.from('exames').upload(path, file, { contentType: 'application/pdf', upsert: false });
+      const up = await supabase.storage.from('exames').upload(path, file, { contentType: file.type || 'application/octet-stream', upsert: false });
       if (up.error) return; // bucket/tabela ainda não criados → guarda silenciosamente falha, extração segue
       const ins = await supabase.from('exam_files').insert({ patient_id: patientId, doctor_id: user.id, path, filename: file.name, data: today }).select('*').single();
       if (!ins.error && ins.data) setLaudos((l) => [ins.data as ExamFile, ...l]);
@@ -79,11 +79,13 @@ export default function ExamValuesPanel({
     setExtraidos((a) => a.map((x, idx) => (idx === i ? { ...x, ...patch } : x)));
   const inpStyle: React.CSSProperties = { padding: '6px 8px', border: '1px solid var(--line)', borderRadius: 6, fontFamily: 'inherit', fontSize: 13 };
 
-  async function analisarPdf(file: File) {
+  async function analisarLaudo(file: File) {
     setPdfErr('');
     setExtraidos([]);
-    if (file.type !== 'application/pdf') { setPdfErr('Envie um arquivo PDF.'); return; }
-    if (file.size > 4 * 1024 * 1024) { setPdfErr('PDF muito grande (máx 4 MB). Reduza o arquivo ou envie menos páginas.'); return; }
+    const isPdf = file.type === 'application/pdf';
+    const isImg = /^image\/(jpeg|png|webp|gif)$/.test(file.type);
+    if (!isPdf && !isImg) { setPdfErr('Envie um PDF ou uma foto/print (JPG, PNG ou WEBP).'); return; }
+    if (file.size > 6 * 1024 * 1024) { setPdfErr('Arquivo muito grande (máx 6 MB). Reduza o arquivo, tire uma foto menor ou envie menos páginas.'); return; }
     setPdfBusy(true);
     guardarLaudo(file); // guarda o arquivo original em paralelo à análise
     try {
@@ -93,20 +95,21 @@ export default function ExamValuesPanel({
         r.onerror = () => rej(new Error('Falha ao ler o arquivo.'));
         r.readAsDataURL(file);
       });
+      const payload = isPdf ? { pdfBase64: b64 } : { imageBase64: b64, mediaType: file.type };
       const resp = await fetch('/api/extract-exames', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pdfBase64: b64 }),
+        body: JSON.stringify(payload),
       });
       const j = await resp.json().catch(() => ({}));
-      if (!resp.ok) throw new Error(j.error || 'Falha ao analisar o PDF.');
+      if (!resp.ok) throw new Error(j.error || 'Falha ao analisar o arquivo.');
       const vals: Extraido[] = (j.valores || []).map((v: { marcador?: string; valor?: number; unidade?: string; data?: string }) => ({
         marcador: String(v.marcador || ''), valor: String(v.valor ?? ''),
         unidade: String(v.unidade || ''), data: v.data || today, incluir: true,
       }));
-      if (!vals.length) setPdfErr('Nenhum valor numérico com data foi reconhecido no PDF.');
+      if (!vals.length) setPdfErr('Nenhum valor numérico com data foi reconhecido. Confira a foto/PDF ou lance manualmente.');
       setExtraidos(vals);
     } catch (e) {
-      setPdfErr(e instanceof Error ? e.message : 'Falha ao analisar o PDF.');
+      setPdfErr(e instanceof Error ? e.message : 'Falha ao analisar o arquivo.');
     } finally {
       setPdfBusy(false);
     }
@@ -132,12 +135,22 @@ export default function ExamValuesPanel({
 
   return (
     <div className="card">
-      <h3>Exames — anexe o PDF e a IA preenche</h3>
-      <p className="sub">Anexe o laudo em PDF: a IA lê e extrai os valores (com data e nome do exame). Você revisa e confirma. Os exames viram gráficos de evolução e o <b>arquivo original fica guardado</b> aqui.</p>
+      <h3>Exames — anexe o PDF ou tire uma foto e a IA preenche</h3>
+      <p className="sub">Anexe o laudo em <b>PDF</b> ou uma <b>foto / print da tela</b>: a IA lê e extrai os valores (com data e nome do exame). Você revisa e confirma. Os exames viram gráficos de evolução e o <b>arquivo original fica guardado</b> aqui.</p>
 
-      <input type="file" accept="application/pdf" disabled={pdfBusy}
-        onChange={(e) => { const f = e.target.files?.[0]; if (f) analisarPdf(f); e.target.value = ''; }} />
-      {pdfBusy && <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 6 }}>Lendo o PDF com IA…</div>}
+      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+        <label className="btn-ghost" style={{ cursor: pdfBusy ? 'default' : 'pointer', height: 38, padding: '0 14px', fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+          Anexar PDF ou imagem
+          <input type="file" accept="application/pdf,image/*" disabled={pdfBusy} style={{ display: 'none' }}
+            onChange={(e) => { const f = e.target.files?.[0]; if (f) analisarLaudo(f); e.target.value = ''; }} />
+        </label>
+        <label className="btn-ghost" style={{ cursor: pdfBusy ? 'default' : 'pointer', height: 38, padding: '0 14px', fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+          Tirar foto
+          <input type="file" accept="image/*" capture="environment" disabled={pdfBusy} style={{ display: 'none' }}
+            onChange={(e) => { const f = e.target.files?.[0]; if (f) analisarLaudo(f); e.target.value = ''; }} />
+        </label>
+      </div>
+      {pdfBusy && <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 6 }}>Lendo o documento com IA…</div>}
       {pdfErr && <div className="auth-err" style={{ marginTop: 8 }}>{pdfErr}</div>}
 
       {extraidos.length > 0 && (
@@ -163,7 +176,7 @@ export default function ExamValuesPanel({
           <div style={{ fontSize: 11, letterSpacing: '.06em', textTransform: 'uppercase', color: 'var(--gold-600)', fontWeight: 800, marginBottom: 6 }}>Laudos anexados</div>
           {laudos.map((f) => (
             <div key={f.id} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12.5, padding: '5px 0', borderBottom: '1px solid var(--line-soft)' }}>
-              <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.filename || 'laudo.pdf'}</span>
+              <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.filename || 'laudo'}</span>
               <span style={{ color: 'var(--muted)', fontSize: 11 }}>{f.data ? new Date(f.data).toLocaleDateString('pt-BR') : ''}</span>
               <button className="btn-ghost" style={{ height: 30, padding: '0 10px', fontSize: 12 }} onClick={() => baixarLaudo(f)}>Abrir</button>
               <button onClick={() => removerLaudo(f)} title="Remover" style={{ border: 'none', background: 'none', color: 'var(--red)', cursor: 'pointer', fontSize: 14 }}>×</button>

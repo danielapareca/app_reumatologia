@@ -217,6 +217,12 @@ ol.exlist li{margin-bottom:5px; font-size:13.5px}
 .flags ul{margin:0; padding-left:18px}
 .flags li{font-size:12.5px; margin-bottom:3px; color:#6d4d13}
 
+/* Ler print da tela do sistema → pré-preenche o cadastro */
+.ler-print{border:1px solid #E7D9B4; background:var(--gold-soft); border-radius:var(--r-lg); padding:15px 17px; margin:0 0 22px; max-width:560px}
+.ler-print .lp-head{display:flex; align-items:center; gap:8px; font-weight:800; color:var(--gold-600); margin-bottom:5px}
+.ler-print .lp-sub{font-size:12.5px; color:#5c4a24; line-height:1.45; margin:0 0 11px}
+.ler-print .lp-ok{font-size:12px; color:var(--green); font-weight:600; margin-top:8px}
+
 /* Interações medicamentosas (bloqueio/alerta na receita) */
 .interacoes{border:1px solid #ECC9C4; background:var(--red-bg); border-radius:var(--r-md); padding:11px 13px; margin-bottom:14px}
 .interacoes .it-head{display:flex; align-items:center; gap:7px; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--red); font-weight:800; margin-bottom:7px}

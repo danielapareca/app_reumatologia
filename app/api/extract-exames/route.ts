@@ -1,11 +1,14 @@
 import { NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@/lib/supabase/server';
+import { limiteAtingido, registrarUso } from '@/lib/aiUsage';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
 
 const MODEL = process.env.ANTHROPIC_MODEL || 'claude-opus-4-8';
+const IMG_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'] as const;
+type ImgType = (typeof IMG_TYPES)[number];
 
 const SYSTEM = `Você extrai resultados de exames laboratoriais de um documento (laudo) para uso em gráficos de evolução. Você é uma ferramenta de APOIO: o médico revisa tudo antes de salvar.
 
@@ -58,10 +61,24 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'A chave da IA (ANTHROPIC_API_KEY) não foi configurada no servidor.' }, { status: 503 });
   }
 
-  let body: { pdfBase64?: string };
+  if (await limiteAtingido(supabase, user.id)) {
+    return NextResponse.json({ error: 'Limite diário de uso da IA atingido. Tente novamente amanhã ou lance os exames manualmente.' }, { status: 429 });
+  }
+
+  let body: { pdfBase64?: string; imageBase64?: string; mediaType?: string };
   try { body = await request.json(); } catch { return NextResponse.json({ error: 'JSON inválido.' }, { status: 400 }); }
   const pdfBase64 = (body.pdfBase64 || '').replace(/^data:application\/pdf;base64,/, '');
-  if (!pdfBase64) return NextResponse.json({ error: 'PDF não recebido.' }, { status: 400 });
+  const imageBase64 = (body.imageBase64 || '').replace(/^data:image\/\w+;base64,/, '');
+  const mediaType = (body.mediaType || '') as ImgType;
+  if (!pdfBase64 && !imageBase64) return NextResponse.json({ error: 'Arquivo não recebido.' }, { status: 400 });
+  if (imageBase64 && !IMG_TYPES.includes(mediaType)) {
+    return NextResponse.json({ error: 'Formato de imagem não suportado (use JPG, PNG ou WEBP).' }, { status: 400 });
+  }
+
+  const promptTxt = 'Extraia os exames laboratoriais numéricos com data deste documento, seguindo estritamente o formato pedido. Se for uma foto ou print de tela, leia os valores visíveis com atenção.';
+  const fileBlock: Anthropic.ContentBlockParam = pdfBase64
+    ? { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: pdfBase64 } }
+    : { type: 'image', source: { type: 'base64', media_type: mediaType, data: imageBase64 } };
 
   try {
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -71,12 +88,10 @@ export async function POST(request: Request) {
       system: SYSTEM,
       messages: [{
         role: 'user',
-        content: [
-          { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: pdfBase64 } },
-          { type: 'text', text: 'Extraia os exames laboratoriais numéricos com data deste laudo, seguindo estritamente o formato pedido.' },
-        ],
+        content: [fileBlock, { type: 'text', text: promptTxt }],
       }],
     });
+    registrarUso(supabase, user.id, 'extract-exames', MODEL);
     const texto = message.content
       .filter((b): b is Anthropic.TextBlock => b.type === 'text')
       .map((b) => b.text).join('\n');
@@ -85,10 +100,10 @@ export async function POST(request: Request) {
     if (err instanceof Anthropic.APIError) {
       const msg = err.status === 401
         ? 'A chave da IA foi recusada. Verifique a ANTHROPIC_API_KEY no servidor.'
-        : 'Falha ao analisar o PDF: ' + err.message;
+        : 'Falha ao analisar o documento:' + err.message;
       return NextResponse.json({ error: msg }, { status: err.status === 401 ? 500 : (err.status || 500) });
     }
     const msg = err instanceof Error ? err.message : 'Erro desconhecido';
-    return NextResponse.json({ error: 'Falha ao analisar o PDF: ' + msg }, { status: 500 });
+    return NextResponse.json({ error: 'Falha ao analisar o documento:' + msg }, { status: 500 });
   }
 }

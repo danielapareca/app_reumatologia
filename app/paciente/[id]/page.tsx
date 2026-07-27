@@ -6,7 +6,7 @@ import type { Patient, Consulta, Profile, ExamValue, MedicationEvent } from '@/l
 
 export const dynamic = 'force-dynamic';
 
-export default async function PacientePage({ params }: { params: { id: string } }) {
+export default async function PacientePage({ params, searchParams }: { params: { id: string }; searchParams: { doenca?: string; etapa?: string; tipo?: string } }) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -50,6 +50,7 @@ export default async function PacientePage({ params }: { params: { id: string } 
         consultas={(consultas as Consulta[]) || []}
         examValues={(examValues as ExamValue[]) || []}
         medEvents={(medEvents as MedicationEvent[]) || []}
+        inicial={{ doencaId: searchParams.doenca, etapa: searchParams.etapa, tipo: searchParams.tipo }}
       />
     </AppShell>
   );

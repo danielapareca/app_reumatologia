@@ -65,12 +65,14 @@ export default function Atendimento({
   consultas,
   examValues,
   medEvents,
+  inicial,
 }: {
   patient: Patient;
   profile: Profile | null;
   consultas: Consulta[];
   examValues: ExamValue[];
   medEvents: MedicationEvent[];
+  inicial?: { doencaId?: string; etapa?: string; tipo?: string };
 }) {
   // ---- dados do paciente (editáveis) ----
   const [pacNome, setPacNome] = useState(patient.nome || '');
@@ -141,14 +143,26 @@ export default function Atendimento({
   // Paciente já acompanhado: pré-carrega doença e fase da última consulta (o médico confirma/ajusta).
   const ultimaConsulta = consultas.length > 0 ? consultas[0] : null;
   const faseInicial = (() => {
+    // Paciente já acompanhado: usa a última consulta.
     const did = ultimaConsulta?.doenca_id;
-    if (!did || !D[did]) return { id: '', stage: '' };
-    const et = D[did].etapas.find((e) => e.label === ultimaConsulta?.etapa);
-    return { id: did, stage: et ? et.id : (D[did].etapas[0]?.id || '') };
+    if (did && D[did]) {
+      const et = D[did].etapas.find((e) => e.label === ultimaConsulta?.etapa);
+      return { id: did, stage: et ? et.id : (D[did].etapas[0]?.id || '') };
+    }
+    // Paciente novo vindo do cadastro guiado: usa a doença e fase escolhidas.
+    const iid = inicial?.doencaId;
+    if (iid && D[iid]) {
+      const et = inicial?.etapa && D[iid].etapas.find((e) => e.id === inicial.etapa);
+      return { id: iid, stage: et ? et.id : (D[iid].etapas[0]?.id || '') };
+    }
+    return { id: '', stage: '' };
   })();
   const [curId, setCurId] = useState(faseInicial.id);
   const [curStage, setCurStage] = useState(faseInicial.stage);
-  const [Q, setQ] = useState<QState>(() => ({ ...defaultQState, consulta: ultimaConsulta ? 'retorno' : defaultQState.consulta }));
+  const consultaInicial: 'primeira' | 'retorno' = ultimaConsulta
+    ? 'retorno'
+    : (inicial?.tipo === 'retorno' ? 'retorno' : (inicial?.tipo === 'primeira' ? 'primeira' : defaultQState.consulta));
+  const [Q, setQ] = useState<QState>(() => ({ ...defaultQState, consulta: consultaInicial }));
 
   // ---- anamnese ----
   const [anam, setAnam] = useState<AnamState>({});

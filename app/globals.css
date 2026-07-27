@@ -217,6 +217,33 @@ ol.exlist li{margin-bottom:5px; font-size:13.5px}
 .flags ul{margin:0; padding-left:18px}
 .flags li{font-size:12.5px; margin-bottom:3px; color:#6d4d13}
 
+/* Cadastro guiado (assistente por passos) */
+.wiz-steps{display:flex; align-items:center; gap:10px; margin:6px 0 22px; flex-wrap:wrap}
+.wiz-step{display:inline-flex; align-items:center; gap:8px; font-size:13px; font-weight:700; color:var(--faint)}
+.wiz-step.on{color:var(--navy)} .wiz-step.done{color:var(--gold-600)}
+.wiz-n{width:26px; height:26px; border-radius:8px; background:var(--app); color:var(--faint); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:800}
+.wiz-step.on .wiz-n{background:var(--navy); color:var(--gold)}
+.wiz-step.done .wiz-n{background:var(--gold-soft); color:var(--gold-600)}
+.wiz-conn{flex:1; min-width:24px; height:2px; background:var(--line); border-radius:2px}
+
+.wiz-fases{display:flex; flex-direction:column; gap:8px}
+.wiz-fase{display:flex; gap:10px; align-items:flex-start; background:var(--paper); border:1px solid var(--line); border-radius:var(--r-md); padding:11px 13px; cursor:pointer}
+.wiz-fase.on{border-color:var(--gold); box-shadow:0 0 0 3px var(--gold-soft)}
+.wiz-fase input{margin-top:3px}
+.wiz-fase .wf-t{display:block; font-weight:700; font-size:13.5px; color:var(--navy)}
+.wiz-fase .wf-s{display:block; font-size:12px; color:var(--muted); margin-top:1px}
+
+.fase-guia{background:var(--gold-soft); border:1px solid #E7D9B4; border-radius:var(--r-lg); padding:15px 17px; margin-top:18px}
+.fase-guia .fg-head{display:flex; align-items:center; gap:8px; font-weight:800; color:var(--gold-600); margin-bottom:9px}
+.fase-guia ul{margin:0; padding-left:18px; display:flex; flex-direction:column; gap:6px}
+.fase-guia li{font-size:13px; color:#5c4a24; line-height:1.45}
+
+.fase-resumo{display:flex; align-items:center; justify-content:space-between; gap:12px; background:var(--navy); color:#E7EDF5; border-radius:var(--r-md); padding:11px 15px; margin:0 0 16px; font-size:13.5px; max-width:760px}
+.fase-resumo b{color:var(--gold)}
+
+.linkbtn{background:none; border:none; color:var(--gold-600); font-weight:700; cursor:pointer; font-size:inherit; padding:0; text-decoration:underline}
+.wiz-skip{font-size:12.5px; color:var(--muted); margin-top:14px}
+
 /* Central de documentos no cadastro (print do sistema + exames num lugar só) */
 .docs-central{border:1px solid #E7D9B4; background:var(--gold-soft); border-radius:var(--r-lg); padding:16px 18px; margin:0 0 22px; max-width:760px}
 .docs-central .dc-head{display:flex; align-items:center; gap:8px; font-weight:800; color:var(--gold-600); margin-bottom:13px}

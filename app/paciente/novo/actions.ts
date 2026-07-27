@@ -1,10 +1,10 @@
 'use server';
 
-import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 
 export interface NewPatientResult {
   error?: string;
+  id?: string;
 }
 
 export async function createPatient(_prev: NewPatientResult, formData: FormData): Promise<NewPatientResult> {
@@ -41,5 +41,5 @@ export async function createPatient(_prev: NewPatientResult, formData: FormData)
     res = await supabase.from('patients').insert(row).select('id').single();
   }
   if (res.error) return { error: res.error.message };
-  redirect(`/paciente/${res.data.id}`);
+  return { id: res.data.id as string };
 }

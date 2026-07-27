@@ -217,11 +217,23 @@ ol.exlist li{margin-bottom:5px; font-size:13.5px}
 .flags ul{margin:0; padding-left:18px}
 .flags li{font-size:12.5px; margin-bottom:3px; color:#6d4d13}
 
-/* Ler print da tela do sistema → pré-preenche o cadastro */
-.ler-print{border:1px solid #E7D9B4; background:var(--gold-soft); border-radius:var(--r-lg); padding:15px 17px; margin:0 0 22px; max-width:560px}
-.ler-print .lp-head{display:flex; align-items:center; gap:8px; font-weight:800; color:var(--gold-600); margin-bottom:5px}
-.ler-print .lp-sub{font-size:12.5px; color:#5c4a24; line-height:1.45; margin:0 0 11px}
-.ler-print .lp-ok{font-size:12px; color:var(--green); font-weight:600; margin-top:8px}
+/* Central de documentos no cadastro (print do sistema + exames num lugar só) */
+.docs-central{border:1px solid #E7D9B4; background:var(--gold-soft); border-radius:var(--r-lg); padding:16px 18px; margin:0 0 22px; max-width:760px}
+.docs-central .dc-head{display:flex; align-items:center; gap:8px; font-weight:800; color:var(--gold-600); margin-bottom:13px}
+.docs-central .dc-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+.docs-central .dc-col{background:var(--paper); border:1px solid #EADFC4; border-radius:var(--r-md); padding:13px 14px}
+.docs-central .dc-t{display:flex; align-items:center; gap:6px; font-weight:700; font-size:13.5px; color:var(--navy); margin-bottom:3px}
+.docs-central .dc-s{font-size:12px; color:#5c4a24; line-height:1.4; margin:0 0 10px}
+.docs-central .dc-btns{display:flex; gap:8px; flex-wrap:wrap}
+.docs-central .dc-btns .btn-ghost{cursor:pointer; height:36px; padding:0 13px; font-size:12.5px; display:inline-flex; align-items:center; gap:6px}
+.docs-central .dc-btns .btn-ghost.disabled{cursor:default; opacity:.55}
+.docs-central .dc-busy{font-size:12px; color:var(--muted); margin-top:7px}
+.docs-central .dc-ok{font-size:12px; color:var(--green); font-weight:600; margin-top:8px; line-height:1.4}
+.docs-central .dc-exlist{margin-top:14px; background:var(--paper); border:1px solid #EADFC4; border-radius:var(--r-md); padding:12px 13px}
+.docs-central .dc-exhead{font-size:12px; color:var(--muted); margin-bottom:8px}
+.docs-central .dc-exrow{display:flex; gap:6px; align-items:center; margin-bottom:6px; flex-wrap:wrap}
+.docs-central .dc-exrow input[type=text],.docs-central .dc-exrow input:not([type]),.docs-central .dc-exrow input[type=date]{padding:6px 8px; border:1px solid var(--line); border-radius:6px; font-family:inherit; font-size:13px}
+@media (max-width:680px){ .docs-central .dc-grid{grid-template-columns:1fr} }
 
 /* Interações medicamentosas (bloqueio/alerta na receita) */
 .interacoes{border:1px solid #ECC9C4; background:var(--red-bg); border-radius:var(--r-md); padding:11px 13px; margin-bottom:14px}

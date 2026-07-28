@@ -22,6 +22,7 @@ import TextTemplates from '@/components/TextTemplates';
 import PrintClinicoReader from './PrintClinicoReader';
 import ConsultaRecorder from './ConsultaRecorder';
 import ConsultaChat from './ConsultaChat';
+import ImagingReportReader from './ImagingReportReader';
 import LmePreview, { type LmeFields, type LmeMed } from './LmePreview';
 import ExamValuesPanel from './ExamValuesPanel';
 import ActivityCalculators from './ActivityCalculators';
@@ -1141,6 +1142,7 @@ export default function Atendimento({
               <div className="roteiro-h"><span className="rh-n">1</span><div><div className="rh-t">Dados e exames</div><div className="rh-s">Confira os dados (coluna à esquerda) e os exames.</div></div></div>
               {roteiro.dados.length > 0 && <ul className="roteiro-foco">{roteiro.dados.map((t, i) => <li key={i}>{t}</li>)}</ul>}
               <ExamValuesPanel patientId={patient.id} values={examList} onChanged={setExamList} today={todayISO} />
+              <ImagingReportReader patientId={patient.id} today={todayISO} onInserir={(txt) => setObservacoes((v) => (v.trim() ? v.trim() + '\n' : '') + txt)} />
 
               {/* Passo 2 · Escuta e avaliação */}
               <div className="roteiro-h"><span className="rh-n">2</span><div><div className="rh-t">Escuta e avaliação</div><div className="rh-s">Grave a conversa e faça a avaliação do paciente.</div></div></div>

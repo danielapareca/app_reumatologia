@@ -338,6 +338,12 @@ export default function Atendimento({
   function scrollToDoc(id: string) {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
+  // Troca de aba E leva a tela para o conteúdo (senão parece que "não avança").
+  const stageRef = useRef<HTMLElement>(null);
+  function goTab(t: Tab) {
+    setTab(t);
+    requestAnimationFrame(() => stageRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  }
   // Junta exames + receita (e resumo da LME) num texto só, para colar no sistema da clínica.
   function copiarTudo() {
     const partes = ['SOLICITAÇÃO DE EXAMES', examesToText(), '', 'RECEITUÁRIO', receitaToText()];
@@ -685,14 +691,14 @@ export default function Atendimento({
             {pacIdade && <span className="pt-pill">{pacIdade}</span>}
           </div>
           <div className="pt-dx">
-            {disease?.n || 'Selecione a condição na coluna à esquerda'}
+            {disease?.n || 'Selecione a condição nos dados do paciente'}
             {currentStage ? ' · ' + currentStage.label : ''}
             {diasUltima !== null ? ' · última consulta ' + haQuantoTempo(diasUltima) : ''}
           </div>
         </div>
         <span className="spacer" />
         <div className="pt-topnav">
-          <button className="btn-ghost" onClick={() => setTab('evolucao')} style={{ height: 40, padding: '0 14px', fontSize: 13 }}>
+          <button className="btn-ghost" onClick={() => goTab('evolucao')} style={{ height: 40, padding: '0 14px', fontSize: 13 }}>
             <Icon name="clock" size={16} /> Histórico
           </button>
           <button className="btn-primary" onClick={onSalvar} disabled={saving} style={{ height: 40, padding: '0 16px', fontSize: 13 }}>
@@ -730,7 +736,7 @@ export default function Atendimento({
               return (
                 <Fragment key={s.t}>
                   {i > 0 && <div className={'stp-conn' + (i <= curIdx ? ' done' : '')} />}
-                  <button className={'stp' + (i === curIdx ? ' on' : '') + (i < curIdx ? ' done' : '')} onClick={() => setTab(s.t)}>
+                  <button className={'stp' + (i === curIdx ? ' on' : '') + (i < curIdx ? ' done' : '')} onClick={() => goTab(s.t)}>
                     <span className="stp-dot">{i < curIdx ? <Icon name="check" size={15} /> : s.n}</span>
                     <span className="stp-lbl">{s.l}</span>
                   </button>
@@ -846,7 +852,7 @@ export default function Atendimento({
           <div className="block">
             <p className="eyebrow" style={{ justifyContent: 'space-between' }}>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}><Icon name="chart" size={14} /> Escores</span>
-              <button className="eb-link" onClick={() => setTab('anamnese')}>Calcular</button>
+              <button className="eb-link" onClick={() => goTab('anamnese')}>Calcular</button>
             </p>
             {escoresResumo.length === 0 ? (
               <p className="empty-note" style={{ fontSize: 12 }}>Sem escores ainda. Calcule na aba Anamnese (DAS28, CDAI, BASDAI, SLEDAI).</p>
@@ -913,17 +919,17 @@ export default function Atendimento({
         </aside>
 
         {/* ------- PALCO ------- */}
-        <main className="stage">
+        <main className="stage" ref={stageRef}>
           <div className="maintabs no-print">
-            <button className={'maintab' + (tab === 'anamnese' ? ' on' : '')} onClick={() => setTab('anamnese')}>1 · Anamnese</button>
-            <button className={'maintab' + (tab === 'docs' ? ' on' : '')} onClick={() => setTab('docs')}>2 · Conduta</button>
-            <button className={'maintab' + (tab === 'evolucao' ? ' on' : '')} onClick={() => setTab('evolucao')}>3 · Evolução</button>
+            <button className={'maintab' + (tab === 'anamnese' ? ' on' : '')} onClick={() => goTab('anamnese')}>1 · Anamnese</button>
+            <button className={'maintab' + (tab === 'docs' ? ' on' : '')} onClick={() => goTab('docs')}>2 · Conduta</button>
+            <button className={'maintab' + (tab === 'evolucao' ? ' on' : '')} onClick={() => goTab('evolucao')}>3 · Evolução</button>
           </div>
 
           {/* DOCUMENTOS / CONDUTA */}
           <div className={'tabpanel docs-panel' + (tab === 'docs' ? ' on' : '')} style={{ display: tab === 'docs' ? 'flex' : 'none', flexDirection: 'column', gap: 24, alignItems: 'center' }}>
             <p className="sub no-print" style={{ width: '100%', maxWidth: 720, margin: 0 }}>
-              Os <b>insights da IA</b> e a <b>conversa com a IA</b> ficam no fim da aba <button className="btn-ghost" style={{ padding: '3px 9px', fontSize: 12 }} onClick={() => setTab('anamnese')}>1 · Anamnese</button> (Passo 4). Aqui você emite exames, receita e LME.
+              Os <b>insights da IA</b> e a <b>conversa com a IA</b> ficam no fim da aba <button className="btn-ghost" style={{ padding: '3px 9px', fontSize: 12 }} onClick={() => goTab('anamnese')}>1 · Anamnese</button> (Passo 4). Aqui você emite exames, receita e LME.
             </p>
 
             {/* Atalhos: Exames · Receita · LME */}
@@ -1078,6 +1084,12 @@ export default function Atendimento({
             {/* Documentos com IA (laudo/atestado/relatório/resumo) */}
             <div className="no-print" style={{ width: '100%', maxWidth: 720 }}>
               <AiDocs buildContext={buildAiContext} onFlash={showFlash} />
+
+              <div className="passo-nav">
+                <button className="btn-ghost" onClick={() => goTab('anamnese')}><Icon name="arrowleft" size={16} /> Anamnese</button>
+                <button className="btn-ghost" onClick={onSalvar} disabled={saving}><Icon name="save" size={16} /> {saving ? 'Salvando…' : 'Salvar consulta'}</button>
+                <button className="btn-primary" onClick={() => goTab('evolucao')}>Ver Evolução <Icon name="arrowright" size={16} /></button>
+              </div>
             </div>
           </div>
 
@@ -1096,7 +1108,7 @@ export default function Atendimento({
                   </p>
                   {faseInicial.id && (
                     <p className="sub" style={{ margin: '4px 0 0', color: 'var(--amber)' }}>
-                      Já carreguei a <b>doença e a fase</b> abaixo a partir da última consulta — confirme ou ajuste na coluna à esquerda.
+                      Já carreguei a <b>doença e a fase</b> abaixo a partir da última consulta — confirme ou ajuste nos dados do paciente.
                     </p>
                   )}
                   {consultaList[0].exam_results && (
@@ -1104,7 +1116,7 @@ export default function Atendimento({
                   )}
                   <p className="sub" style={{ margin: '6px 0 0' }}>
                     Histórico das consultas em{' '}
-                    <button className="btn-ghost" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => setTab('evolucao')}>3 · Evolução</button>
+                    <button className="btn-ghost" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => goTab('evolucao')}>3 · Evolução</button>
                     {' '}· gráficos de exames no Passo 1 abaixo.
                   </p>
                 </div>
@@ -1139,7 +1151,7 @@ export default function Atendimento({
               )}
 
               {/* Passo 1 · Dados e exames */}
-              <div className="roteiro-h"><span className="rh-n">1</span><div><div className="rh-t">Dados e exames</div><div className="rh-s">Confira os dados (coluna à esquerda) e os exames.</div></div></div>
+              <div className="roteiro-h"><span className="rh-n">1</span><div><div className="rh-t">Dados e exames</div><div className="rh-s">Confira os dados do paciente e os exames.</div></div></div>
               {roteiro.dados.length > 0 && <ul className="roteiro-foco">{roteiro.dados.map((t, i) => <li key={i}>{t}</li>)}</ul>}
               <ExamValuesPanel patientId={patient.id} values={examList} onChanged={setExamList} today={todayISO} />
               <ImagingReportReader patientId={patient.id} today={todayISO} onInserir={(txt) => setObservacoes((v) => (v.trim() ? v.trim() + '\n' : '') + txt)} />
@@ -1328,9 +1340,10 @@ export default function Atendimento({
 
               <ConsultaChat buildContexto={buildChatContexto} />
 
-              <p className="sub" style={{ textAlign: 'center', marginTop: 4 }}>
-                Pronto? Vá para <button className="btn-ghost" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => setTab('docs')}>2 · Conduta</button> para emitir exames, receita e LME.
-              </p>
+              <div className="passo-nav">
+                <button className="btn-ghost" onClick={onSalvar} disabled={saving}><Icon name="save" size={16} /> {saving ? 'Salvando…' : 'Salvar consulta'}</button>
+                <button className="btn-primary" onClick={() => goTab('docs')}>Ir para a Conduta <Icon name="arrowright" size={16} /></button>
+              </div>
             </div>
           </div>
 
@@ -1413,8 +1426,12 @@ export default function Atendimento({
               <MedicationTimeline patientId={patient.id} events={medList} onChanged={setMedList} today={todayISO} />
 
               <p className="sub" style={{ textAlign: 'center', marginTop: 4 }}>
-                Os exames e os gráficos de evolução ficam em <button className="btn-ghost" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => setTab('anamnese')}>1 · Anamnese</button> (Passo 1 · Dados e exames).
+                Os exames e os gráficos de evolução ficam em <button className="btn-ghost" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => goTab('anamnese')}>1 · Anamnese</button> (Passo 1 · Dados e exames).
               </p>
+              <div className="passo-nav">
+                <button className="btn-ghost" onClick={() => goTab('docs')}><Icon name="arrowleft" size={16} /> Conduta</button>
+                <button className="btn-primary" onClick={onSalvar} disabled={saving}><Icon name="save" size={16} /> {saving ? 'Salvando…' : 'Salvar consulta'}</button>
+              </div>
             </div>
           </div>
 

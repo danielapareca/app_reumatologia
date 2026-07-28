@@ -39,7 +39,7 @@ export function montarRoteiro(id: string, etapaId: string, tipo: ConsultaTipo): 
   const d = id ? D[id] : null;
   if (!d) {
     return {
-      resumo: 'Escolha a doença (coluna à esquerda) para o roteiro se ajustar à fase.',
+      resumo: 'Escolha a doença nos dados do paciente para o roteiro se ajustar à fase.',
       dados: ['Confira os dados do paciente e anexe os exames que houver.'],
       avaliacao: ['Registre a história e os antecedentes.'],
       calculos: { relevante: false, nota: 'Defina a doença para saber o que calcular.', escore: null, dxa: false },

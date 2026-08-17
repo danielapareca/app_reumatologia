@@ -263,10 +263,10 @@ export default function Atendimento({
     const textos = [
       ...receitaItens.map((i) => i.m),
       ...medList.map((m) => m.medicamento),
-      antecedentes,
+      observacoes,
     ];
     return checkInteracoes(textos);
-  }, [receitaItens, medList, antecedentes]);
+  }, [receitaItens, medList, observacoes]);
 
   // ---- lembretes contextuais da doença (inclui lembrar de calcular o FRAX) ----
   const lembretes = useMemo(() => lembretesParaDoenca(curId), [curId]);
@@ -356,8 +356,8 @@ export default function Atendimento({
 
   const flags = useMemo(() => computeFlags({ ...Q, alergia: pacAlergia }), [Q, pacAlergia]);
   const textInsights = useMemo(
-    () => scanText(hda, antecedentes),
-    [hda, antecedentes]
+    () => scanText(observacoes, ''),
+    [observacoes]
   );
   const anamInsight = curId === 'ar'
     ? computeAnamInsight(anam)
@@ -529,7 +529,7 @@ export default function Atendimento({
         doenca: disease?.n || '',
         cid: disease?.cid || '',
         anamneseAtual: {
-          hda,
+          hda: [hda, observacoes].filter((x) => x && x.trim()).join('\n'),
           antecedentes: [antecedentes, medList.length ? 'Histórico de medicação: ' + medList
             .slice().sort((a, b) => a.data.localeCompare(b.data))
             .map((m) => `${m.data} ${m.evento} ${m.medicamento}${m.dose ? ' (' + m.dose + ')' : ''}${m.motivo ? ' — ' + m.motivo : ''}`)
@@ -578,7 +578,7 @@ export default function Atendimento({
     return {
       paciente: pacNome, idade: pacIdade, doencaId: curId,
       doenca: disease?.n || '', cid: disease?.cid || '',
-      hda, antecedentes, exames: examesResumo(),
+      hda: [hda, observacoes].filter((x) => x && x.trim()).join('\n'), antecedentes, exames: examesResumo(),
       etapa: currentStage?.label || '', receita: receitaToText(),
       medico: profile?.nome || '',
     };
@@ -1098,9 +1098,9 @@ export default function Atendimento({
             <div className="panel-inner">
               {consultaList.length > 0 && (
                 <div className="card" style={{ borderColor: '#ECD9AE', background: 'var(--amber-bg)' }}>
-                  <h3 style={{ marginBottom: 4 }}>Paciente já acompanhado</h3>
+                  <h3 style={{ marginBottom: 4 }}>Paciente já acompanhado — esta é a <b>{consultaList.length + 1}ª consulta</b></h3>
                   <p className="sub" style={{ margin: 0 }}>
-                    <b>{consultaList.length}</b> consulta(s). Última{' '}
+                    <b>{consultaList.length}</b> consulta(s) registrada(s). Última{' '}
                     <b>{new Date(consultaList[0].data).toLocaleDateString('pt-BR')}</b>
                     {diasUltima !== null && <> ({haQuantoTempo(diasUltima)})</>}
                     {consultaList[0].doenca_nome ? <> — {consultaList[0].doenca_nome}</> : null}
@@ -1160,9 +1160,25 @@ export default function Atendimento({
               <div className="roteiro-h"><span className="rh-n">2</span><div><div className="rh-t">Escuta e avaliação</div><div className="rh-s">Grave a conversa e faça a avaliação do paciente.</div></div></div>
               {roteiro.avaliacao.length > 0 && <ul className="roteiro-foco">{roteiro.avaliacao.map((t, i) => <li key={i}>{t}</li>)}</ul>}
               <div className="card">
-                <h3 style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Icon name="mic" size={16} /> Escuta da consulta</h3>
-                <p className="sub" style={{ margin: '0 0 10px' }}>Grave a conversa ao vivo — a transcrição cai nas Observações e é salva com a consulta. Peça o consentimento do paciente.</p>
+                <h3 style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Icon name="mic" size={16} /> Registro da consulta (escuta + anotações)</h3>
+                <p className="sub" style={{ margin: '0 0 10px' }}>Grave a conversa ao vivo (a transcrição cai aqui), dite, digite ou leia um print da evolução do seu sistema. <b>É o que fica salvo no prontuário desta consulta.</b> Peça o consentimento do paciente para gravar.</p>
                 <ConsultaRecorder onText={(chunk) => setObservacoes((v) => (v ? v.trim() + '\n' : '') + chunk)} />
+                <div style={{ marginTop: 10 }}>
+                  <PrintClinicoReader onLido={(d) => {
+                    const junta = (atual: string, novo: string) => !novo ? atual : (atual.trim() ? atual.trim() + '\n' + novo : novo);
+                    const bloco = [d.hda, d.antecedentes, d.observacoes].filter(Boolean).join('\n');
+                    if (bloco) setObservacoes((v) => junta(v, bloco));
+                  }} />
+                </div>
+                <div className="an-q" style={{ marginTop: 12, marginBottom: 0 }}>
+                  <div className="ql ql-row">Registro / observações
+                    <TextTemplates storageKey={tplKey} atalho={observacoes} onInsert={(t) => setObservacoes((v) => (v ? v.trim() + ' ' : '') + t)} />
+                  </div>
+                  <div className="fieldrow">
+                    <textarea value={observacoes} onChange={(e) => setObservacoes(e.target.value)} placeholder="A transcrição da escuta cai aqui. Acrescente queixa, história, conduta, orientações, retorno…" style={{ minHeight: 120 }} />
+                    <VoiceMic onText={(chunk) => setObservacoes((v) => (v ? v.trim() + ' ' : '') + chunk)} />
+                  </div>
+                </div>
               </div>
 
               <div className="card">
@@ -1246,44 +1262,6 @@ export default function Atendimento({
               </div>
 
               <div className="card">
-                <h3>Queixa e história (ditar, digitar ou ler print)</h3>
-                <p className="sub" style={{ margin: '0 0 10px' }}>Anexe um <b>print/foto da evolução do seu sistema</b> e a IA organiza em HDA, antecedentes e observações — sem redigitar. Você revisa e edita.</p>
-                <PrintClinicoReader onLido={(d) => {
-                  const junta = (atual: string, novo: string) => !novo ? atual : (atual.trim() ? atual.trim() + '\n' + novo : novo);
-                  if (d.hda) setHda((v) => junta(v, d.hda));
-                  if (d.antecedentes) setAntecedentes((v) => junta(v, d.antecedentes));
-                  if (d.observacoes) setObservacoes((v) => junta(v, d.observacoes));
-                }} />
-                <div className="an-q" style={{ marginTop: 14 }}>
-                  <div className="ql ql-row">História da doença atual
-                    <TextTemplates storageKey={tplKey} atalho={hda} onInsert={(t) => setHda((v) => (v ? v.trim() + ' ' : '') + t)} />
-                  </div>
-                  <div className="fieldrow">
-                    <textarea value={hda} onChange={(e) => setHda(e.target.value)} placeholder="Dite ou digite a história..." />
-                    <VoiceMic onText={(chunk) => setHda((v) => (v ? v.trim() + ' ' : '') + chunk)} />
-                  </div>
-                </div>
-                <div className="an-q">
-                  <div className="ql ql-row">Antecedentes, medicações em uso, alergias
-                    <TextTemplates storageKey={tplKey} atalho={antecedentes} onInsert={(t) => setAntecedentes((v) => (v ? v.trim() + ' ' : '') + t)} />
-                  </div>
-                  <div className="fieldrow">
-                    <textarea value={antecedentes} onChange={(e) => setAntecedentes(e.target.value)} placeholder="Dite ou digite..." />
-                    <VoiceMic onText={(chunk) => setAntecedentes((v) => (v ? v.trim() + ' ' : '') + chunk)} />
-                  </div>
-                </div>
-                <div className="an-q" style={{ marginBottom: 0 }}>
-                  <div className="ql ql-row">Observações da consulta
-                    <TextTemplates storageKey={tplKey} atalho={observacoes} onInsert={(t) => setObservacoes((v) => (v ? v.trim() + ' ' : '') + t)} />
-                  </div>
-                  <div className="fieldrow">
-                    <textarea value={observacoes} onChange={(e) => setObservacoes(e.target.value)} placeholder="Anotações do médico (a transcrição da escuta cai aqui; acrescente orientações, retorno, conduta livre…)" />
-                    <VoiceMic onText={(chunk) => setObservacoes((v) => (v ? v.trim() + ' ' : '') + chunk)} />
-                  </div>
-                </div>
-              </div>
-
-              <div className="card">
                 <h3>Insights do relato</h3>
                 <p className="sub">
                   Achados reconhecidos no texto ditado ou digitado (apoio, não diagnóstico).{' '}
@@ -1364,12 +1342,14 @@ export default function Atendimento({
                 {consultaList.length === 0 ? (
                   <p className="evo-empty">Nenhuma consulta salva para este paciente. Use “Salvar consulta”.</p>
                 ) : (
-                  consultaList.map((c) => {
+                  consultaList.map((c, idx) => {
                     const tmp = String(c.id).startsWith('tmp-');
                     const editando = editId === c.id;
+                    const numero = consultaList.length - idx; // mais recente = maior número
                     return (
                     <div className="evo-item" key={c.id}>
                       <div className="evo-head">
+                        <span className="evo-num">{numero}ª</span>
                         <span className="evo-date">{new Date(c.data).toLocaleDateString('pt-BR')}</span>
                         <span className="evo-dis">{c.doenca_nome || ''}</span>
                         {!tmp && !editando && (
@@ -1399,7 +1379,7 @@ export default function Atendimento({
                       ) : (
                         <>
                           {c.hda && <div className="evo-line"><span className="k">HDA:</span> {c.hda}</div>}
-                          {c.observacoes && <div className="evo-line"><span className="k">Observações:</span> {c.observacoes}</div>}
+                          {c.observacoes && <div className="evo-line"><span className="k">Registro/escuta:</span> {c.observacoes}</div>}
                         </>
                       )}
                       {c.ia_insight && (

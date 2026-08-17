@@ -18,6 +18,9 @@ const SEM_ESCORE_NOTA: Record<string, string> = {
   sdcr: 'Avaliação por critérios de Budapeste e função — priorize reabilitação precoce.',
   fadiga: 'Avaliação por sintomas e exclusão de causas — não se usa escore de atividade articular.',
   osteoartrite: 'Avaliação por dor/função (ex.: WOMAC) e exame — não se usa escore de atividade inflamatória.',
+  takayasu: 'Atividade avaliada por clínica, fase aguda (VHS/PCR) e IMAGEM (angio-RM/TC/PET) — não por escore articular. Afira a PA nos 4 membros.',
+  acg: 'Atividade por clínica e fase aguda; imagem seletiva para dano. Não se usa escore de atividade articular.',
+  pmr: 'Atividade por clínica (dor/rigidez de cinturas) e fase aguda; sem escore articular específico.',
 };
 
 export function escoreSugerido(id: string): EscoreId {

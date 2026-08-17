@@ -26,6 +26,11 @@ export const RED_FLAGS: Record<string, string[]> = {
   anca: [
     'Hemoptise/hemorragia alveolar ou glomerulonefrite rapidamente progressiva → EMERGÊNCIA.',
   ],
+  takayasu: [
+    'Dissecção arterial ou isquemia crítica de membro/órgão → EMERGÊNCIA: equipe vascular urgente.',
+    'Procedimentos vasculares eletivos só em remissão estável (EULAR 2025).',
+    'Perda visual, síncope, claudicação de membro ou assimetria de pulso/PA → avaliar isquemia.',
+  ],
   esclerose: [
     'Crise renal esclerodérmica (hipertensão grave de início súbito + lesão renal aguda) → EMERGÊNCIA: iniciar IECA.',
   ],

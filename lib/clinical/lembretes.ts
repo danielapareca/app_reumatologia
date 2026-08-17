@@ -55,6 +55,12 @@ export const LEMBRETES: Record<string, Lembrete[]> = {
   acg: [
     { txt: 'Sob corticoide prolongado: profilaxia de osteoporose (cálcio/vit D ± bisfosfonato) e rastreio de aneurisma de aorta.' },
   ],
+  takayasu: [
+    { txt: 'Use imagem (angio-RM/angio-TC/PET) para avaliar atividade E dano — imagem positiva residual não equivale automaticamente a atividade (EULAR 2025).' },
+    { txt: 'Afira a PA nos quatro membros e vigie sopros/assimetria de pulsos a cada consulta.' },
+    { txt: 'Associe DMARD não biológico (MTX/azatioprina/leflunomida) em toda TAK ativa; refratária/recorrente → tocilizumabe ou anti-TNF.' },
+    { txt: 'Rastrear TB e hepatites antes do imunossupressor; proteção óssea sob corticoide.' },
+  ],
 };
 
 export function lembretesParaDoenca(id: string): Lembrete[] {

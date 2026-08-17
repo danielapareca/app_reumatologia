@@ -197,7 +197,22 @@ export const D: Diseases = {
         { m: 'AAS 100 mg', p: '1 comprimido por via oral 1x/dia, se sem contraindicação.' },
         { m: 'Carbonato de cálcio 500 mg + vitamina D', p: '1 comprimido por via oral de 12/12h.', q: '60 comprimidos' }] },
       { id: 'base', label: 'Poupador de corticoide', sub: '', itens: [
-        { m: 'Tocilizumabe OU Metotrexato', p: 'Reduz recaídas e dose de corticoide. LME (tocilizumabe).', ceaf: true }] },
+        { m: 'Tocilizumabe OU Upadacitinibe (alternativa: Metotrexato)', p: 'Poupador de corticoide, sobretudo em doença refratária/recorrente ou com alto risco de toxicidade por GC. LME. (EULAR 2025)', ceaf: true }] },
+    ],
+  },
+
+  takayasu: {
+    n: 'Arterite de Takayasu',
+    cid: 'M31.4',
+    conf: ['VHS', 'PCR', 'Hemograma completo', 'Creatinina', 'Angio-RM (ou angio-TC) de aorta e seus ramos', 'PET-TC (se disponível)', 'Ecocardiograma', 'Aferição de PA nos quatro membros'],
+    basal: ['PPD ou IGRA', 'Radiografia de tórax (PA e perfil)', 'HBsAg', 'Anti-HBc total', 'Anti-HBs', 'Anti-HCV', 'Anti-HIV', 'Beta-HCG (se potencial gestacional)'],
+    etapas: [
+      { id: 'inicial', label: '1ª linha — corticoide + poupador', sub: 'imunossupressor em toda TAK ativa', itens: [
+        { m: 'Prednisona 20 mg', p: 'Tomar 2 a 3 comprimidos por via oral 1x/dia (40-60 mg/dia) na TAK ativa. Reduzir para 15-20 mg/dia em 2-3 meses; buscar suspensão em 12-18 meses. Individualizar após recaída. (EULAR 2025)', q: 'conforme esquema' },
+        { m: 'Metotrexato 2,5 mg', p: 'DMARD não biológico associado em TODA TAK ativa (alternativas: azatioprina, leflunomida). Ajustar a dose e associar ácido fólico. Exige rastreio infeccioso.', ceaf: true },
+        { m: 'Carbonato de cálcio 500 mg + vitamina D', p: '1 comprimido por via oral de 12/12h (proteção óssea sob corticoide).', q: '60 comprimidos' }] },
+      { id: 'base', label: '2ª linha — refratária/recorrente', sub: 'apesar do convencional', itens: [
+        { m: 'Tocilizumabe OU inibidor de TNF (infliximabe/adalimumabe)', p: 'Associar ao convencional na TAK refratária ou recorrente. Exige rastreio infeccioso e LME. (EULAR 2025)', ceaf: true }] },
     ],
   },
 
@@ -411,7 +426,7 @@ export const D: Diseases = {
 export const ORDER: [string, string[]][] = [
   ['Parte I — Artrites inflamatórias', ['ar', 'aps', 'ea', 'reativa']],
   ['Parte II — Autoimunes sistêmicas', ['les', 'sjogren', 'esclerose', 'miopatias', 'saf']],
-  ['Parte III — Vasculites', ['pmr', 'acg', 'anca']],
+  ['Parte III — Vasculites', ['pmr', 'acg', 'takayasu', 'anca']],
   ['Parte IV — Metabólicas e degenerativas', ['gota', 'pseudogota', 'osteoartrite']],
   ['Parte V — Ósseo e outras', ['osteoporose', 'fibromialgia', 'febre', 'chikungunya']],
   ['Parte VI — Dor, pediátrica e autoinflamatórias', ['miofascial', 'sdcr', 'fadiga', 'aij', 'fmf']],

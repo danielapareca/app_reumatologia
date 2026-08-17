@@ -994,6 +994,54 @@ export const GROUNDING: GroundingChunk[] = [
     "topico": "Referência (caderno)",
     "fonte": "Dr. Willian Inácio — documento de trabalho (validar antes de publicar)",
     "texto": "Complemento de referência (transcrição do caderno): artropatia por chikungunya com fase aguda febril e poliartralgia/poliartrite simétrica que pode persistir por meses (subaguda/crônica); manejo sintomático na fase aguda (evitar AINE/AAS até excluir dengue) e avaliação reumatológica na persistência. Validar detalhes com o Dr. Willian."
+  },
+  {
+    "id": "takayasu-diag",
+    "doenca": "Arterite de Takayasu",
+    "cid": "M31.4",
+    "topico": "Diagnóstico e encaminhamento",
+    "fonte": "EULAR 2025 (PMR/AGC/Takayasu) — validar antes de publicar",
+    "texto": "Toda suspeita de Takayasu (TAK) deve ser avaliada por especialista com experiência apropriada. Diferente da AGC (encaminhamento urgente em 24h e não atrasar o corticoide), na maioria das suspeitas de TAK é possível aguardar a confirmação diagnóstica. O diagnóstico combina clínica, marcadores de fase aguda (VHS/PCR) e IMAGEM de grandes vasos (angio-RM ou angio-TC de aorta e ramos; PET-TC quando disponível). Aferir a PA nos quatro membros e pesquisar sopros/assimetria de pulsos."
+  },
+  {
+    "id": "takayasu-gc",
+    "doenca": "Arterite de Takayasu",
+    "cid": "M31.4",
+    "topico": "Glicocorticoide",
+    "fonte": "EULAR 2025 — Recomendação 05 (validar antes de publicar)",
+    "texto": "Na TAK ativa recém-diagnosticada, iniciar prednisona/prednisolona 40-60 mg/dia; reduzir para 15-20 mg/dia em 2-3 meses; buscar suspensão em 12-18 meses. Individualizar após recaída. Meta: remissão sem glicocorticoide, sem sacrificar segurança isquêmica. Proteção óssea sob corticoide."
+  },
+  {
+    "id": "takayasu-poupador",
+    "doenca": "Arterite de Takayasu",
+    "cid": "M31.4",
+    "topico": "Imunossupressor poupador",
+    "fonte": "EULAR 2025 — Recomendação 08 (validar antes de publicar)",
+    "texto": "Associar um DMARD não biológico (metotrexato, azatioprina ou leflunomida) a TODOS os pacientes com TAK ativa. Se a doença for recorrente ou refratária apesar do convencional, considerar tocilizumabe ou inibidor de TNF. Exige rastreio infeccioso (TB, hepatites, HIV) antes de imunossupressor/biológico."
+  },
+  {
+    "id": "takayasu-imagem-seguimento",
+    "doenca": "Arterite de Takayasu",
+    "cid": "M31.4",
+    "topico": "Imagem, recaída e seguimento",
+    "fonte": "EULAR 2025 — Recomendações 09 e 12 (validar antes de publicar)",
+    "texto": "Na TAK, a imagem é parte substancial do diagnóstico de atividade e de recaída — não declarar recaída apenas por PCR ou sintomas isolados. Imagem positiva RESIDUAL não equivale automaticamente a atividade (pode ser dano). No seguimento, monitorar sintomas, exame e fase aguda; usar imagem para atividade E dano. Procedimentos vasculares eletivos apenas em remissão estável; dissecção arterial ou isquemia crítica exigem equipe vascular urgente."
+  },
+  {
+    "id": "pmr-w-eular2025",
+    "doenca": "Polimialgia Reumática",
+    "cid": "M35.3",
+    "topico": "Corticoide e poupador (atualização)",
+    "fonte": "EULAR 2025 — Recomendações 03 e 06 (validar antes de publicar)",
+    "texto": "PMR: iniciar prednisona/prednisolona 15-25 mg/dia; chegar a 10 mg/dia em 1-2 meses; buscar suspensão em ~1 ano. Na recaída, retornar pelo menos à última dose eficaz e individualizar. Poupador: bloqueio de IL-6R — tocilizumabe pode ser considerado em casos novos selecionados; na PMR recorrente/refratária preferir sarilumabe (ou tocilizumabe); metotrexato é alternativa quando acesso/segurança limitarem os biológicos."
+  },
+  {
+    "id": "acg-w-eular2025",
+    "doenca": "Arterite de Células Gigantes",
+    "cid": "M31.6",
+    "topico": "Corticoide e poupador (atualização)",
+    "fonte": "EULAR 2025 — Recomendações 02, 04 e 07 (validar antes de publicar)",
+    "texto": "AGC: diante de forte suspeita clínica, iniciar glicocorticoide SEM esperar a biópsia (encaminhamento urgente em até 24h). Iniciar 40-60 mg/dia; reduzir para 15-20 mg/dia em 2-3 meses; buscar suspensão em 12-18 meses. Recaída maior é tratada como doença nova; menor, ao menos com a última dose eficaz. Em perda visual aguda atribuível à AGC, pulsos de metilprednisolona 250-1000 mg/dia por até 3 dias podem ser considerados (benefício incerto). Poupador: tocilizumabe ou upadacitinibe, sobretudo em doença refratária/recorrente ou alto risco de toxicidade por GC; metotrexato é alternativa."
   }
 ];
 

@@ -66,6 +66,21 @@ export async function updatePatient(input: {
   return { ok: true };
 }
 
+// Salva a lista de diagnósticos (doenças) do paciente. Falha silenciosa se a coluna
+// ainda não existir no banco (o app segue funcionando com a doença ativa).
+export async function updateDiagnosticos(patientId: string, diagnosticos: string[]): Promise<SaveConsultaResult> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: 'Sessão expirada.' };
+  const lista = Array.isArray(diagnosticos) ? diagnosticos.filter((x) => typeof x === 'string' && x.trim()).slice(0, 20) : [];
+  const { error } = await supabase.from('patients').update({ diagnosticos: lista }).eq('id', patientId);
+  if (error) {
+    if (error.code === 'PGRST204' || error.code === '42703' || /diagnostic/i.test(error.message)) return { ok: true };
+    return { error: error.message };
+  }
+  return { ok: true };
+}
+
 // Salva uma consulta no histórico do paciente.
 export async function saveConsulta(input: SaveConsultaInput): Promise<SaveConsultaResult> {
   const supabase = createClient();

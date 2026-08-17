@@ -18,6 +18,8 @@ create table if not exists patients (
   endereco text, cidade text, estado text, cep text,
   created_at timestamptz default now()
 );
+-- Lista de diagnósticos (doenças reumatológicas) do paciente — pode ter mais de uma.
+alter table patients add column if not exists diagnosticos jsonb;
 
 -- Endereço detalhado (idempotente, para bancos já criados).
 alter table patients add column if not exists cidade text;

@@ -29,6 +29,7 @@ export interface Patient {
   screening: ScreeningState | null;
   consent_data?: boolean | null;
   consent_data_at?: string | null;
+  diagnosticos?: string[] | null;
   created_at?: string;
 }
 

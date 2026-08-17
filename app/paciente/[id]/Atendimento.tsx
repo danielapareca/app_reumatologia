@@ -31,7 +31,7 @@ import DxaReader from './DxaReader';
 import MedicationTimeline from './MedicationTimeline';
 import AiFeedback from './AiFeedback';
 import AiDocs from './AiDocs';
-import { saveConsulta, updatePatient, setConsent, updateConsulta, deleteConsulta, deletePatient } from './actions';
+import { saveConsulta, updatePatient, setConsent, updateConsulta, deleteConsulta, deletePatient, updateDiagnosticos } from './actions';
 import { addMedEvent } from './medActions';
 import { derivarEventosReceita } from '@/lib/clinical/medsync';
 
@@ -164,6 +164,12 @@ export default function Atendimento({
   })();
   const [curId, setCurId] = useState(faseInicial.id);
   const [curStage, setCurStage] = useState(faseInicial.stage);
+  // Diagnósticos do paciente (pode ter mais de uma doença). O curId é o diagnóstico ATIVO.
+  const [diagnosticos, setDiagnosticos] = useState<string[]>(() => {
+    const base = Array.isArray(patient.diagnosticos) ? patient.diagnosticos.filter((id) => D[id]) : [];
+    if (faseInicial.id && !base.includes(faseInicial.id)) base.unshift(faseInicial.id);
+    return base;
+  });
   const consultaInicial: 'primeira' | 'retorno' = ultimaConsulta
     ? 'retorno'
     : (inicial?.tipo === 'retorno' ? 'retorno' : (inicial?.tipo === 'primeira' ? 'primeira' : defaultQState.consulta));
@@ -410,12 +416,31 @@ export default function Atendimento({
   }, []);
 
   // ---- troca de doença ----
-  function onDiseaseChange(id: string) {
+  // Ativa um diagnóstico (define curId + a etapa da vez).
+  function ativarDiagnostico(id: string) {
     setCurId(id);
     const st = id ? D[id].etapas : [];
-    // primeira consulta → 1ª etapa; retorno → etapa "base".
     const next = Q.consulta === 'retorno' ? (st.find((e) => e.id === 'base') || st[0]) : st[0];
     setCurStage(next ? next.id : '');
+  }
+  // Acrescenta um diagnóstico à lista do paciente e o ativa.
+  function addDiagnostico(id: string) {
+    if (!id || !D[id]) return;
+    setDiagnosticos((prev) => {
+      const nova = prev.includes(id) ? prev : [...prev, id];
+      updateDiagnosticos(patient.id, nova); // persiste (falha silenciosa se coluna ausente)
+      return nova;
+    });
+    ativarDiagnostico(id);
+  }
+  // Remove um diagnóstico da lista.
+  function removeDiagnostico(id: string) {
+    setDiagnosticos((prev) => {
+      const nova = prev.filter((x) => x !== id);
+      updateDiagnosticos(patient.id, nova);
+      if (curId === id) ativarDiagnostico(nova[0] || '');
+      return nova;
+    });
   }
 
   function onConsultaChange(v: 'primeira' | 'retorno') {
@@ -528,6 +553,7 @@ export default function Atendimento({
         doencaId: curId,
         doenca: disease?.n || '',
         cid: disease?.cid || '',
+        diagnosticos: diagnosticos.filter((id) => D[id]).map((id) => D[id].n).join(', '),
         anamneseAtual: {
           hda: [hda, observacoes].filter((x) => x && x.trim()).join('\n'),
           antecedentes: [antecedentes, medList.length ? 'Histórico de medicação: ' + medList
@@ -560,7 +586,8 @@ export default function Atendimento({
   function buildChatContexto(): string {
     const l: string[] = [];
     if (pacNome) l.push(`Paciente: ${pacNome}${pacIdade ? ', ' + pacIdade : ''}`);
-    if (disease) l.push(`Hipótese/doença: ${disease.n} (CID ${disease.cid})`);
+    if (diagnosticos.filter((id) => D[id]).length) l.push(`Diagnósticos do paciente: ${diagnosticos.filter((id) => D[id]).map((id) => D[id].n).join(', ')}${disease ? ` (trabalhando agora: ${disease.n})` : ''}`);
+    else if (disease) l.push(`Hipótese/doença: ${disease.n} (CID ${disease.cid})`);
     if (currentStage?.label) l.push(`Fase/etapa: ${currentStage.label}`);
     if (Q.consulta) l.push(`Tipo de consulta: ${Q.consulta === 'primeira' ? 'primeira' : 'retorno'}`);
     if (hda.trim()) l.push(`HDA: ${hda.trim()}`);
@@ -578,6 +605,7 @@ export default function Atendimento({
     return {
       paciente: pacNome, idade: pacIdade, doencaId: curId,
       doenca: disease?.n || '', cid: disease?.cid || '',
+      diagnosticos: diagnosticos.filter((id) => D[id]).map((id) => D[id].n).join(', '),
       hda: [hda, observacoes].filter((x) => x && x.trim()).join('\n'), antecedentes, exames: examesResumo(),
       etapa: currentStage?.label || '', receita: receitaToText(),
       medico: profile?.nome || '',
@@ -616,6 +644,8 @@ export default function Atendimento({
         endereco: pacEndereco, cidade: pacCidade, estado: pacEstado, cep: pacCep,
       });
       if (up.error) { showFlash(up.error); setSaving(false); return; }
+      // Persiste a lista de diagnósticos do paciente (falha silenciosa se a coluna não existir).
+      if (diagnosticos.length) updateDiagnosticos(patient.id, diagnosticos);
 
       const lmeJson: LmeJson | null = stageHasCeaf ? {
         cnes: lme.cnes, estab: lme.estab, paciente: lme.paciente, mae: lme.mae,
@@ -776,18 +806,31 @@ export default function Atendimento({
           </div>
 
           <div className="block picker">
-            <p className="eyebrow"><Icon name="stethoscope" size={14} /> Doença ativa</p>
-            <div className="chips" style={{ marginBottom: 9 }}>
-              {DOENCAS_COMUNS.filter(([id]) => D[id]).map(([id, lbl]) => (
-                <span key={id} className={'chip' + (curId === id ? ' on' : '')} onClick={() => onDiseaseChange(id)}>{lbl}</span>
+            <p className="eyebrow"><Icon name="stethoscope" size={14} /> Diagnósticos do paciente</p>
+            {diagnosticos.length > 0 && (
+              <div className="diag-list">
+                {diagnosticos.filter((id) => D[id]).map((id) => (
+                  <span key={id} className={'diag-chip' + (curId === id ? ' on' : '')} onClick={() => ativarDiagnostico(id)} title={curId === id ? 'Diagnóstico ativo (conduta/receita)' : 'Tocar para tornar ativo'}>
+                    {curId === id && <span className="diag-dot" />}{D[id].n}
+                    <button className="diag-x" onClick={(e) => { e.stopPropagation(); removeDiagnostico(id); }} title="Remover diagnóstico">×</button>
+                  </span>
+                ))}
+              </div>
+            )}
+            {diagnosticos.length > 1 && (
+              <p className="diag-hint">Conduta e receita para o <b>ativo</b> ({disease?.n}). Toque em outro diagnóstico para alternar.</p>
+            )}
+            <label style={{ marginTop: 8 }}>{diagnosticos.length ? 'Acrescentar outra doença' : 'Selecione a doença'}</label>
+            <div className="chips" style={{ margin: '4px 0 8px' }}>
+              {DOENCAS_COMUNS.filter(([id]) => D[id] && !diagnosticos.includes(id)).map(([id, lbl]) => (
+                <span key={id} className="chip" onClick={() => addDiagnostico(id)}>+ {lbl}</span>
               ))}
             </div>
-            <label>Ou selecione na lista completa</label>
-            <select className="doenca" value={curId} onChange={(e) => onDiseaseChange(e.target.value)}>
-              <option value="">— escolha a doença —</option>
+            <select className="doenca" value="" onChange={(e) => { if (e.target.value) addDiagnostico(e.target.value); }}>
+              <option value="">— adicionar da lista completa —</option>
               {ORDER.map(([grp, ids]) => (
                 <optgroup key={grp} label={grp}>
-                  {ids.map((id) => <option key={id} value={id}>{D[id].n}</option>)}
+                  {ids.filter((id) => !diagnosticos.includes(id)).map((id) => <option key={id} value={id}>{D[id].n}</option>)}
                 </optgroup>
               ))}
             </select>

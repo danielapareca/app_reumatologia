@@ -78,6 +78,15 @@ details.acc .inner{padding:2px 0 12px}
 select.doenca{display:block; width:100%; max-width:100%; box-sizing:border-box; font-size:15px; padding:12px 12px; font-weight:600; border:1px solid var(--line); border-radius:var(--r-sm); background:#fff; color:var(--ink)}
 select.doenca:focus{outline:none; border-color:var(--gold); box-shadow:0 0 0 3px var(--gold-soft)}
 .picker label{font-size:11px; letter-spacing:.04em; text-transform:uppercase; color:var(--faint); font-weight:700; margin-bottom:5px; display:block}
+.diag-list{display:flex; flex-wrap:wrap; gap:7px; margin-bottom:8px}
+.diag-chip{display:inline-flex; align-items:center; gap:6px; border:1px solid var(--line); background:#fff; border-radius:999px; padding:6px 8px 6px 12px; font-size:12.5px; font-weight:600; color:var(--muted); cursor:pointer}
+.diag-chip.on{border-color:var(--navy); background:var(--navy); color:#fff}
+.diag-dot{width:7px; height:7px; border-radius:50%; background:var(--gold)}
+.diag-x{border:none; background:rgba(0,0,0,.06); color:inherit; width:18px; height:18px; border-radius:50%; cursor:pointer; font-size:14px; line-height:1; display:flex; align-items:center; justify-content:center}
+.diag-chip.on .diag-x{background:rgba(255,255,255,.22)}
+.diag-x:hover{background:var(--red); color:#fff}
+.diag-hint{font-size:11.5px; color:var(--muted); margin:2px 0 0; line-height:1.4}
+.diag-hint b{color:var(--gold-600)}
 
 /* chips */
 .chips{display:flex; flex-wrap:wrap; gap:6px}

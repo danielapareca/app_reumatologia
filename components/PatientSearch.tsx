@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import Icon from '@/components/Icon';
 import type { Patient } from '@/lib/types';
+import { D } from '@/lib/clinical/diseases';
 import { diasDesde, haQuantoTempo, DIAS_RETORNO_ATRASADO, iniciais } from '@/lib/util';
 
 export interface PatientSummary {
@@ -92,11 +93,15 @@ export default function PatientSearch({
                 <span className="pt-item-body">
                   <span className="pt-item-top">
                     <span className="nm">{p.nome}</span>
-                    {r?.doencaNome && (
+                    {Array.isArray(p.diagnosticos) && p.diagnosticos.filter((id) => D[id]).length > 0 ? (
+                      p.diagnosticos.filter((id) => D[id]).map((id) => (
+                        <span key={id} className="pt-badge">{D[id].n}</span>
+                      ))
+                    ) : (r?.doencaNome && (
                       <span className="pt-badge">
                         {r.doencaNome}{r.etapa ? ' · ' + r.etapa : ''}
                       </span>
-                    )}
+                    ))}
                     {atras && <span className="pt-badge atrasado">retorno atrasado</span>}
                   </span>
                   <span className="mt">

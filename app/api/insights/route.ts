@@ -27,6 +27,7 @@ interface InsightsInput {
   doencaId: string;
   doenca: string;
   cid: string;
+  diagnosticos?: string;
   anamneseAtual: {
     hda: string;
     antecedentes: string;
@@ -89,7 +90,8 @@ function montarPrompt(input: InsightsInput): string {
 
   linhas.push('===== DADOS DO PACIENTE =====');
   linhas.push(`Paciente: ${input.paciente || '(não informado)'} · Idade: ${input.idade || '(não informada)'}`);
-  linhas.push(`Doença de trabalho: ${input.doenca || '(não definida)'}${input.cid ? ' (CID ' + input.cid + ')' : ''}`);
+  if (input.diagnosticos && input.diagnosticos.trim()) linhas.push(`Diagnósticos do paciente (pode ter mais de uma doença): ${input.diagnosticos}`);
+  linhas.push(`Doença de trabalho (foco desta conduta): ${input.doenca || '(não definida)'}${input.cid ? ' (CID ' + input.cid + ')' : ''}`);
   linhas.push('');
   linhas.push('== Anamnese / dados da consulta atual ==');
   linhas.push(`História da doença atual: ${input.anamneseAtual.hda || '(vazio)'}`);

@@ -6,8 +6,9 @@ import { limiteAtingido, registrarUso } from '@/lib/aiUsage';
 export const runtime = 'nodejs';
 export const maxDuration = 60;
 
-// Leitura usa modelo mais barato (Sonnet); raciocínio clínico segue no Opus.
-const MODEL = process.env.ANTHROPIC_MODEL_LEITURA || 'claude-sonnet-5';
+// Leitura de laudo. Padrão: mesmo modelo do app (Opus). Para usar um modelo mais barato,
+// definir ANTHROPIC_MODEL_LEITURA no servidor (ex.: claude-sonnet-5) APÓS confirmar o acesso.
+const MODEL = process.env.ANTHROPIC_MODEL_LEITURA || process.env.ANTHROPIC_MODEL || 'claude-opus-4-8';
 const IMG_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'] as const;
 type ImgType = (typeof IMG_TYPES)[number];
 

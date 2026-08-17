@@ -7,7 +7,7 @@ export const runtime = 'nodejs';
 export const maxDuration = 60;
 
 // Lê o LAUDO (texto) de um exame de imagem — NÃO analisa a imagem radiológica.
-const MODEL = process.env.ANTHROPIC_MODEL_LEITURA || 'claude-sonnet-5';
+const MODEL = process.env.ANTHROPIC_MODEL_LEITURA || process.env.ANTHROPIC_MODEL || 'claude-opus-4-8';
 const IMG_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'] as const;
 type ImgType = (typeof IMG_TYPES)[number];
 

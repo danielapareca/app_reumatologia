@@ -30,6 +30,19 @@ export function iniciais(nome: string): string {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
+// Capitaliza nome próprio para documentos (receita/cabeçalho), mesmo que salvo em
+// minúsculo ou maiúsculo. Mantém conectores (de, da, do, e...) em minúsculo.
+export function nomeProprio(nome: string | null | undefined): string {
+  const s = (nome || '').trim();
+  if (!s) return '';
+  const conect = new Set(['de', 'da', 'do', 'dos', 'das', 'e', 'di', 'du', 'del', 'la', 'van', 'von', 'y']);
+  const cap = (p: string) => (p ? p.charAt(0).toLocaleUpperCase('pt-BR') + p.slice(1) : p);
+  return s.toLocaleLowerCase('pt-BR').split(/\s+/).map((w, i) => {
+    if (i > 0 && conect.has(w)) return w;
+    return w.split('-').map(cap).join('-'); // capitaliza cada parte de nomes com hífen
+  }).join(' ');
+}
+
 // Calcula a idade em anos a partir da data de nascimento (YYYY-MM-DD).
 export function idadeFromNascimento(nascimento: string): string {
   if (!nascimento) return '';

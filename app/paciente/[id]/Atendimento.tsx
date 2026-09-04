@@ -10,7 +10,7 @@ import { scanText } from '@/lib/clinical/insights';
 import { ANAM, jointScoreCat, computeAnamInsight, computeGenericAnamInsight, type AnamState } from '@/lib/clinical/anamnese';
 import { defaultQState, type QState, type RxItem } from '@/lib/clinical/types';
 import type { Patient, Profile, Consulta, LmeJson, ExamValue, MedicationEvent } from '@/lib/types';
-import { idadeFromNascimento, diasDesde, haQuantoTempo } from '@/lib/util';
+import { idadeFromNascimento, diasDesde, haQuantoTempo, nomeProprio } from '@/lib/util';
 import { computeMonitorAlerts } from '@/lib/clinical/monitor';
 import { redFlagsParaDoenca } from '@/lib/clinical/redflags';
 import { checkInteracoes } from '@/lib/clinical/interactions';
@@ -389,7 +389,7 @@ export default function Atendimento({
       cid: disease?.cid || '',
       diagnostico: disease?.n || '',
       anamnese: hda,
-      medico: profile?.nome || '',
+      medico: nomeProprio(profile?.nome),
       cnsMed: profile?.cns_medico || '',
       data: pacData,
       telefone: pacWhats,
@@ -1630,7 +1630,7 @@ function Letterhead({ profile }: { profile: Profile | null }) {
   const crmSep = profile?.crm ? ' · ' + profile.crm : '';
   return (
     <div className="letterhead">
-      <div className="lh-name">{profile?.nome || ''}</div>
+      <div className="lh-name">{nomeProprio(profile?.nome)}</div>
       <div className="lh-sub">{profile?.especialidade || 'Reumatologia'}{crmSep}</div>
       {profile?.clinica && <div className="lh-clin">{profile.clinica}</div>}
       {profile?.endereco && <div className="lh-end">{profile.endereco}</div>}
@@ -1656,7 +1656,7 @@ function Signature({ profile, localCidade, data }: { profile: Profile | null; no
       <div className="localdata">{localdata}</div>
       <div className="assinatura">
         <div className="line" />
-        <div className="an">{profile?.nome || ''}</div>
+        <div className="an">{nomeProprio(profile?.nome)}</div>
         <div className="ac">{(profile?.especialidade || 'Reumatologia') + crmSep}</div>
       </div>
     </>
